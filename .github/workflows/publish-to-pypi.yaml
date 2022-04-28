@@ -1,0 +1,29 @@
+name: deploy
+
+on: push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-n-publish:
+    runs-on: ["self-hosted", "linux", "docker", "ubuntu20.04", "python3"]
+    timeout-minutes: 20
+    if: startsWith(github.event.ref, 'refs/tags')
+    steps:
+    - name: checkout main
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: update setuptools
+      run: pip3 install setuptools --upgrade
+    - name: make dist
+      run: |
+          python3 setup.py sdist
+    - name: publish distribution to PyPI
+      env:
+          PYPI_USER: ${{ secrets.PYPI_USER }}
+          PYPI_PW: ${{ secrets.PYPI_PW}}
+      run: |
+        pip3 install twine
+        twine upload --repository-url https://pypi.sia-service.kr/ dist/* -u ${PYPI_USER} -p ${PYPI_PW}
