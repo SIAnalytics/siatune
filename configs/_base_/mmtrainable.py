@@ -1,0 +1,1 @@
+trainable = dict(backend='nccl')

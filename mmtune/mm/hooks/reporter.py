@@ -7,6 +7,7 @@ from torch import distributed as dist
 
 @HOOKS.register_module()
 class RayTuneLoggerHook(LoggerHook):
+
     def __init__(
         self,
         interval=1,
@@ -15,8 +16,8 @@ class RayTuneLoggerHook(LoggerHook):
         by_epoch=False,
         filtering_key='val',
     ):
-        super(RayLoggerHook, self).__init__(interval, ignore_last, reset_flag,
-                                            by_epoch)
+        super(RayTuneLoggerHook, self).__init__(interval, ignore_last,
+                                                reset_flag, by_epoch)
         self.filtering_key = filtering_key
 
     def log(self, runner):

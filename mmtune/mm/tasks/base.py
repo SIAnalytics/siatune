@@ -1,49 +1,53 @@
+import argparse
 from abc import ABCMeta, abstractmethod
+from typing import Any, Callable, List, Optional
 
-from mmcv.utils.config import DELETE_KEY, Config, ConfigDict
+import ray
+from mmcv.utils.config import Config
+
+from mmtune.mm.context import ContextManager
+from mmtune.utils import ImmutableContainer
+from .builder import TASK
 
 
+@TASK.register_module()
 class BaseTask(metaclass=ABCMeta):
     """Wrap the apis of target task."""
-    @staticmethod
-    def insert_dict(src: dict, dst: dict, allow_list_keys: Union[list, dict, bool]=False):
-        dst = dst.copy()
-        for k, v in src.items():
-            if allow_list_keys and k.isdigit() and isinstance(dst, list):
-                k = int(k)
-                if len(dst) <= k:
-                    raise KeyError(f'Index {k} exceeds the length of list {b}')
-                dst[k] = BaseTask.insert_config(v, dst[k], allow_list_keys) if if hasattr(dst[k], 'copy') else v
-            elif isinstance(v, dict):
-                if k in dst and not v.pop(DELETE_KEY, False):
-                    allowed_types = (dict, list) if allow_list_keys else dict
-                    if not isinstance(dst[k], allowed_types):
-                        raise TypeError(
-                            f'{k}={v} in child config cannot inherit from '
-                            f'base because {k} is a dict in the child config '
-                            f'but is of type {type(dst[k])} in base config. '
-                            f'You may set `{DELETE_KEY}=True` to ignore the '
-                            f'base config.')
-                    dst[k] = BaseTask.insert_config(v, dst[k], allow_list_keys)
-                else:
-                    dst[k] = ConfigDict(v)
-            else:
-                dst[k] = v
-        return dst
+    BASE_CFG: Optional[ImmutableContainer] = None
+    ARGS: Optional[argparse.Namespace] = None
+    REWRITERS: List[dict] = []
 
     @staticmethod
-    def merge_dict_semantically(src: dict, dst: dict, allow_list_keys=True):
-        unpacked_src = {}
-        for full_key, v in src.items():
-            d = unpacked_src
-            key_list = full_key.split('.')
-            for subkey in key_list[:-1]:
-                d.setdefault(subkey, ConfigDict())
-                d = d[subkey]
-            subkey = key_list[-1]
-            d[subkey] = v
+    def set_base_cfg(base_cfg: Config) -> None:
+        BaseTask.BASE_CFG = ImmutableContainer(base_cfg, 'base')
 
-        return Config(_merge_a_into_b(unpacked_src,
-                                      dst.__getattribute__('_cfg_dict'),
-                                      allow_list_keys=allow_list_keys), cfg_text=dst.text,
-                      filename=dst.filename)
+    @staticmethod
+    def set_args(args: argparse.Namespace) -> None:
+        BaseTask.ARGS = args
+
+    @staticmethod
+    def set_rewriters(rewriters: List[dict] = []) -> None:
+        BaseTask.REWRITERS = rewriters
+
+    @abstractmethod
+    @staticmethod
+    def add_arguments(
+        parser: Optional[argparse.ArgumentParser] = None
+    ) -> argparse.ArgumentParser:
+        pass
+
+    def _change_context(run: Callable):
+        context_manager = ContextManager(BaseTask.BASE_CFG, BaseTask.ARGS,
+                                         BaseTask.REWRITERS)
+        return context_manager(run)
+
+    @abstractmethod
+    @staticmethod
+    @_change_context
+    def run(*args, **kwargs) -> Any:
+        pass
+
+    @abstractmethod
+    @staticmethod
+    def create_trainable(*args, **kwargs) -> ray.tune.Trainable:
+        pass
