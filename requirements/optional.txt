@@ -1,0 +1,8 @@
+bayesian-optimization
+flaml
+hyperopt
+mlflow
+nevergrad
+optuna
+scikit-optimize
+sklearn

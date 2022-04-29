@@ -13,6 +13,7 @@ from ray.tune.integration.torch import distributed_checkpoint_dir
 
 @HOOKS.register_module()
 class RayCheckpointHook(_CheckpointHook):
+
     def get_iter(self, runner, inner_iter=False):
         """Get the current training iteration step."""
         if self.by_epoch and inner_iter:
