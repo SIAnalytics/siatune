@@ -1,4 +1,5 @@
-from typing import Callable
+import argparse
+from typing import Callable, Optional
 
 from .base import BaseTask
 from .builder import TASK
@@ -6,6 +7,15 @@ from .builder import TASK
 
 @TASK.register_module()
 class BloackBoxTask(BaseTask):
+
+    @staticmethod
+    def add_arguments(
+        parser: Optional[argparse.ArgumentParser] = None
+    ) -> argparse.ArgumentParser:
+
+        if parser is None:
+            parser = argparse.ArgumentParser(description='Train a segmentor')
+        return parser
 
     @staticmethod
     def create_trainable() -> Callable:

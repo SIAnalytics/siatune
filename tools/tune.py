@@ -15,7 +15,8 @@ assert TASK_NAME is not None
 def parse_args(task_processor: BaseTask) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
-    parser.add_argument('task_config', help='taks config file path')
+    parser.add_argument(
+        '--task_config', default=None, help='taks config file path')
     parser = task_processor.add_arguments(parser)
     parser.add_argument(
         '--address',
@@ -58,7 +59,9 @@ def main():
 
     args = parse_args(task_processor)
     tune_config = mmcv.Config.fromfile(args.tune_config)
-    task_config = mmcv.Config.fromfile(args.task_config)
+    task_config = mmcv.Config(
+        dict()) if args.task_config is None else mmcv.Config.fromfile(
+            args.task_config)
     task_processor.set_base_cfg(task_config)
 
     file_name = osp.splitext(osp.basename(args.config))[0]

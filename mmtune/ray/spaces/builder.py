@@ -11,7 +11,7 @@ SPACE = Registry('space')
 
 def register_space(space: Callable) -> None:
 
-    @SPACE.register_module(name=space.__name__)
+    @SPACE.register_module(name=space.__name__.capitalize())
     class _ImplicitSpace(BaseSpace):
 
         def __init__(self, *args, **kwargs):
