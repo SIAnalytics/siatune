@@ -3,10 +3,10 @@ from os import path as osp
 
 import ray
 
-from .builder import REWRITER
+from .builder import REWRITERS
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class Dump:
 
     @staticmethod

@@ -1,6 +1,6 @@
 from mmcv.utils import Config, Registry
 
-REWRITERS = Registry('rewriter')
+REWRITERS = Registry('rewriters')
 
 
 def build_rewriter(cfg: Config) -> object:

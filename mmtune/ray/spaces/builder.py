@@ -6,12 +6,12 @@ from ray.tune import sample
 
 from .base import BaseSpace
 
-SPACE = Registry('space')
+SPACES = Registry('spaces')
 
 
 def register_space(space: Callable) -> None:
 
-    @SPACE.register_module(name=space.__name__.capitalize())
+    @SPACES.register_module(name=space.__name__.capitalize())
     class _ImplicitSpace(BaseSpace):
 
         def __init__(self, *args, **kwargs):
@@ -25,4 +25,4 @@ for space in dir(sample):
 
 
 def build_space(cfgs: dict) -> dict:
-    return {k: SPACE.build(cfg) for k, cfg in cfgs}
+    return {k: SPACES.build(cfg) for k, cfg in cfgs}

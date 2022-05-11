@@ -1,3 +1,4 @@
-from .builder import ALGORITHM, build_algorithm
+from .builder import SEARCHERS, build_searcher
+from .nevergrad import NevergradSearch
 
-__all__ = ['ALGORITHM', 'build_algorithm']
+__all__ = ['SEARCHERS', 'build_searcher']

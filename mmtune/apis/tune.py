@@ -4,7 +4,7 @@ import mmcv
 from mmcv.utils import Config
 from ray import tune
 
-from mmtune.mm import BaseTask
+from mmtune.mm.tasks import BaseTask
 from mmtune.ray.algorithms import build_searcher
 from mmtune.ray.schedulers import build_scheduler
 from mmtune.ray.spaces import build_space

@@ -7,10 +7,10 @@ from mmcv.utils.config import Config
 
 from mmtune.mm.context import ContextManager
 from mmtune.utils import ImmutableContainer
-from .builder import TASK
+from .builder import TASKS
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class BaseTask(metaclass=ABCMeta):
     """Wrap the apis of target task."""
     BASE_CFG: Optional[ImmutableContainer] = None

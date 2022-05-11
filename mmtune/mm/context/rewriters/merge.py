@@ -3,10 +3,10 @@ from typing import Union
 from mmcv.utils import Config, ConfigDict
 from mmcv.utils.config import DELETE_KEY
 
-from .builder import REWRITER
+from .builder import REWRITERS
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class ConfigMerger:
 
     @staticmethod

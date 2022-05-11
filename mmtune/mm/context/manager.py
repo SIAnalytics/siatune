@@ -3,8 +3,7 @@ import collections
 from typing import List, Optional
 
 from mmcv.utils import Config
-
-from .builder import build_rewriter
+from rewriters.builder import build_rewriter
 
 
 class ContextManager:

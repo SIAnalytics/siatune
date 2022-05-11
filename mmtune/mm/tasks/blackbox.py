@@ -2,10 +2,10 @@ import argparse
 from typing import Callable, Optional
 
 from .base import BaseTask
-from .builder import TASK
+from .builder import TASKS
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class BloackBoxTask(BaseTask):
 
     @staticmethod

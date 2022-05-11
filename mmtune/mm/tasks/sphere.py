@@ -2,10 +2,10 @@ import numpy as np
 import ray
 from mmcv.utils import Config
 
-from .builder import TASK
+from .builder import TASKS
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class Sphere:
 
     @staticmethod

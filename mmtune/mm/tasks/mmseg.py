@@ -15,11 +15,11 @@ from mmseg import __version__
 from mmseg.apis import init_random_seed, set_random_seed
 from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
 
-from .builder import TASK
+from .builder import TASKS
 from .mmcodebase import MMTrainBasedTask
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class MMSegmentation(MMTrainBasedTask):
 
     @staticmethod

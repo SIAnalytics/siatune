@@ -1,6 +1,6 @@
 import re
 
-from .builder import REWRITER
+from .builder import REWRITERS
 
 WRAPPING_REGEXP = r'^\$\((.*)\)$'
 
@@ -14,7 +14,7 @@ def unwrap_regexp(value, regexp=WRAPPING_REGEXP):
     return value, bool(searched)
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class BatchConfigPathcer:
 
     def __call__(self, context: dict):
@@ -32,7 +32,7 @@ class BatchConfigPathcer:
         return context
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class SequeunceConfigPathcer:
 
     def __call__(self, context: dict):

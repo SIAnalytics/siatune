@@ -4,7 +4,7 @@ from ray.tune.result import DEFAULT_METRIC
 from ray.tune.suggest import Searcher
 from ray.tune.suggest.nevergrad import NevergradSearch as _NevergradSearch
 
-from .builder import SEARCH_ALGORITHM
+from .builder import SEARCHERS
 
 try:
     import nevergrad as ng
@@ -20,7 +20,7 @@ except ImportError:
     optimizer_registry = dict()
 
 
-@SEARCH_ALGORITHM.register_module(force=True)
+@SEARCHERS.register_module(force=True)
 class NevergradSearch(_NevergradSearch, Searcher):
 
     def __init__(self,

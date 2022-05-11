@@ -7,10 +7,10 @@ import torch
 from ray.tune.integration.tensorflow import DistributedTrainableCreator
 
 from .base import BaseTask
-from .builder import TASK
+from .builder import TASKS
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class MMTrainBasedTask(BaseTask):
 
     @staticmethod
