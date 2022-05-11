@@ -29,8 +29,8 @@ class BaseTask(metaclass=ABCMeta):
     def set_rewriters(rewriters: List[dict] = []) -> None:
         BaseTask.REWRITERS = rewriters
 
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def add_arguments(
         parser: Optional[argparse.ArgumentParser] = None
     ) -> argparse.ArgumentParser:
@@ -41,13 +41,13 @@ class BaseTask(metaclass=ABCMeta):
                                          BaseTask.REWRITERS)
         return context_manager(run)
 
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     @_change_context
     def run(*args, **kwargs) -> Any:
         pass
 
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def create_trainable(*args, **kwargs) -> ray.tune.Trainable:
         pass

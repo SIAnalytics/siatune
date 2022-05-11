@@ -11,12 +11,9 @@ import torch
 import torch.distributed as dist
 from mmcv.runner import get_dist_info
 from mmcv.utils import Config, DictAction, get_git_hash
-from mmseg import __version__
-from mmseg.apis import init_random_seed, set_random_seed
-from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
 
 from .builder import TASKS
-from .mmcodebase import MMTrainBasedTask
+from .mmtrainbase import MMTrainBasedTask
 
 
 @TASKS.register_module()
@@ -97,6 +94,9 @@ class MMSegmentation(MMTrainBasedTask):
 
     @staticmethod
     def run(*args, **kwargs):
+        from mmseg import __version__
+        from mmseg.apis import init_random_seed, set_random_seed
+        from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
         args = kwargs['args']
 
         cfg = Config.fromfile(args.config)

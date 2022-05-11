@@ -64,7 +64,7 @@ def main():
             args.task_config)
     task_processor.set_base_cfg(task_config)
 
-    file_name = osp.splitext(osp.basename(args.config))[0]
+    file_name = osp.splitext(osp.basename(args.tune_config))[0]
     """
     work_dir is determined in this priority:
     CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
@@ -87,3 +87,6 @@ def main():
     log_analysis(
         tune(task_processor, tune_config, exp_name), tune_config, task_config,
         analysis_dir)
+
+if __name__ == '__main__';
+    main()

@@ -3,7 +3,8 @@ import collections
 from typing import List, Optional
 
 from mmcv.utils import Config
-from rewriters.builder import build_rewriter
+
+from .rewriters.builder import build_rewriter
 
 
 class ContextManager:
@@ -27,8 +28,8 @@ class ContextManager:
 
     def __call__(self, func):
 
-        def inner(*largs, **kwargs):
-            kwargs['searched_cfg'] = largs.pop()
+        def inner(*tpargs, **kwargs):
+            kwargs['searched_cfg'] = tpargs[0]
             kwargs['base_cfg'] = self.base_cfg
             kwargs['args'] = self.args
 

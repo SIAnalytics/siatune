@@ -18,11 +18,12 @@ def register_space(space: Callable) -> None:
             self._space = space(*args, **kwargs)
 
 
-for space in dir(sample):
+for space_name in dir(sample):
+    space = getattr(sample, space_name)
     if not inspect.isfunction(space):
         continue
     register_space(space)
 
 
 def build_space(cfgs: dict) -> dict:
-    return {k: SPACES.build(cfg) for k, cfg in cfgs}
+    return {k: SPACES.build(cfg).space for k, cfg in cfgs.items()}

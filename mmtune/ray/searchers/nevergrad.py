@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Type, Union
 
 from ray.tune.result import DEFAULT_METRIC
 from ray.tune.suggest import Searcher
@@ -29,18 +29,20 @@ class NevergradSearch(_NevergradSearch, Searcher):
                  metric: Optional[str] = None,
                  mode: Optional[str] = None,
                  points_to_evaluate: Optional[List[Dict]] = None,
-                 max_concurrent: Optional[int] = None,
+                 num_workers: int = 1,
                  budget: Optional[int] = None,
                  **kwargs):
         assert optimizer in optimizer_registry, f'{optimizer} is not registered'
+        optimizer = optimizer_registry[optimizer]
         self._budget = budget
+        self._num_workers = num_workers
         super(NevergradSearch, self).__init__(
             optimizer=optimizer,
             space=space,
             metric=metric,
             mode=mode,
             points_to_evaluate=points_to_evaluate,
-            max_concurrent=max_concurrent,
+            max_concurrent=None,
             **kwargs)
 
     def _setup_nevergrad(self):
@@ -48,7 +50,7 @@ class NevergradSearch(_NevergradSearch, Searcher):
             self._nevergrad_opt = self._opt_factory(
                 parametrization=self._space,
                 budget=self._budget,
-                num_workers=self.max_concurrent)
+                num_workers=self._num_workers)
 
         # nevergrad.tell internally minimizes, so "max" => -1
         if self._mode == 'max':

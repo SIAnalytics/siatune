@@ -7,7 +7,7 @@ from .base import BaseSpace
 from .builder import SPACES
 
 
-@SPACES.register_module()
+@SPACES.register_module(force=True)
 class Choice(BaseSpace):
 
     def __init__(self,

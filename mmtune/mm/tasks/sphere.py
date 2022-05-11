@@ -2,11 +2,12 @@ import numpy as np
 import ray
 from mmcv.utils import Config
 
+from .blackbox import BloackBoxTask
 from .builder import TASKS
 
 
 @TASKS.register_module()
-class Sphere:
+class Sphere(BloackBoxTask):
 
     @staticmethod
     def run(*args, **kwargs):
@@ -14,7 +15,7 @@ class Sphere:
         cfg = Config.fromfile(args.config)
 
         inputs = []
-        for k, v in cfg:
+        for k, v in cfg.items():
             if k.startswith('_variable'):
                 inputs.append(v)
         inputs = np.array(inputs)

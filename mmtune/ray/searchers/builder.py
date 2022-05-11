@@ -4,5 +4,5 @@ from ray import tune
 SEARCHERS = Registry('searchers')
 
 
-def build_SEARCHER(cfg: Config) -> tune.suggest.Searcher:
+def build_searcher(cfg: Config) -> tune.suggest.Searcher:
     return SEARCHERS.build(cfg)

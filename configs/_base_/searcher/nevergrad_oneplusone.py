@@ -1,5 +1,5 @@
 searcher = dict(
     type='NevergradSearch',
-    max_concurrent=16,
+    num_workers=16,
     budget=256,
 )
