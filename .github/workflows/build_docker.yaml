@@ -1,14 +1,15 @@
-name: Build & Push Docker Image CI
+name: Build & Push Docker Image
 on:
   push:
     branches:
       - 'master'
-      - 'release'
+      - 'test/*'
     tags:
       - '**'
-  pull_request:
-    branches:
-      - 'master'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DOCKERFILE_PATH: "./docker/Dockerfile"
