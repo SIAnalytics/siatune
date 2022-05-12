@@ -18,7 +18,7 @@ def unwrap_regexp(value, regexp=WRAPPING_REGEXP):
 class BatchConfigPathcer:
 
     def __call__(self, context: dict):
-        cfg = context['searced_cfg']
+        cfg = context['searched_cfg']
 
         for key, value in cfg.items():
             inner_key, is_wrapped = unwrap_regexp(key)
@@ -36,7 +36,7 @@ class BatchConfigPathcer:
 class SequeunceConfigPathcer:
 
     def __call__(self, context: dict):
-        cfg = context['searced_cfg']
+        cfg = context['searched_cfg']
 
         for key, value in cfg.items():
             inner_key, is_wrapped = unwrap_regexp(key)

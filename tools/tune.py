@@ -70,8 +70,8 @@ def main():
     CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
     """
     args.work_dir = getattr(args, 'work_dir', '') or getattr(
-        tune_config, 'work_dir', '') or getattr(task_config, 'work_dir',
-                                                '') or file_name
+        tune_config, 'work_dir', '') or getattr(
+            task_config, 'work_dir', '') or osp.join('./work_dirs', file_name)
     mmcv.mkdir_or_exist(args.work_dir)
     task_processor.set_args(args)
     task_processor.set_rewriters(getattr(tune_config, 'rewriters', []))
@@ -88,5 +88,6 @@ def main():
         tune(task_processor, tune_config, exp_name), tune_config, task_config,
         analysis_dir)
 
-if __name__ == '__main__';
+
+if __name__ == '__main__':
     main()

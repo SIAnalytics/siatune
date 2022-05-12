@@ -10,8 +10,6 @@ from mmtune.ray.searchers import build_searcher
 from mmtune.ray.spaces import build_space
 from mmtune.ray.stoppers import build_stopper
 
-ARTIFACT_DIR_NAME = 'artifact'
-
 
 def tune(task_processor: BaseTask, tune_config: Config,
          exp_name: str) -> ray.tune.ExperimentAnalysis:
@@ -21,8 +19,7 @@ def tune(task_processor: BaseTask, tune_config: Config,
     assert hasattr(tune_config, 'metric')
     assert hasattr(tune_config, 'mode') and tune_config.mode in ['min', 'mode']
 
-    tune_artifact_dir = osp.join(task_processor.ARGS.work_dir,
-                                 ARTIFACT_DIR_NAME)
+    tune_artifact_dir = osp.join(task_processor.ARGS.work_dir, 'artifact')
     mmcv.mkdir_or_exist(tune_artifact_dir)
 
     return ray.tune.run(

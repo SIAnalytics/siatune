@@ -8,8 +8,9 @@ from .builder import REWRITERS
 class Decouple:
 
     def __init__(self, keys: List[str] = []):
-        self.keys = []
+        self.keys = keys
 
     def __call__(self, context: dict):
         for key in self.keys:
             context[key] = ImmutableContainer.decouple(context[key])
+        return context

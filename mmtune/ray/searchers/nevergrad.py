@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Union
 
 from ray.tune.result import DEFAULT_METRIC
 from ray.tune.suggest import Searcher
