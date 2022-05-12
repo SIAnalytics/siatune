@@ -11,19 +11,17 @@ import torch
 import torch.distributed as dist
 from mmcv.runner import get_dist_info
 from mmcv.utils import Config, DictAction, get_git_hash
-from mmseg import __version__
-from mmseg.apis import init_random_seed, set_random_seed
-from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
 
-from .builder import TASK
-from .mmcodebase import MMTrainBasedTask
+from .builder import TASKS
+from .mmtrainbase import MMTrainBasedTask
 
 
-@TASK.register_module()
+@TASKS.register_module()
 class MMSegmentation(MMTrainBasedTask):
 
-    @staticmethod
+    @classmethod
     def add_arguments(
+        cls,
         parser: Optional[argparse.ArgumentParser] = None
     ) -> argparse.ArgumentParser:
 
@@ -68,22 +66,25 @@ class MMSegmentation(MMTrainBasedTask):
             os.environ['LOCAL_RANK'] = str(ray.train.world_rank())
         return parser
 
-    @staticmethod
-    def build_model(cfg: Config,
+    @classmethod
+    def build_model(cls,
+                    cfg: Config,
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
         from mmseg.models.builder import build_segmentor
         return build_segmentor(cfg, train_cfg, test_cfg)
 
-    @staticmethod
+    @classmethod
     def build_dataset(
+            cls,
             cfg: Config,
             default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
         from mmseg.datasets.builder import build_dataset
         return build_dataset(cfg, default_args)
 
-    @staticmethod
-    def train_model(model: torch.nn.Module,
+    @classmethod
+    def train_model(cls,
+                    model: torch.nn.Module,
                     dataset: torch.utils.data.Dataset,
                     cfg: Config,
                     distributed: bool = True,
@@ -95,8 +96,11 @@ class MMSegmentation(MMTrainBasedTask):
                         meta)
         return
 
-    @staticmethod
-    def run(*args, **kwargs):
+    @classmethod
+    def run(cls, *args, **kwargs):
+        from mmseg import __version__
+        from mmseg.apis import init_random_seed, set_random_seed
+        from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
         args = kwargs['args']
 
         cfg = Config.fromfile(args.config)
@@ -165,7 +169,7 @@ class MMSegmentation(MMTrainBasedTask):
         meta['seed'] = seed
         meta['exp_name'] = osp.basename(args.config)
 
-        model = MMSegmentation.build_model(
+        model = cls.build_model(
             cfg.model,
             train_cfg=cfg.get('train_cfg'),
             test_cfg=cfg.get('test_cfg'))
@@ -174,11 +178,11 @@ class MMSegmentation(MMTrainBasedTask):
         # SyncBN is not support for DP
         logger.info(model)
 
-        datasets = [MMSegmentation.build_dataset(cfg.data.train)]
+        datasets = [cls.build_dataset(cfg.data.train)]
         if len(cfg.workflow) == 2:
             val_dataset = copy.deepcopy(cfg.data.val)
             val_dataset.pipeline = cfg.data.train.pipeline
-            datasets.append(MMSegmentation.build_dataset(val_dataset))
+            datasets.append(cls.build_dataset(val_dataset))
         if cfg.checkpoint_config is not None:
             # save mmseg version, config file content and class names in
             # checkpoints as meta data
@@ -191,7 +195,7 @@ class MMSegmentation(MMTrainBasedTask):
         model.CLASSES = datasets[0].CLASSES
         # passing checkpoint meta for saving best checkpoint
         meta.update(cfg.checkpoint_config.meta)
-        MMSegmentation.train_segmentor(
+        cls.train_segmentor(
             model,
             datasets,
             cfg,

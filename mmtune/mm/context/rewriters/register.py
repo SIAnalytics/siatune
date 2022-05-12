@@ -1,9 +1,9 @@
 from typing import List
 
-from .builder import REWRITER
+from .builder import REWRITERS
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class CustomHookRegister:
 
     def __init__(self, post_custom_hooks: List[str]) -> None:

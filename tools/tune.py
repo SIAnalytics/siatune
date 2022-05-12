@@ -15,7 +15,8 @@ assert TASK_NAME is not None
 def parse_args(task_processor: BaseTask) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
-    parser.add_argument('task_config', help='taks config file path')
+    parser.add_argument(
+        '--task_config', default=None, help='taks config file path')
     parser = task_processor.add_arguments(parser)
     parser.add_argument(
         '--address',
@@ -58,17 +59,19 @@ def main():
 
     args = parse_args(task_processor)
     tune_config = mmcv.Config.fromfile(args.tune_config)
-    task_config = mmcv.Config.fromfile(args.task_config)
+    task_config = mmcv.Config(
+        dict()) if args.task_config is None else mmcv.Config.fromfile(
+            args.task_config)
     task_processor.set_base_cfg(task_config)
 
-    file_name = osp.splitext(osp.basename(args.config))[0]
+    file_name = osp.splitext(osp.basename(args.tune_config))[0]
     """
     work_dir is determined in this priority:
     CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
     """
     args.work_dir = getattr(args, 'work_dir', '') or getattr(
-        tune_config, 'work_dir', '') or getattr(task_config, 'work_dir',
-                                                '') or file_name
+        tune_config, 'work_dir', '') or getattr(
+            task_config, 'work_dir', '') or osp.join('./work_dirs', file_name)
     mmcv.mkdir_or_exist(args.work_dir)
     task_processor.set_args(args)
     task_processor.set_rewriters(getattr(tune_config, 'rewriters', []))
@@ -84,3 +87,7 @@ def main():
     log_analysis(
         tune(task_processor, tune_config, exp_name), tune_config, task_config,
         analysis_dir)
+
+
+if __name__ == '__main__':
+    main()

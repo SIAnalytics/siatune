@@ -1,7 +1,9 @@
 from mmcv.utils import Registry
 
-TASK = Registry('task')
+from .base import BaseTask
+
+TASKS = Registry('tasks')
 
 
-def build_task_processor(task_name):
-    TASK.build(dict(type=task_name))
+def build_task_processor(task_name: str) -> BaseTask:
+    return TASKS.build(dict(type=task_name))

@@ -1,8 +1,8 @@
 from mmcv.utils import Config, Registry
 from ray import tune
 
-ALGORITHM = Registry('algorithm')
+SEARCHERS = Registry('searchers')
 
 
-def build_algorithm(cfg: Config) -> tune.suggest.Searcher:
-    return ALGORITHM.build(cfg)
+def build_searcher(cfg: Config) -> tune.suggest.Searcher:
+    return SEARCHERS.build(cfg)

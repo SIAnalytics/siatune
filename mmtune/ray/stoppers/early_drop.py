@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from ray.tune import Stopper
 
-from .builder import STOPPER
+from .builder import STOPPERS
 
 
-@STOPPER.register_module()
+@STOPPERS.register_module()
 class EarlyDroppingStopper(Stopper):
 
     def __init__(self,

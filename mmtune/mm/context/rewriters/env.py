@@ -2,7 +2,10 @@ from os import path as osp
 
 import ray
 
+from .builder import REWRITERS
 
+
+@REWRITERS.register_module()
 class SetEnv:
 
     def __call__(self, context: dict) -> dict:

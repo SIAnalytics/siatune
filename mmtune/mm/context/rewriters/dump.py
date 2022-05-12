@@ -3,10 +3,10 @@ from os import path as osp
 
 import ray
 
-from .builder import REWRITER
+from .builder import REWRITERS
 
 
-@REWRITER.register_module()
+@REWRITERS.register_module()
 class Dump:
 
     @staticmethod
@@ -18,5 +18,6 @@ class Dump:
         cfg = context.pop('cfg')
         trial_id = ray.tune.get_trial_id()
         context['args'].config = self.get_temporary_path(f'{trial_id}.py')
-        cfg.dump(context['args'].config)
+        with open(context['args'].config, 'w', encoding='utf-8') as f:
+            f.write(cfg.pretty_text)
         return context

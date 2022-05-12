@@ -4,10 +4,10 @@ from ray.tune.sample import choice
 
 from mmtune.utils import ImmutableContainer
 from .base import BaseSpace
-from .builder import SPACE
+from .builder import SPACES
 
 
-@SPACE.register_module()
+@SPACES.register_module(force=True)
 class Choice(BaseSpace):
 
     def __init__(self,

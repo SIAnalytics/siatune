@@ -1,6 +1,6 @@
-from .builder import STOPPER
+from .builder import STOPPERS
 
 
-@STOPPER.register_module()
+@STOPPERS.register_module()
 class DictionaryStopper(dict):
     pass
