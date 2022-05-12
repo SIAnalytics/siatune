@@ -41,7 +41,7 @@ class MMTrainBasedTask(BaseTask):
         return DistributedTrainableCreator(
             partial(
                 cls.contextaware_run,
-                status=dict(
+                dict(
                     base_cfg=cls.BASE_CFG,
                     args=cls.ARGS,
                     rewriters=cls.REWRITERS)),

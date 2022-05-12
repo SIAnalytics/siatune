@@ -23,7 +23,7 @@ class BloackBoxTask(BaseTask):
     def create_trainable(cls) -> Callable:
         return partial(
             cls.contextaware_run,
-            status=dict(
+            dict(
                 base_cfg=BloackBoxTask.BASE_CFG,
                 args=BloackBoxTask.ARGS,
                 rewriters=BaseTask.REWRITERS))
