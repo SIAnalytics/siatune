@@ -28,13 +28,13 @@ class ContextManager:
 
     def __call__(self, func):
 
-        def inner(*tpargs, **kwargs):
-            kwargs['searched_cfg'] = tpargs[0]
-            kwargs['base_cfg'] = self.base_cfg
-            kwargs['args'] = self.args
+        def inner(*searched_cfg, **context):
+            context['searched_cfg'] = searched_cfg[0]
+            context['base_cfg'] = self.base_cfg
+            context['args'] = self.args
 
             for rewriter in self.rewriters:
-                kwargs = rewriter(kwargs)
-            return func(**kwargs)
+                context = rewriter(context)
+            return func(**context)
 
         return inner
