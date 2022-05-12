@@ -3,6 +3,7 @@ optimizer = dict(
     categories=[
         dict(
             type='SGD',
+            lr=0.01,
             _delete_=True,
         ),
         dict(
