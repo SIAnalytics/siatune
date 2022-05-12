@@ -19,7 +19,7 @@ def tune(task_processor: BaseTask, tune_config: Config,
         **getattr(tune_config, 'trainable', dict()))
 
     assert hasattr(tune_config, 'metric')
-    assert hasattr(tune_config, 'mode') and tune_config.mode in ['min', 'mode']
+    assert hasattr(tune_config, 'mode') and tune_config.mode in ['min', 'max']
 
     tune_artifact_dir = osp.join(task_processor.work_dir, ARTIFACT_DIR_NAME)
     mmcv.mkdir_or_exist(tune_artifact_dir)
