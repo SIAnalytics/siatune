@@ -42,4 +42,5 @@ def tune(task_processor: BaseTask, tune_config: Config,
             tune_config, 'searcher') else None,
         scheduler=build_scheduler(tune_config.scheduler) if hasattr(
             tune_config, 'scheduler') else None,
-    )
+        raise_on_failed_trial=getattr(tune_config, 'raise_on_failed_trial',
+                                      False))

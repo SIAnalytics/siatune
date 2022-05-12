@@ -1,5 +1,6 @@
 _base_ = [
-    '_base_/context/blackbox.py', '_base_/searcher/nevergrad_oneplusone.py'
+    '../_base_/context/blackbox.py',
+    '../_base_/searcher/nevergrad_oneplusone.py'
 ]
 
 metric = 'result'
