@@ -5,7 +5,7 @@ from functools import partial
 import mmcv
 import ray
 import torch
-from ray.tune.integration.tensorflow import DistributedTrainableCreator
+from ray.tune.integration.torch import DistributedTrainableCreator
 
 from .base import BaseTask
 from .builder import TASKS

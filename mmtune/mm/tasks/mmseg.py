@@ -1,12 +1,10 @@
 import argparse
 import copy
-import os
 import time
 from os import path as osp
 from typing import Optional
 
 import mmcv
-import ray
 import torch
 import torch.distributed as dist
 from mmcv.runner import get_dist_info
@@ -62,8 +60,6 @@ class MMSegmentation(MMTrainBasedTask):
             '--auto-resume',
             action='store_true',
             help='resume from the latest checkpoint automatically.')
-        if 'LOCAL_RANK' not in os.environ:
-            os.environ['LOCAL_RANK'] = str(ray.train.world_rank())
         return parser
 
     @classmethod
@@ -195,7 +191,7 @@ class MMSegmentation(MMTrainBasedTask):
         model.CLASSES = datasets[0].CLASSES
         # passing checkpoint meta for saving best checkpoint
         meta.update(cfg.checkpoint_config.meta)
-        cls.train_segmentor(
+        cls.train_model(
             model,
             datasets,
             cfg,

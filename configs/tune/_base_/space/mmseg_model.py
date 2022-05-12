@@ -367,25 +367,24 @@ fcn_hr18 = dict(
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)),
 )
 
-space = dict(
-    model=dict(
-        type='Choice',
-        categories=[
-            pspnet_r50_d8,
-            upernet_swin,
-            deeplabv3plus_r50_d8,
-            segformer_mit_b0,
-            fpn_r50,
-            ocrnet_hr18,
-            fcn_hr18,
-        ],
-        alias=[
-            'pspnet_r50_d8',
-            'upernet_swin',
-            'deeplabv3plus_r50_d8',
-            'segformer_mit_b0',
-            'fpn_r50',
-            'ocrnet_hr18',
-            'fcn_hr18',
-        ],
-    ), )
+model = dict(
+    type='Choice',
+    categories=[
+        pspnet_r50_d8,
+        upernet_swin,
+        deeplabv3plus_r50_d8,
+        segformer_mit_b0,
+        fpn_r50,
+        ocrnet_hr18,
+        fcn_hr18,
+    ],
+    alias=[
+        'pspnet_r50_d8',
+        'upernet_swin',
+        'deeplabv3plus_r50_d8',
+        'segformer_mit_b0',
+        'fpn_r50',
+        'ocrnet_hr18',
+        'fcn_hr18',
+    ],
+)
