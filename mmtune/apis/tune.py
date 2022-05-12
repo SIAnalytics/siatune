@@ -27,7 +27,8 @@ def tune(task_processor: BaseTask, tune_config: Config,
         metric=tune_config.metric,
         mode=tune_config.mode,
         name=exp_name,
-        resources_per_trial=dict(
+        resources_per_trial=None
+        if hasattr(trainable, 'default_resource_request') else dict(
             cpu=task_processor.ARGS.num_workers *  # noqa W504
             task_processor.ARGS.num_cpus_per_worker,
             gpu=task_processor.ARGS.num_workers *  # noqa W504
@@ -42,4 +43,5 @@ def tune(task_processor: BaseTask, tune_config: Config,
             tune_config, 'searcher') else None,
         scheduler=build_scheduler(tune_config.scheduler) if hasattr(
             tune_config, 'scheduler') else None,
-    )
+        raise_on_failed_trial=getattr(tune_config, 'raise_on_failed_trial',
+                                      False))

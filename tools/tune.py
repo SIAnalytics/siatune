@@ -16,7 +16,7 @@ def parse_args(task_processor: BaseTask) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
     parser.add_argument(
-        '--task_config', default=None, help='taks config file path')
+        '--task-config', default=None, help='taks config file path')
     parser = task_processor.add_arguments(parser)
     parser.add_argument(
         '--address',

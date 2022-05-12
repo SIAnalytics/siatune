@@ -5,8 +5,9 @@ from functools import partial
 import mmcv
 import ray
 import torch
-from ray.tune.integration.tensorflow import DistributedTrainableCreator
+from ray.tune.integration.torch import DistributedTrainableCreator
 
+from mmtune.mm.context import ContextManager
 from .base import BaseTask
 from .builder import TASKS
 
@@ -33,10 +34,15 @@ class MMTrainBasedTask(BaseTask):
         pass
 
     @classmethod
-    def create_trainable(cls, backend: str = 'nccl') -> ray.tune.trainable:
-        assert backend in ['gloo', 'nccl']
+    def contextaware_run(cls, status, backend, *args, **kwargs) -> None:
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
+        context_manager = ContextManager(**status)
+        return context_manager(cls.run)(*args, **kwargs)
+
+    @classmethod
+    def create_trainable(cls, backend: str = 'nccl') -> ray.tune.trainable:
+        assert backend in ['gloo', 'nccl']
 
         return DistributedTrainableCreator(
             partial(
@@ -44,7 +50,7 @@ class MMTrainBasedTask(BaseTask):
                 dict(
                     base_cfg=cls.BASE_CFG,
                     args=cls.ARGS,
-                    rewriters=cls.REWRITERS)),
+                    rewriters=cls.REWRITERS), backend),
             backend=backend,
             num_workers=cls.ARGS.num_workers,
             num_gpus_per_worker=cls.ARGS.num_cpus_per_worker,
