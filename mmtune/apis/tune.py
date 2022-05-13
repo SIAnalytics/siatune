@@ -19,7 +19,7 @@ def tune(task_processor: BaseTask, tune_config: Config,
     assert hasattr(tune_config, 'metric')
     assert hasattr(tune_config, 'mode') and tune_config.mode in ['min', 'max']
 
-    tune_artifact_dir = osp.join(task_processor.ARGS.work_dir, 'artifact')
+    tune_artifact_dir = osp.join(task_processor.args.work_dir, 'artifact')
     mmcv.mkdir_or_exist(tune_artifact_dir)
 
     return ray.tune.run(
@@ -29,10 +29,10 @@ def tune(task_processor: BaseTask, tune_config: Config,
         name=exp_name,
         resources_per_trial=None
         if hasattr(trainable, 'default_resource_request') else dict(
-            cpu=task_processor.ARGS.num_workers *  # noqa W504
-            task_processor.ARGS.num_cpus_per_worker,
-            gpu=task_processor.ARGS.num_workers *  # noqa W504
-            task_processor.ARGS.num_gpus_per_worker),
+            cpu=task_processor.args.num_workers *  # noqa W504
+            task_processor.args.num_cpus_per_worker,
+            gpu=task_processor.args.num_workers *  # noqa W504
+            task_processor.args.num_gpus_per_worker),
         stop=build_stopper(tune_config.stop)
         if hasattr(tune_config, 'stop') else None,
         config=build_space(tune_config.space)

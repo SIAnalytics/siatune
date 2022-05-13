@@ -13,41 +13,36 @@ from .builder import TASKS
 @TASKS.register_module()
 class BaseTask(metaclass=ABCMeta):
     """Wrap the apis of target task."""
-    BASE_CFG: Optional[ImmutableContainer] = None
-    ARGS: Optional[argparse.Namespace] = None
-    REWRITERS: List[dict] = []
 
-    @classmethod
-    def set_base_cfg(cls, base_cfg: Config) -> None:
-        BaseTask.BASE_CFG = ImmutableContainer(base_cfg, 'base')
+    def __init__(self):
+        self.base_cfg: Optional[ImmutableContainer] = None
+        self.args: Optional[argparse.Namespace] = None
+        self.rewriters: List[dict] = []
 
-    @classmethod
-    def set_args(cls, args: argparse.Namespace) -> None:
-        BaseTask.ARGS = args
+    def set_base_cfg(self, base_cfg: Config) -> None:
+        self.base_cfg = ImmutableContainer(base_cfg, 'base')
 
-    @classmethod
-    def set_rewriters(cls, rewriters: List[dict] = []) -> None:
-        BaseTask.REWRITERS = rewriters
+    def set_args(self, args: argparse.Namespace) -> None:
+        self.args = args
 
-    @classmethod
+    def set_rewriters(self, rewriters: List[dict] = []) -> None:
+        self.rewriters = rewriters
+
     @abstractmethod
     def add_arguments(
-        cls,
+        self,
         parser: Optional[argparse.ArgumentParser] = None
     ) -> argparse.ArgumentParser:
         pass
 
-    @classmethod
-    def contextaware_run(cls, status, *args, **kwargs) -> None:
+    def contextaware_run(self, status, *args, **kwargs) -> None:
         context_manager = ContextManager(**status)
-        return context_manager(cls.run)(*args, **kwargs)
+        return context_manager(self.run)(*args, **kwargs)
 
-    @classmethod
     @abstractmethod
-    def run(cls, *args, **kwargs) -> None:
+    def run(self, *args, **kwargs) -> None:
         pass
 
-    @classmethod
     @abstractmethod
-    def create_trainable(cls, *args, **kwargs) -> ray.tune.Trainable:
+    def create_trainable(self, *args, **kwargs) -> ray.tune.Trainable:
         pass

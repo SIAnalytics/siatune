@@ -17,9 +17,8 @@ from .mmtrainbase import MMTrainBasedTask
 @TASKS.register_module()
 class MMSegmentation(MMTrainBasedTask):
 
-    @classmethod
     def add_arguments(
-        cls,
+        self,
         parser: Optional[argparse.ArgumentParser] = None
     ) -> argparse.ArgumentParser:
 
@@ -62,24 +61,21 @@ class MMSegmentation(MMTrainBasedTask):
             help='resume from the latest checkpoint automatically.')
         return parser
 
-    @classmethod
-    def build_model(cls,
+    def build_model(self,
                     cfg: Config,
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
         from mmseg.models.builder import build_segmentor
         return build_segmentor(cfg, train_cfg, test_cfg)
 
-    @classmethod
     def build_dataset(
-            cls,
+            self,
             cfg: Config,
             default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
         from mmseg.datasets.builder import build_dataset
         return build_dataset(cfg, default_args)
 
-    @classmethod
-    def train_model(cls,
+    def train_model(self,
                     model: torch.nn.Module,
                     dataset: torch.utils.data.Dataset,
                     cfg: Config,
@@ -92,8 +88,7 @@ class MMSegmentation(MMTrainBasedTask):
                         meta)
         return
 
-    @classmethod
-    def run(cls, *args, **kwargs):
+    def run(self, *args, **kwargs):
         from mmseg import __version__
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import collect_env, get_root_logger, setup_multi_processes
@@ -165,7 +160,7 @@ class MMSegmentation(MMTrainBasedTask):
         meta['seed'] = seed
         meta['exp_name'] = osp.basename(args.config)
 
-        model = cls.build_model(
+        model = self.build_model(
             cfg.model,
             train_cfg=cfg.get('train_cfg'),
             test_cfg=cfg.get('test_cfg'))
@@ -174,11 +169,11 @@ class MMSegmentation(MMTrainBasedTask):
         # SyncBN is not support for DP
         logger.info(model)
 
-        datasets = [cls.build_dataset(cfg.data.train)]
+        datasets = [self.build_dataset(cfg.data.train)]
         if len(cfg.workflow) == 2:
             val_dataset = copy.deepcopy(cfg.data.val)
             val_dataset.pipeline = cfg.data.train.pipeline
-            datasets.append(cls.build_dataset(val_dataset))
+            datasets.append(self.build_dataset(val_dataset))
         if cfg.checkpoint_config is not None:
             # save mmseg version, config file content and class names in
             # checkpoints as meta data
@@ -191,7 +186,7 @@ class MMSegmentation(MMTrainBasedTask):
         model.CLASSES = datasets[0].CLASSES
         # passing checkpoint meta for saving best checkpoint
         meta.update(cfg.checkpoint_config.meta)
-        cls.train_model(
+        self.train_model(
             model,
             datasets,
             cfg,

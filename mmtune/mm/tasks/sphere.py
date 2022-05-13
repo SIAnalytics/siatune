@@ -9,8 +9,7 @@ from .builder import TASKS
 @TASKS.register_module()
 class Sphere(BloackBoxTask):
 
-    @classmethod
-    def run(cls, *args, **kwargs):
+    def run(self, *args, **kwargs):
         args = kwargs['args']
         cfg = Config.fromfile(args.config)
 
