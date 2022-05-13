@@ -30,7 +30,6 @@ class MMTrainBasedTask(BaseTask):
                     **kwargs) -> None:
         pass
 
-
     def contextaware_run(self, status, backend, *args, **kwargs) -> None:
         from mmtune.mm import hooks  # noqa F401
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
@@ -52,4 +51,3 @@ class MMTrainBasedTask(BaseTask):
             num_workers=self.args.num_workers,
             num_gpus_per_worker=self.args.num_cpus_per_worker,
             num_cpus_per_worker=self.args.num_cpus_per_worker)
-
