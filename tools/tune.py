@@ -26,11 +26,13 @@ def parse_args(task_processor: BaseTask) -> argparse.Namespace:
     parser.add_argument(
         '--num-cpus',
         default=None,
+        type=int,
         help='number of CPUs the user wishes to assign',
     )
     parser.add_argument(
         '--num-gpus',
         default=None,
+        type=int,
         help='number of GPUs the user wishes to assign',
     )
     parser.add_argument(
