@@ -23,6 +23,6 @@ class BloackBoxTask(BaseTask, metaclass=ABCMeta):
         return partial(
             self.contextaware_run,
             dict(
-                base_cfg=self.BASE_CFG,
-                args=self.ARGS,
-                rewriters=self.REWRITERS))
+                base_cfg=self.base_cfg,
+                args=self.args,
+                rewriters=self.rewriters))
