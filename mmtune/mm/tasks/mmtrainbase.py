@@ -45,7 +45,7 @@ class MMTrainBasedTask(BaseTask):
                 dict(
                     base_cfg=self.base_cfg,
                     args=self.args,
-                    rewriters=self.REWRITERS), backend),
+                    rewriters=self.rewriters), backend),
             backend=backend,
             num_workers=self.args.num_workers,
             num_gpus_per_worker=self.args.num_cpus_per_worker,
