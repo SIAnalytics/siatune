@@ -10,7 +10,8 @@ class CustomHookRegister:
         self.post_custom_hooks = post_custom_hooks
 
     def __call__(self, context: dict) -> dict:
-        custom_hooks = getattr(context['cfg'], 'custom_hooks', [])
+        custom_hooks = getattr(context['cfg'], 'custom_hooks', []).copy()
         for custom_hook in self.post_custom_hooks:
             custom_hooks.append(custom_hook)
+        context['cfg'].custom_hooks = custom_hooks
         return context
