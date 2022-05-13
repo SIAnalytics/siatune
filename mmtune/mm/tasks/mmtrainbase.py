@@ -53,5 +53,5 @@ class MMTrainBasedTask(BaseTask):
                     rewriters=cls.REWRITERS), backend),
             backend=backend,
             num_workers=cls.ARGS.num_workers,
-            num_gpus_per_worker=cls.ARGS.num_cpus_per_worker,
+            num_gpus_per_worker=cls.ARGS.num_gpus_per_worker,
             num_cpus_per_worker=cls.ARGS.num_cpus_per_worker)
