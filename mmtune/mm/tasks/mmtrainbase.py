@@ -35,7 +35,7 @@ class MMTrainBasedTask(BaseTask):
 
     @classmethod
     def contextaware_run(cls, status, backend, *args, **kwargs) -> None:
-        from mmtune.mm.tasks import hooks  # noqa F401
+        from mmtune.mm import hooks  # noqa F401
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
         context_manager = ContextManager(**status)
