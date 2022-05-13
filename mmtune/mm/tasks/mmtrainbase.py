@@ -35,6 +35,7 @@ class MMTrainBasedTask(BaseTask):
 
     @classmethod
     def contextaware_run(cls, status, backend, *args, **kwargs) -> None:
+        from mmtune.mm.tasks import hooks  # noqa F401
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
         context_manager = ContextManager(**status)
@@ -53,5 +54,5 @@ class MMTrainBasedTask(BaseTask):
                     rewriters=cls.REWRITERS), backend),
             backend=backend,
             num_workers=cls.ARGS.num_workers,
-            num_gpus_per_worker=cls.ARGS.num_cpus_per_worker,
+            num_gpus_per_worker=cls.ARGS.num_gpus_per_worker,
             num_cpus_per_worker=cls.ARGS.num_cpus_per_worker)

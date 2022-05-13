@@ -7,7 +7,7 @@ _base_ = [
 space = {
     'model': {{_base_.model}},
     'optimizer': {{_base_.optimizer}},
-    'data.samples_per_gpus': {{_base_.batch_size}}
+    'data.samples_per_gpu': {{_base_.batch_size}}
 }
 
 metric = 'val/mIoU'
