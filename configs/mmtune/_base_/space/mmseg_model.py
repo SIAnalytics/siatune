@@ -230,143 +230,6 @@ fpn_r50 = dict(
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)),
 )
 
-ocrnet_hr18 = dict(
-    _delete_=True,
-    type='CascadeEncoderDecoder',
-    num_stages=2,
-    pretrained='open-mmlab://msra/hrnetv2_w18',
-    backbone=dict(
-        type='HRNet',
-        norm_cfg=norm_cfg,
-        norm_eval=False,
-        extra=dict(
-            stage1=dict(
-                num_modules=1,
-                num_branches=1,
-                block='BOTTLENECK',
-                num_blocks=(4, ),
-                num_channels=(64, ),
-            ),
-            stage2=dict(
-                num_modules=1,
-                num_branches=2,
-                block='BASIC',
-                num_blocks=(4, 4),
-                num_channels=(18, 36),
-            ),
-            stage3=dict(
-                num_modules=4,
-                num_branches=3,
-                block='BASIC',
-                num_blocks=(4, 4, 4),
-                num_channels=(18, 36, 72),
-            ),
-            stage4=dict(
-                num_modules=3,
-                num_branches=4,
-                block='BASIC',
-                num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144),
-            ),
-        ),
-    ),
-    decode_head=[
-        dict(
-            type='FCNHead',
-            in_channels=[18, 36, 72, 144],
-            channels=sum([18, 36, 72, 144]),
-            in_index=(0, 1, 2, 3),
-            input_transform='resize_concat',
-            kernel_size=1,
-            num_convs=1,
-            concat_input=False,
-            dropout_ratio=-1,
-            num_classes=3,
-            norm_cfg=norm_cfg,
-            align_corners=False,
-            loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4),
-        ),
-        dict(
-            type='OCRHead',
-            in_channels=[18, 36, 72, 144],
-            in_index=(0, 1, 2, 3),
-            input_transform='resize_concat',
-            channels=512,
-            ocr_channels=256,
-            dropout_ratio=-1,
-            num_classes=3,
-            norm_cfg=norm_cfg,
-            align_corners=False,
-            loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-        ),
-    ],
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)),
-)
-
-fcn_hr18 = dict(
-    _delete_=True,
-    type='EncoderDecoder',
-    pretrained='open-mmlab://msra/hrnetv2_w18',
-    backbone=dict(
-        type='HRNet',
-        norm_cfg=norm_cfg,
-        norm_eval=False,
-        extra=dict(
-            stage1=dict(
-                num_modules=1,
-                num_branches=1,
-                block='BOTTLENECK',
-                num_blocks=(4, ),
-                num_channels=(64, ),
-            ),
-            stage2=dict(
-                num_modules=1,
-                num_branches=2,
-                block='BASIC',
-                num_blocks=(4, 4),
-                num_channels=(18, 36),
-            ),
-            stage3=dict(
-                num_modules=4,
-                num_branches=3,
-                block='BASIC',
-                num_blocks=(4, 4, 4),
-                num_channels=(18, 36, 72),
-            ),
-            stage4=dict(
-                num_modules=3,
-                num_branches=4,
-                block='BASIC',
-                num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144),
-            ),
-        ),
-    ),
-    decode_head=dict(
-        type='FCNHead',
-        in_channels=[18, 36, 72, 144],
-        in_index=(0, 1, 2, 3),
-        channels=sum([18, 36, 72, 144]),
-        input_transform='resize_concat',
-        kernel_size=1,
-        num_convs=1,
-        concat_input=False,
-        dropout_ratio=-1,
-        num_classes=3,
-        norm_cfg=norm_cfg,
-        align_corners=False,
-        loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-    ),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(256, 256)),
-)
-
 model = dict(
     type='Choice',
     categories=[
@@ -375,8 +238,6 @@ model = dict(
         deeplabv3plus_r50_d8,
         segformer_mit_b0,
         fpn_r50,
-        ocrnet_hr18,
-        fcn_hr18,
     ],
     alias=[
         'pspnet_r50_d8',
@@ -384,7 +245,5 @@ model = dict(
         'deeplabv3plus_r50_d8',
         'segformer_mit_b0',
         'fpn_r50',
-        'ocrnet_hr18',
-        'fcn_hr18',
     ],
 )
