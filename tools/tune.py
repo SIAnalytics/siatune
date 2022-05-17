@@ -69,7 +69,8 @@ def main():
     file_name = osp.splitext(osp.basename(args.tune_config))[0]
     """
     work_dir is determined in this priority:
-    CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
+    CLI > segment in tune cfg file > segment in task cfg file
+        > tune cfg filename
     """
     args.work_dir = getattr(args, 'work_dir', '') or getattr(
         tune_config, 'work_dir', '') or getattr(

@@ -51,19 +51,19 @@ class MMDetection(MMTrainBasedTask):
             '--options',
             nargs='+',
             action=DictAction,
-            help='override some settings in the used config, the key-value pair '
-            'in xxx=yyy format will be merged into config file (deprecate), '
-            'change to --cfg-options instead.')
+            help='override some settings in the used config, the '
+            'key-value pair in xxx=yyy format will be merged into config file'
+            ' (deprecate), change to --cfg-options instead.')
         parser.add_argument(
             '--cfg-options',
             nargs='+',
             action=DictAction,
-            help='override some settings in the used config, the key-value pair '
-            'in xxx=yyy format will be merged into config file. If the value to '
-            'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
-            'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
-            'Note that the quotation marks are necessary and that no white space '
-            'is allowed.')
+            help='override some settings in the used config, the '
+            'key-value pair in xxx=yyy format will be merged into config '
+            'file. If the value to be overwritten is a list, it should be '
+            'like key="[a,b]" or key=a,b It also allows nested list/tuple '
+            'values, e.g. key="[(a,b),(c,d)]" Note that the quotation marks '
+            'are necessary and that no white space is allowed.')
         parser.add_argument('--local_rank', type=int, default=0)
         parser.add_argument(
             '--auto-scale-lr',
@@ -101,7 +101,8 @@ class MMDetection(MMTrainBasedTask):
     def run(self, *args, **kwargs):
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
-        from mmdet.utils import collect_env, get_root_logger, setup_multi_processes
+        from mmdet.utils import (collect_env, get_root_logger,
+                                 setup_multi_processes)
         args = kwargs['args']
 
         cfg = Config.fromfile(args.config)
@@ -112,7 +113,8 @@ class MMDetection(MMTrainBasedTask):
         if cfg.get('cudnn_benchmark', False):
             torch.backends.cudnn.benchmark = True
 
-        # work_dir is determined in this priority: CLI > segment in file > filename
+        # work_dir is determined in this priority:
+        # CLI > segment in file > filename
         if args.work_dir is not None:
             # update configs according to CLI args if args.work_dir is not None
             cfg.work_dir = args.work_dir
