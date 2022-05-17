@@ -11,7 +11,8 @@ try:
     from nevergrad.optimization import Optimizer
     from nevergrad.optimization.base import ConfiguredOptimizer
     Parameter = ng.p.Parameter
-    from nevergrad.optimization.optimizerlib import registry as optimizer_registry
+    from nevergrad.optimization.optimizerlib import (registry as
+                                                     optimizer_registry)
 except ImportError:
     ng = None
     Optimizer = None
@@ -32,7 +33,8 @@ class NevergradSearch(_NevergradSearch, Searcher):
                  num_workers: int = 1,
                  budget: Optional[int] = None,
                  **kwargs):
-        assert optimizer in optimizer_registry, f'{optimizer} is not registered'
+        assert optimizer in optimizer_registry, (
+            f'{optimizer} is not registered')
         optimizer = optimizer_registry[optimizer]
         self._budget = budget
         self._num_workers = num_workers
