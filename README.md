@@ -33,4 +33,4 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Installation
 
-Please refer to [build.md](https://mmdeploy.readthedocs.io/en/latest/build.html) for installation.
+Please refer to [get_started.md](docs/get_started.md) for installation.
