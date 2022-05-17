@@ -16,7 +16,7 @@ Currently, it is maintained by SI-Analytics.
   - [x] [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)
   - [ ] [MMEditing](https://github.com/open-mmlab/mmediting)
 
-- **Support various hyperparameter tuning algorithms**
+- **Support state-of-the-art hyperparameter tuning algorithms**
 
     We provide varoius tuning algorithms such as below;
   - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
