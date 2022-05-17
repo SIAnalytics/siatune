@@ -1,5 +1,8 @@
-
 # MMTune - hyperparameter tuning toolbox for OpenMMLab frameworks
+
+<div align="center">
+  <img src="resources/mmtune-logo.png" width="450"/>
+</div>
 
 ## Introduction
 MMTune is an open-source deep learning model hyperparameter tuning toolset especially for OpenMMLab frameworks such as [mmdetection](https://github.com/open-mmlab/mmdetection) and [mmsegmentation](https://github.com/open-mmlab/mmsegmentation). Most of its tuning system is based on [Ray.tune](https://docs.ray.io/en/latest/tune/index.html).
