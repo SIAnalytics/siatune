@@ -116,6 +116,7 @@ faster_rcnn_x101_64x4d_fpn = dict(
 
 pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth'  # noqa
 faster_rcnn_swin_s_p4_w7_fpn = dict(
+    _delete_=True,
     type='FasterRCNN',
     backbone=dict(
         _delete_=True,
@@ -232,6 +233,7 @@ faster_rcnn_swin_s_p4_w7_fpn = dict(
     ))
 
 tood_r101_dcnv2 = dict(
+    _delete_=True,
     type='TOOD',
     backbone=dict(
         type='ResNet',
@@ -244,7 +246,8 @@ tood_r101_dcnv2 = dict(
         style='pytorch',
         dcn=dict(type='DCNv2', deformable_groups=1, fallback_on_stride=False),
         stage_with_dcn=(False, True, True, True),
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet101')),
+        init_cfg=dict(type='Pretrained',
+                      checkpoint='torchvision://resnet101')),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -300,11 +303,11 @@ tood_r101_dcnv2 = dict(
         nms=dict(type='nms', iou_threshold=0.6),
         max_per_img=100))
 
-
 img_scale = (640, 640)  # height, width
 
 # model settings
 yolox_x_8x8 = dict(
+    _delete_=True,
     type='YOLOX',
     input_size=img_scale,
     random_size_range=(15, 25),

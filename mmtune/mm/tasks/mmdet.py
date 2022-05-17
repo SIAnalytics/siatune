@@ -25,7 +25,8 @@ class MMDetection(MMTrainBasedTask):
         if parser is None:
             parser = argparse.ArgumentParser(description='Train a detector')
         parser.add_argument('--config', help='train config file path')
-        parser.add_argument('--work-dir', help='the dir to save logs and models')
+        parser.add_argument(
+            '--work-dir', help='the dir to save logs and models')
         parser.add_argument(
             '--resume-from', help='the checkpoint file to resume from')
         parser.add_argument(
@@ -36,7 +37,8 @@ class MMDetection(MMTrainBasedTask):
             '--no-validate',
             action='store_true',
             help='whether not to evaluate the checkpoint during training')
-        parser.add_argument('--seed', type=int, default=None, help='random seed')
+        parser.add_argument(
+            '--seed', type=int, default=None, help='random seed')
         parser.add_argument(
             '--diff-seed',
             action='store_true',
@@ -94,7 +96,7 @@ class MMDetection(MMTrainBasedTask):
                     meta: Optional[dict] = None) -> None:
         from mmdet.apis.train import train_detector
         train_detector(model, dataset, cfg, distributed, validate, timestamp,
-                        meta)
+                       meta)
 
     def run(self, *args, **kwargs):
         from mmdet import __version__
@@ -118,8 +120,6 @@ class MMDetection(MMTrainBasedTask):
             # use config filename as default work_dir if cfg.work_dir is None
             cfg.work_dir = osp.join('./work_dirs',
                                     osp.splitext(osp.basename(args.config))[0])
-        if args.load_from is not None:
-            cfg.load_from = args.load_from
         if args.resume_from is not None:
             cfg.resume_from = args.resume_from
 
@@ -138,6 +138,7 @@ class MMDetection(MMTrainBasedTask):
         # init the logger before other steps
         timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
         log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
+        print(cfg)
         logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
         # set multi-process settings

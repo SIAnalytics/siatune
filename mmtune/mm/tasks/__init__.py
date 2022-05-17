@@ -8,5 +8,6 @@ from .sphere import Sphere
 
 __all__ = [
     'TASKS', 'build_task_processor', 'BaseTask', 'BloackBoxTask',
-    'MMTrainBasedTask', 'MMDetetction', 'MMSegmentation', 'MMSegmentation', 'Sphere'
+    'MMTrainBasedTask', 'MMDetetction', 'MMSegmentation', 'MMSegmentation',
+    'Sphere'
 ]
