@@ -21,7 +21,7 @@ Currently, it is maintained by SI-Analytics.
 
 - **Support state-of-the-art hyperparameter tuning algorithms**
 
-    We provide varoius tuning algorithms such as below;
+    We provide state-of-the-art hyperparameter tuning algorithms such as below;
   - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
   - [x] [Adaptive Experimentation (AX)](https://ax.dev/)
   - [x] [HyperOpt](https://github.com/hyperopt/hyperopt)
