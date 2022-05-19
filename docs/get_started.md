@@ -1,25 +1,24 @@
 # Build MMTune
 
-## Download MMTune
-
-```bash
-git clone -b master https://github.com/SIAnalytics/mmtune.git mmtune
-```
-
-## Build
-
-### Dockerfile (RECOMMENDED)
+## Dockerfile (RECOMMENDED)
 ```bash
 docker build . -t mmtune:master -f docker/Dockerfile
 ```
 
-### Build From Source
+## Build From Source
 
-Install dependencies
 ```bash
+# 1. install pytorch
+pip install torch torchvision -f https://download.pytorch.org/whl/torch_stable.html
+# 2. install mmcv
+pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/{cu_version}/{torch_version}/index.html
+# 3. clone mmtune
+git clone -b master https://github.com/SIAnalytics/mmtune.git mmtune
+# 4. install mmtune
+cd mmtune && pip install -e .
 ```
 
-# Hyperparamer tuning with OpenMMLab's frameworks.
+# Hyperparamer tuning with OpenMMLab's model frameworks.
 
 ### Install OpenMMLab's framework.
 ```bash
