@@ -1,5 +1,6 @@
 bayesian-optimization
 flaml
+gpytorch==0.3.6
 hyperopt
 mlflow
 nevergrad
