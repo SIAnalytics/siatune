@@ -1,6 +1,6 @@
-import argparse
 import os
-from os import path as osp
+import os.path as osp
+from argparse import ArgumentParser, Namespace, REMAINDER
 
 import mmcv
 import ray
@@ -8,12 +8,9 @@ import ray
 from mmtune.apis import log_analysis, tune
 from mmtune.mm.tasks import BaseTask, build_task_processor
 
-TASK_NAME = os.getenv('MMTUNE_TASK_NAME')
-assert TASK_NAME is not None
 
-
-def parse_args(task_processor: BaseTask) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description='tune')
+def parse_args(task_processor: BaseTask) -> Namespace:
+    parser = ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
     parser.add_argument('task_config', help='taks config file path')
     parser = task_processor.add_arguments(parser)
@@ -48,29 +45,38 @@ def parse_args(task_processor: BaseTask) -> argparse.Namespace:
         default=1,
         help='number of gpus each worker uses.',
     )
+    parser.add_argument(
+        "trainable_task",
+        type=str,
+        help="Full path to the (single GPU) training program/script to be launched in parallel, "
+        "followed by all the arguments for the training script.",
+    )
+    parser.add_argument(
+        "trainable_args",
+        nargs=REMAINDER,
+        type=str,
+        help="Rest from the training program.",
+    )
     args = parser.parse_args()
-    assert hasattr(args, 'task_config')
     return args
 
 
 def main():
-    task_processor = build_task_processor(TASK_NAME)
-
-    args = parse_args(task_processor)
+    args = parse_args()
+    task_processor = build_task_processor(args.trainable_task)
     tune_config = mmcv.Config.fromfile(args.tune_config)
     task_config = mmcv.Config.fromfile(args.task_config)
     task_processor.set_base_cfg(task_config)
 
     file_name = osp.splitext(osp.basename(args.config))[0]
-    """
-    work_dir is determined in this priority:
-    CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
-    """
+
+    # work_dir is determined in this priority:
+    # CLI > segment in tune cfg file > segment in task cfg file > tune cfg filename
     args.work_dir = getattr(args, 'work_dir', '') or getattr(
         tune_config, 'work_dir', '') or getattr(task_config, 'work_dir',
                                                 '') or file_name
     mmcv.mkdir_or_exist(args.work_dir)
-    task_processor.set_args(args)
+    task_processor.set_args(args.trainable_args)
     task_processor.set_rewriters(getattr(tune_config, 'rewriters', []))
     exp_name = args.exp_name or getattr(tune_config, 'exp_name',
                                         '') or file_name

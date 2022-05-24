@@ -23,13 +23,9 @@ from .mmcodebase import MMTrainBasedTask
 class MMSegmentation(MMTrainBasedTask):
 
     @staticmethod
-    def add_arguments(
-        parser: Optional[argparse.ArgumentParser] = None
-    ) -> argparse.ArgumentParser:
-
-        if parser is None:
-            parser = argparse.ArgumentParser(description='Train a segmentor')
-        parser.add_argument('--config', help='train config file path')
+    def parse_args():
+        parser = argparse.ArgumentParser(description='Train a segmentor')
+        parser.add_argument('config', help='train config file path')
         parser.add_argument(
             '--work-dir', help='the dir to save logs and models')
         parser.add_argument(
@@ -66,7 +62,8 @@ class MMSegmentation(MMTrainBasedTask):
             help='resume from the latest checkpoint automatically.')
         if 'LOCAL_RANK' not in os.environ:
             os.environ['LOCAL_RANK'] = str(ray.train.world_rank())
-        return parser
+        args = parser.parse_args(MMSegmentation.ARGS)
+        return args
 
     @staticmethod
     def build_model(cfg: Config,
@@ -97,7 +94,7 @@ class MMSegmentation(MMTrainBasedTask):
 
     @staticmethod
     def run(*args, **kwargs):
-        args = kwargs['args']
+        args = MMSegmentation.parse_args(kwargs['args'])
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:
