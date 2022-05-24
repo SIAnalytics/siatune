@@ -31,7 +31,7 @@ class BaseTask(metaclass=ABCMeta):
 
     @abstractmethod
     @staticmethod
-    def add_arguments(
+    def parse_args(
         parser: Optional[argparse.ArgumentParser] = None
     ) -> argparse.ArgumentParser:
         pass
