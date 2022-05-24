@@ -62,5 +62,3 @@ def test_tune():
         mock_task_processor.args.num_cpus_per_worker = 1
         mock_task_processor.args.num_gpus_per_worker = 0
         tune(mock_task_processor, tune_config, 'exp_name')
-
-    pass
