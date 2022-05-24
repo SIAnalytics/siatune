@@ -14,7 +14,9 @@ class EarlyDroppingStopper(Stopper):
                  metric_threshold: float,
                  grace_period: int = 0):
 
-        assert mode in ['min', 'max']
+        if mode not in ['min', 'max']:
+            raise ValueError('mode must be either "min" or "max".')
+
         self._metric = metric
         self._mode = mode
         self._metric_threshold = metric_threshold

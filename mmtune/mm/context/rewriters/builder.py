@@ -1,7 +1,9 @@
-from mmcv.utils import Config, Registry
+from typing import Dict
+
+from mmcv.utils import Registry
 
 REWRITERS = Registry('rewriters')
 
 
-def build_rewriter(cfg: Config) -> object:
+def build_rewriter(cfg: Dict) -> object:
     return REWRITERS.build(cfg)

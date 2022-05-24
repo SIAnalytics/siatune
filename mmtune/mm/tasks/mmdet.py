@@ -185,10 +185,10 @@ class MMDetection(MMTrainBasedTask):
             val_dataset.pipeline = cfg.data.train.pipeline
             datasets.append(self.build_dataset(val_dataset))
         if cfg.checkpoint_config is not None:
-            # save mmseg version, config file content and class names in
+            # save mmdet version, config file content and class names in
             # checkpoints as meta data
             cfg.checkpoint_config.meta = dict(
-                mmseg_version=f'{__version__}+{get_git_hash()[:7]}',
+                mmdet_version=f'{__version__}+{get_git_hash()[:7]}',
                 config=cfg.pretty_text,
                 CLASSES=datasets[0].CLASSES,
                 PALETTE=datasets[0].PALETTE)

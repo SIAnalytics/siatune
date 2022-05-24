@@ -1,9 +1,17 @@
+import os
 from unittest.mock import MagicMock
+
+import torch
+import torch.distributed as dist
 
 from mmtune.mm.hooks import RayCheckpointHook
 
 
 def test_hook():
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '29500'
+    dist.init_process_group('gloo', rank=0, world_size=1)
+
     hook = RayCheckpointHook(
         interval=1,
         by_epoch=True,
@@ -23,6 +31,6 @@ def test_hook():
     cur_iter = hook.get_iter(mock_runner, True)
     assert cur_iter == 4
 
-    mock_runner.model = MagicMock()
+    mock_runner.model = torch.nn.Linear(2, 2)
 
     hook._save_checkpoint(mock_runner)
