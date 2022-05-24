@@ -35,9 +35,10 @@ def test_raycheckpointhook():
 
     hook._save_checkpoint(mock_runner)
 
+
 @patch.object(RayTuneLoggerHook, 'get_loggable_tags')
 def test_raytuneloggerhook(mock_get_loggable_tags):
-    mock_get_loggable_tags.return_value = {'train/Loss':0.55, 'val/mAP':0.6}
+    mock_get_loggable_tags.return_value = {'train/Loss': 0.55, 'val/mAP': 0.6}
 
     mock_runner = MagicMock()
     mock_runner.iter = 5
