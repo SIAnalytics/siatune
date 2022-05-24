@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-from argparse import ArgumentParser, Namespace, REMAINDER
+from argparse import REMAINDER, ArgumentParser, Namespace
 
 import mmcv
 import ray
@@ -46,16 +46,16 @@ def parse_args(task_processor: BaseTask) -> Namespace:
         help='number of gpus each worker uses.',
     )
     parser.add_argument(
-        "trainable_task",
+        'trainable_task',
         type=str,
-        help="Full path to the (single GPU) training program/script to be launched in parallel, "
-        "followed by all the arguments for the training script.",
+        help='trainable task to be launched in parallel, followed by '
+        'all the arguments for the training script.',
     )
     parser.add_argument(
-        "trainable_args",
+        'trainable_args',
         nargs=REMAINDER,
         type=str,
-        help="Rest from the training program.",
+        help='rest from the trainable task.',
     )
     args = parser.parse_args()
     return args
