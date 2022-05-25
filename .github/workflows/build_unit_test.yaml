@@ -15,21 +15,19 @@ concurrency:
 
 jobs:
   unit_test:
-    runs-on: ["self-hosted", "linux", "docker", "ubuntu20.04"]
+    runs-on: ubuntu-latest
     timeout-minutes: 120
 
     steps:
     - name: checkout
       uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and install
       run: |
-          sudo apt-get update && sudo apt-get install libgl1
-          pip3 install torch==1.9.1+cu111 torchvision==0.10.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
-          pip3 install mmcv-full==1.4.7 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
-          pip3 install .
+          pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+          pip install mmcv-full==1.4.7 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
+          pip install nevergrad
+          pip install -e .
     - name: Run unittests and generate coverage report
       run: |
           pip3 install pytest coverage
