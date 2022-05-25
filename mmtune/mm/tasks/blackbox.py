@@ -1,7 +1,7 @@
 import argparse
 from abc import ABCMeta
 from functools import partial
-from typing import Callable, Optional
+from typing import Callable, Sequence
 
 from .base import BaseTask
 from .builder import TASKS
@@ -10,18 +10,13 @@ from .builder import TASKS
 @TASKS.register_module()
 class BloackBoxTask(BaseTask, metaclass=ABCMeta):
 
-    def add_arguments(
-        self,
-        parser: Optional[argparse.ArgumentParser] = None
-    ) -> argparse.ArgumentParser:
-
-        if parser is None:
-            parser = argparse.ArgumentParser(description='black box')
-        return parser
+    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        parser = argparse.ArgumentParser(description='black box')
+        return parser.parse_args(args)
 
     def create_trainable(self) -> Callable:
         return partial(
-            self.contextaware_run,
+            self.context_aware_run,
             dict(
                 base_cfg=self.base_cfg,
                 args=self.args,

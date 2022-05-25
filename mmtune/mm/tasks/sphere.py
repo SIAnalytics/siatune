@@ -10,7 +10,7 @@ from .builder import TASKS
 class Sphere(BloackBoxTask):
 
     def run(self, *args, **kwargs):
-        args = kwargs['args']
+        args = self.args
         cfg = Config.fromfile(args.config)
 
         inputs = []
