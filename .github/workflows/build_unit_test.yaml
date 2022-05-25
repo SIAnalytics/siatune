@@ -30,7 +30,7 @@ jobs:
           pip install -e .
     - name: Run unittests and generate coverage report
       run: |
-          pip3 install pytest coverage
+          pip install pytest coverage
           coverage run --branch --source mmtune -m pytest tests/
           coverage xml
           coverage report -m
