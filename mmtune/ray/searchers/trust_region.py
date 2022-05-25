@@ -44,6 +44,7 @@ class _Optimizer:
                      covar_base_kernel_nu: float):
             for constraint in [lengthscale_constraint, outputscale_constraint]:
                 assert len(constraint) == 2 and constraint[0] <= constraint[1]
+            super().__init__(train_inputs, train_targets, likelihood)
             self.mean = ConstantMean()
             self.covar = ScaleKernel(
                 MaternKernel(
@@ -51,42 +52,52 @@ class _Optimizer:
                     ard_num_dims=train_inputs.shape[1],
                     nu=covar_base_kernel_nu),
                 outputscale_constraint=Interval(*outputscale_constraint))
-            super().__init__(train_inputs, train_targets, likelihood)
 
         def forward(self, inputs: torch.Tensor) -> torch.Tensor:
             return MultivariateNormal(self.mean(inputs), self.covar(inputs))
 
+        def get_weights(self):
+            return self.covar.base_kernel.lengthscale.detach().numpy().ravel()
+
     @staticmethod
     def stable_softmax(inputs: np.array) -> np.array:
-        return np.exp(inputs - np.max(inputs)) / np.sum(np.exp(inputs))
+        max_value = np.max(inputs)
+        return np.exp(inputs - max_value) / np.sum(np.exp(inputs - max_value))
 
-    def __init__(self,
-                 metas: dict,
-                 mode: str = min,
-                 min_num_cands: int = 4096,
-                 likelihood_noise_constraint: tuple = (5e-4, 2e-1),
-                 lengthscale_constraint: tuple = (5e-3, 2.0),
-                 outputscale_constraint: tuple = (5e-2, 2e1),
-                 covar_base_kernel_nu: float = 2.5,
-                 gp_model_init_cfg=dict(),
-                 lr: float = 0.1,
-                 num_training_steps: int = 50,
-                 max_num_successes: int = 3,
-                 max_num_fails: int = 4,
-                 trust_region_expand_rate: float = 2.0,
-                 max_trust_region: float = 1.6,
-                 trust_region_shrink_rate: float = 2.0,
-                 min_trust_region: float = 0.5**7,
-                 init_trust_region: float = 0.8,
-                 suc_bound: float = 1e-3,
-                 max_cholesky_size: int = 2048):
+    def __init__(
+        self,
+        metas: dict,
+        mode: str = min,
+        min_num_cands: int = 4096,
+        likelihood_noise_constraint: tuple = (5e-4, 2e-1),
+        lengthscale_constraint: tuple = (5e-3, 2.0),
+        outputscale_constraint: tuple = (5e-2, 2e1),
+        covar_base_kernel_nu: float = 2.5,
+        gp_model_init_cfg={
+            'covar.outputscale': 1.0,
+            'covar.base_kernel.lengthscale': 0.5,
+            'likelihood.noise': 0.005
+        },
+        lr: float = 0.1,
+        num_training_steps: int = 64,
+        max_num_successes: int = 3,
+        max_num_fails: int = 4,
+        trust_region_expand_rate: float = 2.0,
+        max_trust_region: float = 1.6,
+        trust_region_shrink_rate: float = 0.5,
+        min_trust_region: float = 0.5**7,
+        init_trust_region: float = 0.8,
+        suc_bound: float = 1e-3,
+        max_cholesky_size: int = 2048):  # noqa E129
+
         self.metas = metas
-        self._vector_dims = max(self.metas, key=lambda x: x.idx).idx + 1
-        self.histrory = dict(
-            x=np.zeros((0, self.vector_dims)), y=np.zeros((0, 1)))
+        self._vector_dims = max(
+            max(meta.idx) if isinstance(meta.idx, list) else meta.idx
+            for meta in self.metas.values()) + 1
+        self.history = dict(x=np.zeros((0, self.vector_dims)), y=[])
         assert mode in ['min', 'max']
         self.mode = mode
-        self.num_cands = min(100 * self.vecor_dims, min_num_cands)
+        self.num_cands = min(100 * self.vector_dims, min_num_cands)
         self.likelihood_noise_constraint = likelihood_noise_constraint
         self.lengthscale_constraint = lengthscale_constraint
         self.outputscale_constraint = outputscale_constraint
@@ -97,7 +108,8 @@ class _Optimizer:
         self.num_successes = 0
         self.num_fails = 0
         self.max_num_successes = max_num_successes
-        self.max_num_fails = np.max(max_num_fails, self.vector_dims)
+        self.trust_region_expand_rate = trust_region_expand_rate
+        self.max_num_fails = np.max([max_num_fails, self.vector_dims])
         self.trust_region_shrink_rate = trust_region_shrink_rate
         self.min_trust_region = min_trust_region
         self.max_trust_region = max_trust_region
@@ -108,7 +120,7 @@ class _Optimizer:
 
     @property
     def num_evals(self):
-        return self.histrory.get('x').shape[0]
+        return self.hisrory.get('x').shape[0]
 
     @property
     def vector_dims(self):
@@ -121,8 +133,8 @@ class _Optimizer:
             noise_constraint=Interval(*self.likelihood_noise_constraint))
         self.gp_model = _Optimizer.ConstraintsGaussianProcess(
             train_x, train_y, self.likelihood, self.lengthscale_constraint,
-            self.outputscale_constraint, self.covar_base_kernel_nu)
-        self.gp_model.load_state_dict(self.gp_model_init_cfg)
+            self.outputscale_constraint, self.covar_base_kernel_nu).double()
+        self.gp_model.initialize(**self.gp_model_init_cfg)
         self.optimizer = torch.optim.Adam(
             self.gp_model.parameters(), lr=self.lr)
         self.loss = ExactMarginalLogLikelihood(self.likelihood, self.gp_model)
@@ -147,8 +159,8 @@ class _Optimizer:
             else:
                 cat_vector = [0.] * len(meta.category)
                 cat_vector[meta.category.index(inputs[key])] = 1.
-                for idx in meta.idx:
-                    results[idx] = cat_vector[idx]
+                for cat_idx, idx in enumerate(meta.idx):
+                    results[idx] = cat_vector[cat_idx]
         return np.array(
             [v for _, v in sorted([(int(k), v) for k, v in results.items()])])
 
@@ -167,15 +179,15 @@ class _Optimizer:
     def _del(self):
         del self.gp_model, self.likelihood, self.train_x, self.train_y, self.optimizer, self.loss  # noqa E501
 
-    def _adjust_trust_region(self, y: float):
+    def _adjust_trust_region(self, y: float, eps: float = 1e-4):
         best_y = np.min(self.history['y']) if self.mode == 'min' else np.max(
             self.history['y'])
-        if np.min(y) < best_y - self.suc_bound * math.fabs(best_y):
+        if math.fabs((y - best_y) / (best_y + eps)) < self.suc_bound:
             self.num_successes += 1
             self.num_fails = 0
         else:
             self.num_successes = 0
-            self.num_fails = 1
+            self.num_fails += 1
         if self.num_successes == self.max_num_successes:
             self.trust_region = min([
                 self.trust_region_expand_rate * self.trust_region,
@@ -187,6 +199,7 @@ class _Optimizer:
                 self.trust_region_shrink_rate * self.trust_region,
                 self.min_trust_region
             ])
+            self.num_fails = 0
 
     def ask(self, seed: Optional[int] = None) -> Dict:
         if self.num_evals == 0:
@@ -199,24 +212,25 @@ class _Optimizer:
         y = (y.copy() - y_mean) / y_std
 
         with gpytorch.settings.max_cholesky_size(self.max_cholesky_size):
-            self._build(torch.tensor(x), torch.tensor(y))
+            self._build(torch.tensor(x), torch.tensor(np.array(y)))
             self._train()
 
         x_cent = np.expand_dims(
             x[y.argmin() if self.mode == 'min' else y.argmax()].copy(), axis=0)
-        weights = self.gp_model.covar.lengthscale.detach().numpy().ravel()
+        weights = self.gp_model.get_weights()
         weights /= weights.mean()
         weights /= np.prod(np.power(weights, 1.0 / len(weights)))
-        lower = np.clip(x_cent - weights * self.trust_region / 2., 1.)
-        upper = np.clip(x_cent + weights * self.trust_region / 2., 1.)
+        lower = np.clip(x_cent - weights * self.trust_region / 2., 0., 1.)
+        upper = np.clip(x_cent + weights * self.trust_region / 2., 0., 1.)
 
         seed = np.random.randint(2**31) if seed is None else seed
         pert = SobolEngine(
-            self.vector_dims, scramble=True, seed=seed).draw(self.num_cands)
+            self.vector_dims, scramble=True,
+            seed=seed).draw(self.num_cands).detach().numpy()
         pert = lower + (upper - lower) * pert
         pert_prob = min(20. / self.vector_dims, 1.)
 
-        mask = np.random(self.num_cands, self.vector_dims) <= pert_prob
+        mask = np.random.rand(self.num_cands, self.vector_dims) <= pert_prob
         mask_idx = np.where(np.sum(mask, axis=1) == 0)[0]
         mask[mask_idx,
              np.random.randint(0, self.vector_dims -
@@ -228,8 +242,8 @@ class _Optimizer:
         with torch.no_grad(), gpytorch.settings.max_cholesky_size(
                 self.max_cholesky_size):
             y_cand = self.gp_model.likelihood(
-                self.gp_model(
-                    torch.tensor(x_cand)).sample(1)).t().detach().numpy()
+                self.gp_model(torch.tensor(x_cand))).sample(torch.Size(
+                    [1])).t().detach().numpy()
 
         self._del()
 
@@ -242,12 +256,12 @@ class _Optimizer:
         x_vector = self._encode(x)
         if self.num_evals != 0:
             self._adjust_trust_region(y)
-        self.history['x'] = np.vstack((self.history['x'], x_vector.copy()))
-        self.history['y'] = np.vstack((self.history['y'], y))
+        self.history['x'] = np.vstack((self.history.get('x'), x_vector.copy()))
+        self.history['y'].append(y)
         return
 
 
-@SEARCHERS.register_module(force=True)
+@SEARCHERS.register_module()
 class TrustRegionSearcher(Searcher):
 
     def __init__(
@@ -262,6 +276,7 @@ class TrustRegionSearcher(Searcher):
         self._metric = metric
         self._mode = mode
         self._optimizer = self._setup_optimizer()
+        self._live_trial_mapping = {}
 
     def _setup_optimizer(self) -> Optional[_Optimizer]:
         if self._space and self._mode:
@@ -303,19 +318,14 @@ class TrustRegionSearcher(Searcher):
                           trial_id: str,
                           result: Optional[Dict] = None,
                           error: bool = False):
-        """Notification for the completion of trial.
-
-        The result is internally negated when interacting with Nevergrad so
-        that Nevergrad Optimizers can "maximize" this value, as it minimizes on
-        default.
-        """
         if result:
             self._process_result(trial_id, result)
 
         self._live_trial_mapping.pop(trial_id)
 
     def _process_result(self, trial_id: str, result: Dict):
-        self._optimizer.tell(result[self._metric])
+        self._optimizer.tell(self._live_trial_mapping[trial_id],
+                             result[self._metric])
 
     def save(self, checkpoint_path: str):
         save_object = self.__dict__
@@ -333,7 +343,7 @@ class TrustRegionSearcher(Searcher):
         if grid_vars:
             raise ValueError(
                 'Grid search parameters cannot be automatically converted '
-                'to a Nevergrad search space.')
+                'to a trust region search space.')
 
         # Flatten and resolve again after checking for grid search.
         spec = flatten_dict(spec, prevent_delimiter=True)
@@ -368,7 +378,7 @@ class TrustRegionSearcher(Searcher):
         metas = dict()
         vector_idx = 0
         for path, domain in domain_vars:
-            param_meta, vector_idx_dev = self.convert_search_space(domain)
+            param_meta, vector_idx_dev = resolve_value(domain, vector_idx)
             metas['/'.join(path)] = param_meta
             vector_idx += vector_idx_dev
 
