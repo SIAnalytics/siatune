@@ -1,23 +1,19 @@
-import argparse
-import os
+from argparse import REMAINDER, ArgumentParser, Namespace
 from os import path as osp
 
 import mmcv
 import ray
+from mmcv import Config
 
 from mmtune.apis import log_analysis, tune
-from mmtune.mm.tasks import BaseTask, build_task_processor
-
-TASK_NAME = os.getenv('MMTUNE_TASK_NAME')
-assert TASK_NAME is not None
+from mmtune.mm.tasks import build_task_processor
 
 
-def parse_args(task_processor: BaseTask) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description='tune')
+def parse_args() -> Namespace:
+    parser = ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
     parser.add_argument(
-        '--task-config', default=None, help='taks config file path')
-    parser = task_processor.add_arguments(parser)
+        '--work-dir', default=None, help='the dir to save logs and models')
     parser.add_argument(
         '--address',
         default=None,
@@ -51,45 +47,52 @@ def parse_args(task_processor: BaseTask) -> argparse.Namespace:
         default=1,
         help='number of gpus each worker uses.',
     )
+    parser.add_argument(
+        'trainable_args',
+        nargs=REMAINDER,
+        type=str,
+        help='Rest from the trainable process.',
+    )
     args = parser.parse_args()
-    assert hasattr(args, 'task_config')
     return args
 
 
 def main():
-    task_processor = build_task_processor(TASK_NAME)
+    args = parse_args()
+    tune_config = Config.fromfile(args.tune_config)
 
-    args = parse_args(task_processor)
-    tune_config = mmcv.Config.fromfile(args.tune_config)
-    task_config = mmcv.Config(
-        dict()) if args.task_config is None else mmcv.Config.fromfile(
-            args.task_config)
-    task_processor.set_base_cfg(task_config)
+    task_processor = build_task_processor(tune_config.task)
+    task_processor.set_args(args.trainable_args)
+    task_processor.set_rewriters(tune_config.get('rewriters', []))
 
     file_name = osp.splitext(osp.basename(args.tune_config))[0]
-    """
-    work_dir is determined in this priority:
-    CLI > segment in tune cfg file > segment in task cfg file
-        > tune cfg filename
-    """
-    args.work_dir = getattr(args, 'work_dir', '') or getattr(
-        tune_config, 'work_dir', '') or getattr(
-            task_config, 'work_dir', '') or osp.join('./work_dirs', file_name)
-    mmcv.mkdir_or_exist(args.work_dir)
-    task_processor.set_args(args)
-    task_processor.set_rewriters(getattr(tune_config, 'rewriters', []))
-    exp_name = args.exp_name or getattr(tune_config, 'exp_name',
-                                        '') or file_name
+    exp_name = args.exp_name or tune_config.get('exp_name', file_name)
+
+    # work_dir is determined in this priority: CLI > segment in file > filename
+    if args.work_dir is not None:
+        tune_config.work_dir = args.work_dir
+    elif tune_config.get('work_dir', None) is None:
+        tune_config.work_dir = osp.join('./work_dirs', file_name)
+    mmcv.mkdir_or_exist(tune_config.work_dir)
+    # work_dir in task is overridden with work_dir in tune
+    if tune_config.task.type.startswith('MM'):
+        task_processor.args.work_dir = tune_config.work_dir
 
     ray.init(
         address=args.address, num_cpus=args.num_cpus, num_gpus=args.num_gpus)
     assert ray.is_initialized()
 
-    analysis_dir = osp.join(args.work_dir, 'analysis')
+    task_config = getattr(task_processor.args, 'config', None)
+    if task_config is not None:
+        task_config = Config.fromfile(task_config)
+
+    analysis_dir = osp.join(tune_config.work_dir, 'analysis')
     mmcv.mkdir_or_exist(analysis_dir)
     log_analysis(
-        tune(task_processor, tune_config, exp_name), tune_config, task_config,
-        analysis_dir)
+        tune(task_processor, tune_config, exp_name),
+        tune_config,
+        task_config=task_config,
+        log_dir=analysis_dir)
 
 
 if __name__ == '__main__':

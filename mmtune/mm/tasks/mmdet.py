@@ -2,7 +2,7 @@ import argparse
 import copy
 import time
 from os import path as osp
-from typing import Optional
+from typing import Optional, Sequence
 
 import mmcv
 import torch
@@ -17,13 +17,9 @@ from .mmtrainbase import MMTrainBasedTask
 @TASKS.register_module()
 class MMDetection(MMTrainBasedTask):
 
-    def add_arguments(
-        self,
-        parser: Optional[argparse.ArgumentParser] = None
-    ) -> argparse.ArgumentParser:
-
-        if parser is None:
-            parser = argparse.ArgumentParser(description='Train a detector')
+    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        parser = argparse.ArgumentParser(description='Train a detector')
+        parser.add_argument('config', help='train config file path')
         parser.add_argument(
             '--work-dir', help='the dir to save logs and models')
         parser.add_argument(
@@ -63,13 +59,12 @@ class MMDetection(MMTrainBasedTask):
             'like key="[a,b]" or key=a,b It also allows nested list/tuple '
             'values, e.g. key="[(a,b),(c,d)]" Note that the quotation marks '
             'are necessary and that no white space is allowed.')
-        parser.add_argument('--local_rank', type=int, default=0)
         parser.add_argument(
             '--auto-scale-lr',
             action='store_true',
             help='enable automatically scaling LR.')
-
-        return parser
+        args = parser.parse_args(args)
+        return args
 
     def build_model(self,
                     cfg: Config,
@@ -102,7 +97,7 @@ class MMDetection(MMTrainBasedTask):
         from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
-        args = kwargs['args']
+        args = self.args
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:

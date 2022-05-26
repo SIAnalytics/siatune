@@ -12,7 +12,8 @@ space = {
     'model.auxiliary_head.num_classes': dict(type='Constant', value=21),
 }
 
+task = dict(type='MMSegmentation')
 metric = 'val/mIoU'
 mode = 'max'
-raise_on_failed_trial = False,
+raise_on_failed_trial = False
 num_samples = 256

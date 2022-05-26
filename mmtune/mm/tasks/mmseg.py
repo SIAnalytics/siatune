@@ -2,7 +2,7 @@ import argparse
 import copy
 import time
 from os import path as osp
-from typing import Optional
+from typing import Optional, Sequence
 
 import mmcv
 import torch
@@ -17,13 +17,9 @@ from .mmtrainbase import MMTrainBasedTask
 @TASKS.register_module()
 class MMSegmentation(MMTrainBasedTask):
 
-    def add_arguments(
-        self,
-        parser: Optional[argparse.ArgumentParser] = None
-    ) -> argparse.ArgumentParser:
-
-        if parser is None:
-            parser = argparse.ArgumentParser(description='Train a segmentor')
+    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        parser = argparse.ArgumentParser(description='Train a segmentor')
+        parser.add_argument('config', help='train config file path')
         parser.add_argument(
             '--work-dir', help='the dir to save logs and models')
         parser.add_argument(
@@ -58,7 +54,8 @@ class MMSegmentation(MMTrainBasedTask):
             '--auto-resume',
             action='store_true',
             help='resume from the latest checkpoint automatically.')
-        return parser
+        args = parser.parse_args(args)
+        return args
 
     def build_model(self,
                     cfg: Config,
@@ -92,7 +89,7 @@ class MMSegmentation(MMTrainBasedTask):
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
-        args = kwargs['args']
+        args = self.args
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:
