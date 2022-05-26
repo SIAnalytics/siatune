@@ -8,7 +8,7 @@ from .builder import TASKS
 
 
 @TASKS.register_module()
-class BloackBoxTask(BaseTask, metaclass=ABCMeta):
+class BlackBoxTask(BaseTask, metaclass=ABCMeta):
 
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         parser = argparse.ArgumentParser(description='black box')
