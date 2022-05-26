@@ -1,5 +1,6 @@
 import argparse
 import copy
+import os
 import time
 from os import path as osp
 from typing import Optional, Sequence
@@ -64,6 +65,8 @@ class MMDetection(MMTrainBasedTask):
             action='store_true',
             help='enable automatically scaling LR.')
         args = parser.parse_args(args)
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(dist.get_rank())
         return args
 
     def build_model(self,
@@ -95,7 +98,7 @@ class MMDetection(MMTrainBasedTask):
     def run(self, *args, **kwargs):
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
-        from mmdet.utils import (collect_env, get_root_logger,
+        from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes)
         args = self.args
 
@@ -155,8 +158,9 @@ class MMDetection(MMTrainBasedTask):
         logger.info(f'Distributed training: {distributed}')
         logger.info(f'Config:\n{cfg.pretty_text}')
 
+        cfg.device = get_device()
         # set random seeds
-        seed = init_random_seed(args.seed)
+        seed = init_random_seed(args.seed, device=cfg.device)
         seed = seed + dist.get_rank() if args.diff_seed else seed
         logger.info(f'Set random seed to {seed}, '
                     f'deterministic: {args.deterministic}')
