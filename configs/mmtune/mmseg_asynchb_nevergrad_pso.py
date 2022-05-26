@@ -12,7 +12,7 @@ space = {
     'model.auxiliary_head.num_classes': dict(type='Constant', value=21),
 }
 
-task = 'MMSegmentation'
+task = dict(type='MMSegmentation')
 metric = 'val/mIoU'
 mode = 'max'
 raise_on_failed_trial = False

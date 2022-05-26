@@ -10,7 +10,7 @@ space = {
     'data.samples_per_gpu': {{_base_.batch_size}},
 }
 
-task = 'MMDetection'
+task = dict(type='MMDetection')
 metric = 'val/AP'
 mode = 'max'
 raise_on_failed_trial = False

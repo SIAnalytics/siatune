@@ -75,7 +75,7 @@ def main():
         tune_config.work_dir = osp.join('./work_dirs', file_name)
     mmcv.mkdir_or_exist(tune_config.work_dir)
     # work_dir in task is overridden with work_dir in tune
-    if tune_config.task.startswith('MM'):
+    if tune_config.task.type.startswith('MM'):
         task_processor.args.work_dir = tune_config.work_dir
 
     ray.init(
