@@ -5,6 +5,7 @@ import ray
 from mmcv.utils import Config
 
 from mmtune.mm.tasks import BaseTask
+from mmtune.ray.callbacks import build_callback
 from mmtune.ray.schedulers import build_scheduler
 from mmtune.ray.searchers import build_searcher
 from mmtune.ray.spaces import build_space
@@ -47,6 +48,10 @@ def tune(task_processor: BaseTask, tune_config: Config,
     if scheduler is not None:
         scheduler = build_scheduler(scheduler)
 
+    callbacks = tune_config.get('callbacks', None)
+    if callbacks is not None:
+        callbacks = [build_callback(callback) for callback in callbacks]
+
     return ray.tune.run(
         trainable,
         name=exp_name,
@@ -59,4 +64,5 @@ def tune(task_processor: BaseTask, tune_config: Config,
         local_dir=tune_artifact_dir,
         search_alg=searcher,
         scheduler=scheduler,
-        raise_on_failed_trial=tune_config.get('raise_on_failed_trial', False))
+        raise_on_failed_trial=tune_config.get('raise_on_failed_trial', False),
+        callbacks=callbacks)
