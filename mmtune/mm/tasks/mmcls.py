@@ -1,8 +1,9 @@
 import argparse
 import copy
+import os
 import time
 from os import path as osp
-from typing import Optional
+from typing import Optional, Sequence
 
 import mmcv
 import torch
@@ -17,13 +18,8 @@ from .mmtrainbase import MMTrainBasedTask
 @TASKS.register_module()
 class MMClassification(MMTrainBasedTask):
 
-    def add_arguments(
-        self,
-        parser: Optional[argparse.ArgumentParser] = None
-    ) -> argparse.ArgumentParser:
-
-        if parser is None:
-            parser = argparse.ArgumentParser(description='Train a model')
+    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        parser = argparse.ArgumentParser(description='Train a model')
         parser.add_argument('config', help='train config file path')
         parser.add_argument(
             '--work-dir', help='the dir to save logs and models')
@@ -53,6 +49,9 @@ class MMClassification(MMTrainBasedTask):
             'or key=a,b It also allows nested list/tuple values, e.g. '
             'key="[(a,b),(c,d)]" Note that the quotation marks are necessary '
             'and that no white space is allowed.')
+        args = parser.parse_args(args)
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(dist.get_rank())
         return parser
 
     def build_model(self,

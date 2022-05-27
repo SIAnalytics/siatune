@@ -43,20 +43,21 @@ def test_tune():
             result = {'name': self.trial_name, 'trial_id': self.trial_id}
             return result
 
-    tune_config = mmcv.Config(
-        dict(
-            scheduler=dict(
-                type='AsyncHyperBandScheduler',
-                time_attr='training_iteration',
-                max_t=3,
-                grace_period=1),
-            metric='accuracy',
-            mode='max',
-            num_samples=1))
-
     mock_task_processor = MagicMock()
     mock_task_processor.create_trainable.return_value = TestTrainable
     with tempfile.TemporaryDirectory() as tmpdir:
+        tune_config = mmcv.Config(
+            dict(
+                scheduler=dict(
+                    type='AsyncHyperBandScheduler',
+                    time_attr='training_iteration',
+                    max_t=3,
+                    grace_period=1),
+                metric='accuracy',
+                mode='max',
+                num_samples=1,
+                work_dir=tmpdir))
+
         mock_task_processor.args.work_dir = tmpdir
         mock_task_processor.args.num_workers = 1
         mock_task_processor.args.num_cpus_per_worker = 1
