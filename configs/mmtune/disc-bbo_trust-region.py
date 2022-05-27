@@ -9,4 +9,6 @@ space = {
     for idx in range(8)
 }
 
+task = dict(type='DiscreteTestFunction')
+
 num_samples = 512

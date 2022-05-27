@@ -8,4 +8,6 @@ space = {
     for idx in range(8)
 }
 
+task = dict(type='ContinuousTestFunction')
+
 num_samples = 512
