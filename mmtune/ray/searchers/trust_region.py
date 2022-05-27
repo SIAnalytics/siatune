@@ -120,7 +120,7 @@ class _Optimizer:
 
     @property
     def num_evals(self):
-        return self.hisrory.get('x').shape[0]
+        return self.history.get('x').shape[0]
 
     @property
     def vector_dims(self):
