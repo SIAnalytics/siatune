@@ -2,6 +2,9 @@ import argparse
 from abc import ABCMeta
 from typing import Callable, Sequence
 
+from mmcv import Config
+
+from mmtune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
 
