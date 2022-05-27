@@ -52,7 +52,7 @@ class MMClassification(MMTrainBasedTask):
         args = parser.parse_args(args)
         if 'LOCAL_RANK' not in os.environ:
             os.environ['LOCAL_RANK'] = str(dist.get_rank())
-        return parser
+        return args
 
     def build_model(self,
                     cfg: Config,
