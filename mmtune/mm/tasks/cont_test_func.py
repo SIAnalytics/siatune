@@ -4,7 +4,7 @@ import numpy as np
 import ray
 from mmcv.utils import Config
 
-from .blackbox import BloackBoxTask
+from .blackbox import BlackBoxTask
 from .builder import TASKS
 
 
@@ -22,7 +22,7 @@ def _step(s: float) -> float:
 
 
 @TASKS.register_module()
-class ContinuousTestFunction(BloackBoxTask):
+class ContinuousTestFunction(BlackBoxTask):
 
     @staticmethod
     def delayedsphere(self, x: np.ndarray) -> float:

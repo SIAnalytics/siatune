@@ -15,7 +15,7 @@ __all__ = [
     'TASKS',
     'build_task_processor',
     'BaseTask',
-    'BloackBoxTask',
+    'BlackBoxTask',
     'MMTrainBasedTask',
     'MMDetection',
     'MMSegmentation',

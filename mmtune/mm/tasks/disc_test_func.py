@@ -2,12 +2,12 @@ import numpy as np
 import ray
 from mmcv.utils import Config
 
-from .blackbox import BloackBoxTask
+from .blackbox import BlackBoxTask
 from .builder import TASKS
 
 
 @TASKS.register_module()
-class DiscreteTestFunction(BloackBoxTask):
+class DiscreteTestFunction(BlackBoxTask):
 
     @staticmethod
     def onemax(x: np.ndarray, arity: int) -> float:
