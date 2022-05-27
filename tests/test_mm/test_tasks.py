@@ -1,7 +1,8 @@
 import argparse
 from unittest.mock import patch
 
-from mmtune.mm.tasks import MMDetection, MMSegmentation, Sphere
+from mmtune.mm.tasks import (MMClassification, MMDetection, MMSegmentation,
+                             Sphere)
 
 
 @patch.object(MMSegmentation, 'train_model', return_value=None)
@@ -30,6 +31,22 @@ def test_mmdet(mock_build_dataset, mock_train_model):
     parser.add_argument('--config')
 
     task = MMDetection()
+    parser = task.add_arguments(parser)
+    args = parser.parse_args(['--config', config_path])
+
+    task.run(args=args)
+
+
+@patch.object(MMClassification, 'train_model', return_value=None)
+@patch.object(MMClassification, 'build_dataset')
+def test_mmcls(mock_build_dataset, mock_train_model):
+    mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
+
+    parser = argparse.ArgumentParser()
+    config_path = 'configs/mmcls/resnet/resnet18_8xb16_cifar10.py'
+    parser.add_argument('--config')
+
+    task = MMClassification()
     parser = task.add_arguments(parser)
     args = parser.parse_args(['--config', config_path])
 
