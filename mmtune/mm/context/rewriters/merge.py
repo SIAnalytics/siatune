@@ -13,6 +13,32 @@ class ConfigMerger:
     def merge_dict(src: dict,
                    dst: dict,
                    allow_list_keys: Union[list, dict, bool] = False):
+        """merge dict ``a`` into dict ``b`` (non-inplace).
+        Values in ``a`` will overwrite ``b``. ``b`` is copied first to avoid
+        in-place modifications.
+        Args:
+            a (dict): The source dict to be merged into ``b``.
+            b (dict): The origin dict to be fetch keys from ``a``.
+            allow_list_keys (bool): If True, int string keys (e.g. '0', '1')
+              are allowed in source ``a`` and will replace the element of the
+              corresponding index in b if b is a list. Default: False.
+        Returns:
+            dict: The modified dict of ``b`` using ``a``.
+        Examples:
+            # Normally merge a into b.
+            >>> Config._merge_a_into_b(
+            ...     dict(obj=dict(a=2)), dict(obj=dict(a=1)))
+            {'obj': {'a': 2}}
+            # Delete b first and merge a into b.
+            >>> Config._merge_a_into_b(
+            ...     dict(obj=dict(_delete_=True, a=2)), dict(obj=dict(a=1)))
+            {'obj': {'a': 2}}
+            # b is a list
+            >>> Config._merge_a_into_b(
+            ...     {'0': dict(a=2)}, [dict(a=1), dict(b=2)], True)
+            [{'a': 2}, {'b': 2}]
+
+        """
         dst = dst.copy()
         for k, v in src.items():
             if allow_list_keys and k.isdigit() and isinstance(dst, list):
@@ -20,6 +46,8 @@ class ConfigMerger:
                 if len(dst) <= k:
                     raise KeyError(
                         f'Index {k} exceeds the length of list {dst}')
+                # modified from the mmcv.config.Config._merge_a_into_b
+                # this allows merging with primitives such as int, float
                 dst[k] = ConfigMerger.merge_dict(v, dst[k],
                                                  allow_list_keys) if hasattr(
                                                      dst[k], 'copy') else v
