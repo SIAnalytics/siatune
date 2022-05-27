@@ -59,7 +59,7 @@ class MMClassification(MMTrainBasedTask):
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
         from mmcls.models import build_classifier
-        return build_classifier(cfg.model)
+        return build_classifier(cfg)
 
     def build_dataset(
             self,
