@@ -1,7 +1,10 @@
 import math
+import operator
 import pickle
+import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from functools import partial
+from typing import Dict, List, Optional, Union
 
 import gpytorch
 import numpy as np
@@ -28,7 +31,7 @@ class _Optimizer:
 
     @dataclass(frozen=True)
     class ParamMeta:
-        idx: Union[List[int], int]
+        idx: int
         category: Optional[List] = None
         lower: Optional[float] = None
         upper: Optional[float] = None
@@ -91,9 +94,7 @@ class _Optimizer:
         max_cholesky_size: int = 2048):  # noqa E129
 
         self.metas = metas
-        self._vector_dims = max(
-            max(meta.idx) if isinstance(meta.idx, list) else meta.idx
-            for meta in self.metas.values()) + 1
+        self._vector_dims = len(self.metas)
         self.history = dict(x=np.zeros((0, self.vector_dims)), y=[])
         assert mode in ['min', 'max']
         self.mode = mode
@@ -114,8 +115,8 @@ class _Optimizer:
         self.min_trust_region = min_trust_region
         self.max_trust_region = max_trust_region
         self.init_trust_region = init_trust_region
-        self.trust_region = init_trust_region
         self.suc_bound = suc_bound
+        self.trust_region = init_trust_region
         self.max_cholesky_size = max_cholesky_size
 
     @property
@@ -151,18 +152,17 @@ class _Optimizer:
         self.likelihood.eval()
 
     def _encode(self, inputs: dict) -> np.ndarray:
-        results = {}
+        results = [0.] * self.vector_dims
         for key, meta in self.metas.items():
             if meta.category is None:
                 results[meta.idx] = (inputs[key] - meta.lower) / (
                     meta.upper - meta.lower)
             else:
-                cat_vector = [0.] * len(meta.category)
-                cat_vector[meta.category.index(inputs[key])] = 1.
-                for cat_idx, idx in enumerate(meta.idx):
-                    results[idx] = cat_vector[cat_idx]
-        return np.array(
-            [v for _, v in sorted([(int(k), v) for k, v in results.items()])])
+                ct_len = len(meta.category)
+                ct_idx = meta.category.index(inputs[key])
+                results[meta.idx] = random.uniform(1 / ct_len * ct_idx,
+                                                   1 / ct_len * (ct_idx + 1))
+        return np.array(results)
 
     def _decode(self, inputs: np.array) -> dict:
         result = dict()
@@ -172,17 +172,21 @@ class _Optimizer:
                                              meta.lower) + meta.lower
                 result[key] = int(denorm) if meta.is_int else denorm
             else:
-                sampling_pmf = self.stable_softmax(inputs[meta.idx].copy())
-                result[key] = np.random.choice(meta.category, p=sampling_pmf)
+                result[key] = meta.category[int(inputs[meta.idx] *
+                                                len(meta.category))]
         return result
 
     def _del(self):
         del self.gp_model, self.likelihood, self.train_x, self.train_y, self.optimizer, self.loss  # noqa E501
 
-    def _adjust_trust_region(self, y: float, eps: float = 1e-4):
-        best_y = np.min(self.history['y']) if self.mode == 'min' else np.max(
+    def _adjust_trust_region(self, y: float):
+        y_best = np.min(self.history['y']) if self.mode == 'min' else np.max(
             self.history['y'])
-        if math.fabs((y - best_y) / (best_y + eps)) < self.suc_bound:
+        comp_op = partial(
+            operator.gt if self.mode == 'min' else operator.lt,
+            y_best - math.fabs(y_best) * self.suc_bound if self.mode == 'min'
+            else y_best + math.fabs(y_best) * self.suc_bound)
+        if comp_op(y):
             self.num_successes += 1
             self.num_fails = 0
         else:
@@ -349,15 +353,11 @@ class TrustRegionSearcher(Searcher):
         spec = flatten_dict(spec, prevent_delimiter=True)
         resolved_vars, domain_vars, grid_vars = parse_spec_vars(spec)
 
-        def resolve_value(
-                domain: Domain,
-                vector_idx: int = 0) -> Tuple[_Optimizer.ParamMeta, int]:
+        def resolve_value(domain: Domain,
+                          vector_idx: int = 0) -> _Optimizer.ParamMeta:
             if isinstance(domain, Categorical):
                 param_meta = _Optimizer.ParamMeta(
-                    idx=list(
-                        range(vector_idx,
-                              vector_idx + len(domain.categories))),
-                    category=domain.categories)
+                    idx=vector_idx, category=domain.categories)
             else:
                 sampler = domain.get_sampler()
                 assert not isinstance(sampler, Quantized)
@@ -371,15 +371,11 @@ class TrustRegionSearcher(Searcher):
                     lower=lower,
                     upper=upper,
                     is_int=True if isinstance(domain, Integer) else False)
-            vector_idx_dev = len(domain.categories) if isinstance(
-                domain, Categorical) else 1
-            return param_meta, vector_idx_dev
+            return param_meta
 
         metas = dict()
-        vector_idx = 0
-        for path, domain in domain_vars:
-            param_meta, vector_idx_dev = resolve_value(domain, vector_idx)
+        for vector_idx, (path, domain) in enumerate(domain_vars):
+            param_meta = resolve_value(domain, vector_idx)
             metas['/'.join(path)] = param_meta
-            vector_idx += vector_idx_dev
 
         return metas
