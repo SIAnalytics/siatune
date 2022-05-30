@@ -5,7 +5,7 @@ mode = 'min'
 
 space = {
     f'_variable{idx}':
-    dict(type='Choice', categories=[0, 1], alias=['ON', 'OFF'])
+    dict(type='Choice', categories=[0, 1], alias=['OFF', 'ON'])
     for idx in range(8)
 }
 
