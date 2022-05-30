@@ -91,7 +91,6 @@ def test_build_task_processor():
     TASKS.register_module(TestTaks)
     assert isinstance(build_task_processor(dict(type='TestTaks')), TestTaks)
 
-
 @patch.object(MMSegmentation, 'train_model', return_value=None)
 @patch.object(MMSegmentation, 'build_dataset')
 def test_mmseg(mock_build_dataset, mock_train_model):
