@@ -1,7 +1,7 @@
-import argparse
 from unittest.mock import patch
 
-from mmtune.mm.tasks import MMDetection, MMSegmentation, Sphere
+from mmtune.mm.tasks import (MMClassification, MMDetection, MMSegmentation,
+                             Sphere)
 
 
 @patch.object(MMSegmentation, 'train_model', return_value=None)
@@ -9,15 +9,12 @@ from mmtune.mm.tasks import MMDetection, MMSegmentation, Sphere
 def test_mmseg(mock_build_dataset, mock_train_model):
     mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
 
-    parser = argparse.ArgumentParser()
     config_path = 'configs/mmseg/pspnet/pspnet_r18-d8_4x4_512x512_80k_potsdam.py'  # noqa
-    parser.add_argument('--config')
 
     task = MMSegmentation()
-    parser = task.add_arguments(parser)
-    args = parser.parse_args(['--config', config_path])
+    task.set_args([config_path])
 
-    task.run(args=args)
+    task.run()
 
 
 @patch.object(MMDetection, 'train_model', return_value=None)
@@ -25,24 +22,31 @@ def test_mmseg(mock_build_dataset, mock_train_model):
 def test_mmdet(mock_build_dataset, mock_train_model):
     mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
 
-    parser = argparse.ArgumentParser()
     config_path = 'configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
-    parser.add_argument('--config')
 
     task = MMDetection()
-    parser = task.add_arguments(parser)
-    args = parser.parse_args(['--config', config_path])
+    task.set_args([config_path])
 
-    task.run(args=args)
+    task.run()
+
+
+@patch.object(MMClassification, 'train_model', return_value=None)
+@patch.object(MMClassification, 'build_dataset')
+def test_mmcls(mock_build_dataset, mock_train_model):
+    mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
+
+    config_path = 'configs/mmcls/resnet/resnet18_8xb16_cifar10.py'
+
+    task = MMClassification()
+    task.set_args([config_path])
+
+    task.run()
 
 
 def test_sphere():
-    parser = argparse.ArgumentParser()
-    config_path = 'configs/mmtune/bbo_sphere_nevergrad_oneplusone.py'
-    parser.add_argument('--config')
+    # config_path = 'configs/mmtune/bbo_sphere_nevergrad_oneplusone.py'
 
-    task = Sphere()
-    parser = task.add_arguments(parser)
-    args = parser.parse_args(['--config', config_path])
-
-    task.run(args=args)
+    task = Sphere()  # noqa
+    # TODO: in progress
+    # task.set_args([config_path])
+    # task.run()

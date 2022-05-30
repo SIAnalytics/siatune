@@ -65,8 +65,6 @@ class MMDetection(MMTrainBasedTask):
             action='store_true',
             help='enable automatically scaling LR.')
         args = parser.parse_args(args)
-        if 'LOCAL_RANK' not in os.environ:
-            os.environ['LOCAL_RANK'] = str(dist.get_rank())
         return args
 
     def build_model(self,
@@ -101,6 +99,9 @@ class MMDetection(MMTrainBasedTask):
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes)
         args = self.args
+
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(dist.get_rank())
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:
