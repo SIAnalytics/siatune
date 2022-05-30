@@ -93,12 +93,11 @@ class MMDetection(MMTrainBasedTask):
         train_detector(model, dataset, cfg, distributed, validate, timestamp,
                        meta)
 
-    def run(self, *args, **kwargs):
+    def run(self, *, args=None):
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes)
-        args = self.args
 
         if 'LOCAL_RANK' not in os.environ:
             os.environ['LOCAL_RANK'] = str(dist.get_rank())

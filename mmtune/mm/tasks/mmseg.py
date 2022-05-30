@@ -84,12 +84,11 @@ class MMSegmentation(MMTrainBasedTask):
                         meta)
         return
 
-    def run(self, *args, **kwargs):
+    def run(self, *, args=None):
         from mmseg import __version__
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
-        args = self.args
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:

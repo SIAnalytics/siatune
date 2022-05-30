@@ -28,12 +28,13 @@ class BaseTask(metaclass=ABCMeta):
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         pass
 
-    def context_aware_run(self, status, *args, **kwargs) -> None:
-        context_manager = ContextManager(**status)
-        return context_manager(self.run)(*args, **kwargs)
+    def contextaware_run(self, *searched_cfg, **context) -> None:
+        context_manager = ContextManager(self.rewriters)
+        context['args'] = self.args
+        return context_manager(self.run)(*searched_cfg, **context)
 
     @abstractmethod
-    def run(self, *args, **kwargs) -> None:
+    def run(self, *, args=None) -> None:
         pass
 
     @abstractmethod

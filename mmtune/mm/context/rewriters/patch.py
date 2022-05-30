@@ -17,8 +17,11 @@ def unwrap_regexp(value, regexp=WRAPPING_REGEXP):
 @REWRITERS.register_module()
 class BatchConfigPathcer:
 
+    def __init__(self, key):
+        self.key = key
+
     def __call__(self, context: dict):
-        cfg = context['searched_cfg']
+        cfg = context[self.key]
 
         for key, value in cfg.items():
             inner_key, is_wrapped = unwrap_regexp(key)
@@ -35,8 +38,11 @@ class BatchConfigPathcer:
 @REWRITERS.register_module()
 class SequeunceConfigPathcer:
 
+    def __init__(self, key):
+        self.key = key
+
     def __call__(self, context: dict):
-        cfg = context['searched_cfg']
+        cfg = context[self.key]
 
         for key, value in cfg.items():
             inner_key, is_wrapped = unwrap_regexp(key)

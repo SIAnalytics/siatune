@@ -17,6 +17,10 @@ from .builder import TASKS
 @TASKS.register_module()
 class MMTrainBasedTask(BaseTask):
 
+    @property
+    def backend(self):
+        return self._backend
+
     @abstractmethod
     def build_model(self, cfg: mmcv.Config, **kwargs) -> torch.nn.Module:
         pass
@@ -31,6 +35,14 @@ class MMTrainBasedTask(BaseTask):
                     dataset: torch.utils.data.Dataset, cfg: mmcv.Config,
                     **kwargs) -> None:
         pass
+
+    def contextaware_run(self, *searched_cfg, **context) -> None:
+        from mmtune.mm import hooks  # noqa F401
+        if self.backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
+            os.environ['NCCL_BLOCKING_WAIT'] = '0'
+        context_manager = ContextManager(self.rewriters)
+        context['args'] = self.args
+        return context_manager(self.run)(*searched_cfg, **context)
 
     def context_aware_run(self, status, backend, *args, **kwargs) -> None:
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:

@@ -10,11 +10,8 @@ from .rewriters.builder import build_rewriter
 class ContextManager:
 
     def __init__(self,
-                 base_cfg: Optional[Config] = None,
-                 args: Optional[argparse.Namespace] = None,
-                 rewriters: List[dict] = []):
-        self.base_cfg = base_cfg
-        self.args = args
+                 rewriters: List[dict] = [],
+                 searched_key: str = 'searched_cfg'):
         self.rewriters = []
         assert isinstance(rewriters, collections.abc.Sequence)
         for rewriter in rewriters:
@@ -25,13 +22,12 @@ class ContextManager:
                 self.rewriters.append(rewriter)
             else:
                 raise TypeError('rewriter must be callable or a dict')
+        self.searched_key = searched_key
 
     def __call__(self, func):
 
         def inner(*searched_cfg, **context):
-            context['searched_cfg'] = searched_cfg[0]
-            context['base_cfg'] = self.base_cfg
-            context['args'] = self.args
+            context[self.searched_key] = searched_cfg[0]
 
             for rewriter in self.rewriters:
                 context = rewriter(context)

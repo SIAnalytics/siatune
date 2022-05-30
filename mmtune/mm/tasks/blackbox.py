@@ -15,9 +15,4 @@ class BlackBoxTask(BaseTask, metaclass=ABCMeta):
         return parser.parse_args(args)
 
     def create_trainable(self) -> Callable:
-        return partial(
-            self.context_aware_run,
-            dict(
-                base_cfg=self.base_cfg,
-                args=self.args,
-                rewriters=self.rewriters))
+        return self.context_aware_run

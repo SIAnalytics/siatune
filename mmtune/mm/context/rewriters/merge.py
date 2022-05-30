@@ -9,6 +9,11 @@ from .builder import REWRITERS
 @REWRITERS.register_module()
 class ConfigMerger:
 
+    def __init__(self, src_key: str, dst_key: str, ctx_key: str):
+        self.src_key = src_key
+        self.dst_key = dst_key
+        self.ctx_key = ctx_key
+
     @staticmethod
     def merge_dict(src: dict,
                    dst: dict,
@@ -70,8 +75,8 @@ class ConfigMerger:
         return dst
 
     def __call__(self, context: dict, allow_list_keys=True):
-        src = context.pop('searched_cfg')
-        dst = context.pop('base_cfg')
+        src = context.pop(self.src_key)
+        dst = context.pop(self.dst_key)
         unpacked_src = {}
         for full_key, v in src.items():
             d = unpacked_src
@@ -81,12 +86,11 @@ class ConfigMerger:
                 d = d[subkey]
             subkey = key_list[-1]
             d[subkey] = v
-        context['cfg'] = Config(
+        context[self.ctx_key] = Config(
             self.merge_dict(
                 unpacked_src,
                 dst.__getattribute__('_cfg_dict'),
                 allow_list_keys=allow_list_keys),
             cfg_text=dst.text,
             filename=dst.filename)
-
         return context
