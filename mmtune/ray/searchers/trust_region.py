@@ -90,7 +90,7 @@ class _Optimizer:
         trust_region_shrink_rate: float = 0.5,
         min_trust_region: float = 0.5**7,
         init_trust_region: float = 0.8,
-        suc_bound: float = 1e-3,
+        suc_bound: float = 0.,
         max_cholesky_size: int = 2048):  # noqa E129
 
         self.metas = metas
@@ -183,7 +183,7 @@ class _Optimizer:
         y_best = np.min(self.history['y']) if self.mode == 'min' else np.max(
             self.history['y'])
         comp_op = partial(
-            operator.gt if self.mode == 'min' else operator.lt,
+            operator.ge if self.mode == 'min' else operator.le,
             y_best - math.fabs(y_best) * self.suc_bound if self.mode == 'min'
             else y_best + math.fabs(y_best) * self.suc_bound)
         if comp_op(y):
