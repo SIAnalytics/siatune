@@ -50,8 +50,6 @@ class MMClassification(MMTrainBasedTask):
             'key="[(a,b),(c,d)]" Note that the quotation marks are necessary '
             'and that no white space is allowed.')
         args = parser.parse_args(args)
-        if 'LOCAL_RANK' not in os.environ:
-            os.environ['LOCAL_RANK'] = str(dist.get_rank())
         return args
 
     def build_model(self,
@@ -87,6 +85,9 @@ class MMClassification(MMTrainBasedTask):
         from mmcls.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
         args = self.args
+
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(dist.get_rank())
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:
@@ -171,8 +172,7 @@ class MMClassification(MMTrainBasedTask):
             cfg.checkpoint_config.meta = dict(
                 mmcls_version=f'{__version__}+{get_git_hash()[:7]}',
                 config=cfg.pretty_text,
-                CLASSES=datasets[0].CLASSES,
-                PALETTE=datasets[0].PALETTE)
+                CLASSES=datasets[0].CLASSES)
         # add an attribute for visualization convenience
         model.CLASSES = datasets[0].CLASSES
         # passing checkpoint meta for saving best checkpoint
