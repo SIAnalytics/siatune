@@ -3,6 +3,7 @@ sync_norm_cfg = dict(type='SyncBN', requires_grad=True)
 fp16 = dict(loss_scale=dict(init_scale=512))
 
 resnet18 = dict(
+    _delete_=True,
     type='ImageClassifier',
     backbone=dict(
         type='ResNet',
@@ -20,6 +21,7 @@ resnet18 = dict(
     ))
 
 swin_t_224 = dict(
+    _delete_=True,
     type='ImageClassifier',
     backbone=dict(
         type='SwinTransformer', arch='tiny', img_size=224, drop_path_rate=0.2),
@@ -42,6 +44,7 @@ swin_t_224 = dict(
     ]))
 
 convnext_t = dict(
+    _delete_=True,
     type='ImageClassifier',
     backbone=dict(
         type='ConvNeXt',
