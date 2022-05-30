@@ -33,7 +33,7 @@ class DiscreteTestFunction(BlackBoxTask):
         args = kwargs['args']
         cfg = Config.fromfile(args.config)
         arity = cfg.get('arity', 2)
-        func = getattr(self, cfg.get('func', 'leadingones'))
+        func = getattr(self, cfg.get('func', 'onemax'))
 
         inputs = []
         for k, v in cfg.items():
