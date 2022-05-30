@@ -26,7 +26,7 @@ jobs:
       run: |
           pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html
           pip install mmcv-full==1.4.7 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.9.0/index.html
-          pip install nevergrad mmcls mmdet mmsegmentation
+          pip install nevergrad mmcls mmdet mmsegmentation protobuf==3.20
           pip install -e .
     - name: Run unittests and generate coverage report
       run: |
