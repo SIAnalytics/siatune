@@ -6,9 +6,7 @@ from .rewriters.builder import build_rewriter
 
 class ContextManager:
 
-    def __init__(self,
-                 rewriters: List[dict] = [],
-                 searched_key: str = 'searched_cfg'):
+    def __init__(self, rewriters: List[dict] = []):
         self.rewriters = []
         assert isinstance(rewriters, collections.abc.Sequence)
         for rewriter in rewriters:
@@ -19,7 +17,6 @@ class ContextManager:
                 self.rewriters.append(rewriter)
             else:
                 raise TypeError('rewriter must be callable or a dict')
-        self.searched_key = searched_key
 
     def __call__(self, func):
 
