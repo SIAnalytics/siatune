@@ -12,5 +12,7 @@ class SuffixTrialId:
         self.key = key
 
     def __call__(self, context: dict) -> dict:
-        context[self.key] = osp.join(context[self.key], ray.get_trial_id())
+        value = getattr(context['args'], self.key)
+        setattr(context['args'], self.key,
+                osp.join(value, ray.tune.get_trial_id()))
         return context
