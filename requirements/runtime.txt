@@ -1,3 +1,4 @@
+mmcv-full>=1.4.7
 pandas
 ray[default]==1.9.1
 tabulate
