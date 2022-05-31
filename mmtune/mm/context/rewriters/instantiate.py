@@ -7,6 +7,7 @@ from .builder import REWRITERS
 
 @REWRITERS.register_module()
 class InstantiateCfg:
+    """Instantiate the configs in the argparse namespace."""
 
     def __init__(
             self,

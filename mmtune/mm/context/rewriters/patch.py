@@ -1,11 +1,23 @@
 import re
+from typing import Tuple
 
 from .builder import REWRITERS
 
 WRAPPING_REGEXP = r'^\$\((.*)\)$'
 
 
-def unwrap_regexp(value, regexp=WRAPPING_REGEXP):
+def unwrap_regexp(value, regexp=WRAPPING_REGEXP) -> Tuple[str, bool]:
+    """Unwrap the value if it is wrapped by the regexp.
+
+    Args:
+        value (str): The value to unwrap.
+        regexp (str, optional): The regexp to match.
+        Defaults to WRAPPING_REGEXP.
+
+    Returns:
+        str: The unwrapped value.
+        bool: Whether the value is wrapped.
+    """
     if not isinstance(value, str):
         return value, False
     searched = re.search(regexp, value)
@@ -16,11 +28,17 @@ def unwrap_regexp(value, regexp=WRAPPING_REGEXP):
 
 @REWRITERS.register_module()
 class BatchConfigPathcer:
+    """Patch the config path in the context."""
 
-    def __init__(self, key):
+    def __init__(self, key) -> None:
+        """Initialize the rewriter.
+
+        Args:
+            key (str): The key of the config path in the context.
+        """
         self.key = key
 
-    def __call__(self, context: dict):
+    def __call__(self, context: dict) -> dict:
         cfg = context[self.key]
 
         for key, value in cfg.items():
@@ -37,11 +55,18 @@ class BatchConfigPathcer:
 
 @REWRITERS.register_module()
 class SequeunceConfigPathcer:
+    """Patch the config path in the context."""
 
-    def __init__(self, key):
+    def __init__(self, key: str) -> None:
+        """Initialize the rewriter.
+
+        Args:
+            key (str): The key of the config path in the context.
+        """
+
         self.key = key
 
-    def __call__(self, context: dict):
+    def __call__(self, context: dict) -> dict:
         cfg = context[self.key]
 
         for key, value in cfg.items():
