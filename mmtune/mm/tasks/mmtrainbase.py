@@ -7,7 +7,6 @@ import ray
 import torch
 from ray.tune.integration.torch import DistributedTrainableCreator
 
-from mmtune.mm.context import ContextManager
 from .base import BaseTask
 from .builder import TASKS
 
@@ -30,21 +29,13 @@ class MMTrainBasedTask(BaseTask):
                     **kwargs) -> None:
         pass
 
-    def contextaware_run(self, *searched_cfg, **context) -> None:
-        from mmtune.mm import hooks  # noqa F401
-        if self.backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
-            os.environ['NCCL_BLOCKING_WAIT'] = '0'
-        context_manager = ContextManager(self.rewriters)
-        context['args'] = self.args
-        return context_manager(self.run)(*searched_cfg, **context)
-
     def context_aware_run(self,
                           *searched_cfg,
                           backend='nccl',
                           **context) -> None:
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
-        return super().contextaware_run(*searched_cfg, **context)
+        return super().context_aware_run(*searched_cfg, **context)
 
     def create_trainable(self,
                          backend: str = 'nccl',

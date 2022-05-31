@@ -29,7 +29,7 @@ class BaseTask(metaclass=ABCMeta):
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         pass
 
-    def contextaware_run(self, *searched_cfg, **context) -> None:
+    def context_aware_run(self, *searched_cfg, **context) -> None:
         context_manager = ContextManager(self.rewriters)
         cp_context = dict(
             args=deepcopy(self.args),
