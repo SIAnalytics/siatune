@@ -79,7 +79,7 @@ class MMClassification(MMTrainBasedTask):
             model, dataset, cfg, distributed, validate, timestamp, meta=meta)
         return
 
-    def run(self, *, args=None):
+    def run(self, *, args, **kwargs):
         from mmcls import __version__
         from mmcls.apis import init_random_seed, set_random_seed
         from mmcls.utils import (collect_env, get_root_logger,

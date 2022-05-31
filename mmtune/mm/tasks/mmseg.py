@@ -84,7 +84,7 @@ class MMSegmentation(MMTrainBasedTask):
                         meta)
         return
 
-    def run(self, *, args=None):
+    def run(self, *, args, **kwargs) -> None:
         from mmseg import __version__
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import (collect_env, get_root_logger,

@@ -39,7 +39,7 @@ class BaseTask(metaclass=ABCMeta):
         return context_manager(self.run)(**cp_context)
 
     @abstractmethod
-    def run(self, *, args=None, check) -> None:
+    def run(self, *, args, **kwargs) -> None:
         pass
 
     @abstractmethod

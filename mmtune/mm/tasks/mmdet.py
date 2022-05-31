@@ -93,7 +93,7 @@ class MMDetection(MMTrainBasedTask):
         train_detector(model, dataset, cfg, distributed, validate, timestamp,
                        meta)
 
-    def run(self, *, args=None):
+    def run(self, *, args, **kwargs):
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.utils import (collect_env, get_device, get_root_logger,

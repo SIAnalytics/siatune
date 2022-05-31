@@ -19,10 +19,10 @@ class Dump:
         return osp.join(temp_dir, file_name)
 
     def __call__(self, context: dict) -> dict:
-        cfg = context.pop('cfg')
+        cfg = context.pop(self.ctx_key)
         trial_id = ray.tune.get_trial_id()
         tmp_path = self.get_temporary_path(f'{trial_id}.py')
-        setattr(context.get(self.ctx_key), self.arg_key, tmp_path)
+        setattr(context.get('args'), self.arg_key, tmp_path)
         with open(tmp_path, 'w', encoding='utf-8') as f:
             f.write(cfg.pretty_text)
         return context
