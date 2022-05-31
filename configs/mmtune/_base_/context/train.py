@@ -3,7 +3,7 @@ post_custom_hooks = [
     dict(type='RayCheckpointHook', by_epoch=True, interval=1)
 ]
 
-rewriters = [
+task = dict(rewriters=[
     dict(type='BuildBaseCfg', arg_key='config', dst_key='base_cfg'),
     dict(type='BatchConfigPathcer', key='searched_cfg'),
     dict(type='SequeunceConfigPathcer', key='searched_cfg'),
@@ -19,4 +19,4 @@ rewriters = [
         post_custom_hooks=post_custom_hooks),
     dict(type='Dump', ctx_key='cfg', arg_key='config'),
     dict(type='SuffixTrialId', key='work_dir')
-]
+])

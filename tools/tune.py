@@ -63,7 +63,6 @@ def main():
 
     task_processor = build_task_processor(tune_config.task)
     task_processor.set_args(args.trainable_args)
-    task_processor.set_rewriters(tune_config.get('rewriters', []))
 
     file_name = osp.splitext(osp.basename(args.tune_config))[0]
     exp_name = args.exp_name or tune_config.get('exp_name', file_name)

@@ -6,7 +6,6 @@ from typing import List, Optional, Sequence
 import ray
 
 from mmtune.mm.context import ContextManager
-from mmtune.utils import ImmutableContainer
 from .builder import TASKS
 
 
@@ -14,16 +13,20 @@ from .builder import TASKS
 class BaseTask(metaclass=ABCMeta):
     """Wrap the apis of target task."""
 
-    def __init__(self):
-        self.base_cfg: Optional[ImmutableContainer] = None
-        self.args: Optional[argparse.Namespace] = None
-        self.rewriters: List[dict] = []
+    def __init__(self, rewriters: List[dict]):
+        self._args: Optional[argparse.Namespace] = None
+        self._rewriters: List[dict] = rewriters
 
     def set_args(self, args: Sequence[str]) -> None:
-        self.args = self.parse_args(args)
+        self._args = self.parse_args(args)
 
-    def set_rewriters(self, rewriters: List[dict] = []) -> None:
-        self.rewriters = rewriters
+    @property
+    def args(self) -> argparse.Namespace:
+        return self._args
+
+    @property
+    def rewriters(self) -> List[dict]:
+        return self._rewriters
 
     @abstractmethod
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
