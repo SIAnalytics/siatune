@@ -43,7 +43,7 @@ def test_mmcls(mock_build_dataset, mock_train_model):
     task.set_args([config_path])
     args = MagicMock()
     args.config = config_path
-    task.run(arg=args)
+    task.run(args=args)
 
 
 def test_sphere():
