@@ -8,14 +8,19 @@ from .builder import REWRITERS
 @REWRITERS.register_module()
 class PathJoinTrialId:
 
-    def __init__(self, key):
+    def __init__(self, key: str) -> None:
+        """Initialize the rewriter.
+
+        Args:
+            key (str): The key to be changed.
+        """
         self.key = key
 
     def __call__(self, context: dict) -> dict:
         """Give the workspace a different ID for each trial.
 
         Args:
-            context (dict):  The context of the trial.
+            context (dict): The context of the trial.
 
         Returns:
             dict: The context of the trial.
