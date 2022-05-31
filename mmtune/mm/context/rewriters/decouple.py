@@ -10,3 +10,4 @@ class Decouple:
 
     def __call__(self, context: dict):
         context[self.key] = ImmutableContainer.decouple(context[self.key])
+        return context

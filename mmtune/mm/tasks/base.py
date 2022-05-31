@@ -29,11 +29,11 @@ class BaseTask(metaclass=ABCMeta):
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         pass
 
-    def context_aware_run(self, *searched_cfg, **context) -> None:
+    def context_aware_run(self, searched_cfg, **context) -> None:
         context_manager = ContextManager(self.rewriters)
         cp_context = dict(
             args=deepcopy(self.args),
-            searched_cfg=deepcopy(searched_cfg[0]),
+            searched_cfg=deepcopy(searched_cfg),
         )
         cp_context.update(context)
         return context_manager(self.run)(**cp_context)

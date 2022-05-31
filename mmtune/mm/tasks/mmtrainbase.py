@@ -30,12 +30,12 @@ class MMTrainBasedTask(BaseTask):
         pass
 
     def context_aware_run(self,
-                          *searched_cfg,
+                          searched_cfg,
                           backend='nccl',
                           **context) -> None:
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
-        return super().context_aware_run(*searched_cfg, **context)
+        return super().context_aware_run(searched_cfg, **context)
 
     def create_trainable(self,
                          backend: str = 'nccl',

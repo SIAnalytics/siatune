@@ -23,8 +23,7 @@ class ContextManager:
 
     def __call__(self, func):
 
-        def inner(*searched_cfg, **context):
-            context[self.searched_key] = searched_cfg[0]
+        def inner(**context):
 
             for rewriter in self.rewriters:
                 context = rewriter(context)
