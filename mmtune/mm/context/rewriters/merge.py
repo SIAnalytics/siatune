@@ -1,5 +1,3 @@
-from typing import Union
-
 from mmcv.utils import Config, ConfigDict
 from mmcv.utils.config import DELETE_KEY
 
@@ -8,16 +6,22 @@ from .builder import REWRITERS
 
 @REWRITERS.register_module()
 class ConfigMerger:
+    """Merge the two configs."""
 
     def __init__(self, src_key: str, dst_key: str, ctx_key: str):
+        """Initialize the ConfigMerger class.
+
+        Args:
+            src_key (str): The key of the configs in the immutable container.
+            dst_key (str): The key of the configs in the immutable container.
+            ctx_key (str): The key of the configs in the context.
+        """
         self.src_key = src_key
         self.dst_key = dst_key
         self.ctx_key = ctx_key
 
     @staticmethod
-    def merge_dict(src: dict,
-                   dst: dict,
-                   allow_list_keys: Union[list, dict, bool] = False):
+    def merge_dict(src: dict, dst: dict, allow_list_keys: bool = False):
         """merge dict ``a`` into dict ``b`` (non-inplace).
         Values in ``a`` will overwrite ``b``. ``b`` is copied first to avoid
         in-place modifications.
@@ -74,7 +78,18 @@ class ConfigMerger:
                 dst[k] = v
         return dst
 
-    def __call__(self, context: dict, allow_list_keys=True):
+    def __call__(self, context: dict, allow_list_keys: bool = True) -> dict:
+        """Merge the configs in the immutable container.
+
+        Args:
+            context (dict): The context to be rewritten.
+            allow_list_keys (bool): If True, int string keys (e.g. '0', '1')
+              are allowed in source ``a`` and will replace the element of the
+              corresponding index in b if b is a list. Default: True.
+
+        Returns:
+            dict: The context after rewriting.
+        """
         src = context.pop(self.src_key)
         dst = context.pop(self.dst_key)
         unpacked_src = {}

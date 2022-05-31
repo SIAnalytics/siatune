@@ -4,7 +4,7 @@ post_custom_hooks = [
 ]
 
 task = dict(rewriters=[
-    dict(type='BuildBaseCfg', arg_key='config', dst_key='base_cfg'),
+    dict(type='InstantiateCfg', arg_key='config', dst_key='base_cfg'),
     dict(type='BatchConfigPathcer', key='searched_cfg'),
     dict(type='SequeunceConfigPathcer', key='searched_cfg'),
     dict(type='Decouple', key='searched_cfg'),

@@ -3,14 +3,14 @@ from unittest.mock import MagicMock, patch
 
 import mmcv
 
-from mmtune.mm.context.rewriters import (BatchConfigPathcer, BuildBaseCfg,
-                                         ConfigMerger, CustomHookRegister,
-                                         Decouple, Dump, PathJoinTrialId,
+from mmtune.mm.context.rewriters import (BatchConfigPathcer, ConfigMerger,
+                                         CustomHookRegister, Decouple, Dump,
+                                         InstantiateCfg, PathJoinTrialId,
                                          SequeunceConfigPathcer)
 
 
 def test_build_base_cfg():
-    build_base_cfg = BuildBaseCfg(dst_key='base_cfg')
+    build_base_cfg = InstantiateCfg(dst_key='base_cfg')
     context = dict()
     build_base_cfg(context)
 

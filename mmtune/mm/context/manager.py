@@ -4,9 +4,22 @@ from typing import List
 from .rewriters.builder import build_rewriter
 
 
+# TODO: Use a context manager as decorator.
 class ContextManager:
+    """The context manager receives the context from the user and the ray
+    tuning algorithm and refines it into a form usable by the task
+    processor."""
 
-    def __init__(self, rewriters: List[dict] = []):
+    def __init__(self, rewriters: List[dict] = []) -> None:
+        """initialize the context manager.
+
+        Args:
+            rewriters (List[dict], optional):
+            User-defined context rewriting pipeline. Defaults to [].
+
+        Raises:
+            TypeError: If the rewriters are not a list.
+        """
         self.rewriters = []
         assert isinstance(rewriters, collections.abc.Sequence)
         for rewriter in rewriters:
@@ -18,7 +31,12 @@ class ContextManager:
             else:
                 raise TypeError('rewriter must be callable or a dict')
 
-    def __call__(self, func):
+    def __call__(self, func: callable) -> callable:
+        """rewrite the context.
+
+        Args:
+            func (callable): The function to be decorated.
+        """
 
         def inner(**context):
 

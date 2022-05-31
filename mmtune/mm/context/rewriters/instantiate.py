@@ -6,7 +6,7 @@ from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class BuildBaseCfg:
+class InstantiateCfg:
 
     def __init__(
             self,
