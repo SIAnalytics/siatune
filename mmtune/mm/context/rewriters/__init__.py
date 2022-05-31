@@ -4,11 +4,11 @@ from .decouple import Decouple
 from .dump import Dump
 from .merge import ConfigMerger
 from .patch import BatchConfigPathcer, SequeunceConfigPathcer
+from .path import PathJoinTrialId
 from .register import CustomHookRegister
-from .suffix import SuffixTrialId
 
 __all__ = [
     'REWRITERS', 'build_rewriter', 'Decouple', 'Dump', 'ConfigMerger',
-    'SuffixTrialId', 'BatchConfigPathcer', 'SequeunceConfigPathcer',
+    'PathJoinTrialId', 'BatchConfigPathcer', 'SequeunceConfigPathcer',
     'CustomHookRegister', 'BuildBaseCfg'
 ]

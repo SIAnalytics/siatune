@@ -5,8 +5,8 @@ import mmcv
 
 from mmtune.mm.context.rewriters import (BatchConfigPathcer, BuildBaseCfg,
                                          ConfigMerger, CustomHookRegister,
-                                         Decouple, Dump,
-                                         SequeunceConfigPathcer, SuffixTrialId)
+                                         Decouple, Dump, PathJoinTrialId,
+                                         SequeunceConfigPathcer)
 
 
 def test_build_base_cfg():
@@ -41,7 +41,7 @@ def test_suffix_trial_id(mock_get_trial_id):
     args = argparse.Namespace()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = SuffixTrialId(key='work_dir')
+    suffix = PathJoinTrialId(key='work_dir')
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/123'
 
