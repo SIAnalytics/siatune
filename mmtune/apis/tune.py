@@ -13,8 +13,8 @@ from mmtune.ray.stoppers import build_stopper
 
 def tune(task_processor: BaseTask, tune_config: Config,
          exp_name: str) -> ray.tune.ExperimentAnalysis:
-    trainable = task_processor.create_trainable(
-        **tune_config.get('trainable', dict()))
+    trainable_cfg = tune_config.get('trainable', dict())
+    trainable = task_processor.create_trainable(**trainable_cfg)
 
     assert hasattr(tune_config, 'metric')
     assert hasattr(tune_config, 'mode') and tune_config.mode in ['min', 'max']
@@ -32,9 +32,9 @@ def tune(task_processor: BaseTask, tune_config: Config,
 
     resources_per_trial = None
     if not hasattr(trainable, 'default_resource_request'):
-        num_workers = trainable.get('num_workers', 1)
-        num_gpus_per_worker = trainable.get('num_gpus_per_worker', 1)
-        num_cpus_per_worker = trainable.get('num_cpus_per_worker', 1)
+        num_workers = trainable_cfg.get('num_workers', 1)
+        num_gpus_per_worker = trainable_cfg.get('num_gpus_per_worker', 1)
+        num_cpus_per_worker = trainable_cfg.get('num_cpus_per_worker', 1)
         resources_per_trial = dict(
             gpu=num_workers * num_gpus_per_worker,
             cpu=num_workers * num_cpus_per_worker)
