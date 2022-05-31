@@ -12,7 +12,7 @@ def test_contextmanager():
     inner = context_manager(func)
     config = mmcv.Config(dict())
     context = dict(cfg=config)
-    inner(context)
+    inner(**context)
 
     with pytest.raises(TypeError):
         rewriters = [dict(type='Decouple', key='cfg'), []]
