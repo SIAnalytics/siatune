@@ -79,12 +79,11 @@ class MMClassification(MMTrainBasedTask):
             model, dataset, cfg, distributed, validate, timestamp, meta=meta)
         return
 
-    def run(self, **kwargs):
+    def run(self, *, args=None):
         from mmcls import __version__
         from mmcls.apis import init_random_seed, set_random_seed
         from mmcls.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
-        args = kwargs.get('args')
 
         if 'LOCAL_RANK' not in os.environ:
             os.environ['LOCAL_RANK'] = str(dist.get_rank())

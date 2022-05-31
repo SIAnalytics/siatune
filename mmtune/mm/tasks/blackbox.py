@@ -1,6 +1,5 @@
 import argparse
 from abc import ABCMeta
-from functools import partial
 from typing import Callable, Sequence
 
 from .base import BaseTask

@@ -1,5 +1,3 @@
-from typing import List
-
 from mmtune.utils import ImmutableContainer
 from .builder import REWRITERS
 

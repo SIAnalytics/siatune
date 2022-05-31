@@ -5,21 +5,15 @@ from functools import partial
 import mmcv
 import ray
 import torch
-from mmcv import Config
 from ray.tune.integration.torch import DistributedTrainableCreator
 
 from mmtune.mm.context import ContextManager
-from mmtune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
 
 
 @TASKS.register_module()
 class MMTrainBasedTask(BaseTask):
-
-    @property
-    def backend(self):
-        return self._backend
 
     @abstractmethod
     def build_model(self, cfg: mmcv.Config, **kwargs) -> torch.nn.Module:
@@ -44,11 +38,13 @@ class MMTrainBasedTask(BaseTask):
         context['args'] = self.args
         return context_manager(self.run)(*searched_cfg, **context)
 
-    def context_aware_run(self, status, backend, *args, **kwargs) -> None:
+    def context_aware_run(self,
+                          *searched_cfg,
+                          backend='nccl',
+                          **context) -> None:
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
-        context_manager = ContextManager(**status)
-        return context_manager(self.run)(*args, **kwargs)
+        return super().contextaware_run(*searched_cfg, **context)
 
     def create_trainable(self,
                          backend: str = 'nccl',
@@ -57,15 +53,11 @@ class MMTrainBasedTask(BaseTask):
                          num_cpus_per_worker: int = 1) -> ray.tune.trainable:
         assert backend in ['gloo', 'nccl']
 
-        base_cfg = Config.fromfile(self.args.config)
-        base_cfg = ImmutableContainer(base_cfg, 'base')
         return DistributedTrainableCreator(
             partial(
                 self.context_aware_run,
-                dict(
-                    base_cfg=base_cfg,
-                    args=self.args,
-                    rewriters=self.rewriters), backend),
+                backend=backend,
+            ),
             backend=backend,
             num_workers=num_workers,
             num_gpus_per_worker=num_gpus_per_worker,

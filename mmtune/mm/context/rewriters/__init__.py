@@ -1,3 +1,4 @@
+from .base import BuildBaseCfg
 from .builder import REWRITERS, build_rewriter
 from .decouple import Decouple
 from .dump import Dump
@@ -9,5 +10,5 @@ from .suffix import SuffixTrialId
 __all__ = [
     'REWRITERS', 'build_rewriter', 'Decouple', 'Dump', 'ConfigMerger',
     'SuffixTrialId', 'BatchConfigPathcer', 'SequeunceConfigPathcer',
-    'CustomHookRegister'
+    'CustomHookRegister', 'BuildBaseCfg'
 ]

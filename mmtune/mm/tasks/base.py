@@ -1,5 +1,6 @@
 import argparse
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 from typing import List, Optional, Sequence
 
 import ray
@@ -30,11 +31,15 @@ class BaseTask(metaclass=ABCMeta):
 
     def contextaware_run(self, *searched_cfg, **context) -> None:
         context_manager = ContextManager(self.rewriters)
-        context['args'] = self.args
-        return context_manager(self.run)(*searched_cfg, **context)
+        cp_context = dict(
+            args=deepcopy(self.args),
+            searched_cfg=deepcopy(searched_cfg[0]),
+        )
+        cp_context.update(context)
+        return context_manager(self.run)(**cp_context)
 
     @abstractmethod
-    def run(self, *, args=None) -> None:
+    def run(self, *, args=None, check) -> None:
         pass
 
     @abstractmethod

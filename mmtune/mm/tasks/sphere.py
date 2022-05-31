@@ -9,7 +9,7 @@ from .builder import TASKS
 @TASKS.register_module()
 class Sphere(BlackBoxTask):
 
-    def run(self, *args, **kwargs):
+    def run(self, *, args):
         args = self.args
         cfg = Config.fromfile(args.config)
 

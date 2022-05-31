@@ -1,8 +1,5 @@
-import argparse
 import collections
-from typing import List, Optional
-
-from mmcv.utils import Config
+from typing import List
 
 from .rewriters.builder import build_rewriter
 
