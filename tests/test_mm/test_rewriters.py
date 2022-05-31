@@ -1,3 +1,4 @@
+import argparse
 from unittest.mock import MagicMock, patch
 
 import mmcv
@@ -15,7 +16,7 @@ def test_build_base_cfg():
 
 
 def test_decouple():
-    decouple = Decouple(keys='searched_cfg')
+    decouple = Decouple(key='searched_cfg')
 
     context = dict(
         searched_cfg=dict(model=[
@@ -37,10 +38,12 @@ def test_dump():
 @patch('ray.tune.get_trial_id')
 def test_suffix_trial_id(mock_get_trial_id):
     mock_get_trial_id.return_value = '123'
+    args = argparse.Namespace()
+    args.work_dir = '/tmp'
+    context = dict(args=args)
     suffix = SuffixTrialId(key='work_dir')
-    context = dict(work_dir='/tmp')
     context = suffix(context)
-    assert context['work_dir'] == '/tmp/123'
+    assert context['args'].work_dir == '/tmp/123'
 
 
 def test_merge():

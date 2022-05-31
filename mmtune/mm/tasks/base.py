@@ -13,7 +13,7 @@ from .builder import TASKS
 class BaseTask(metaclass=ABCMeta):
     """Wrap the apis of target task."""
 
-    def __init__(self, rewriters: List[dict]):
+    def __init__(self, rewriters: List[dict] = []):
         self._args: Optional[argparse.Namespace] = None
         self._rewriters: List[dict] = rewriters
 
