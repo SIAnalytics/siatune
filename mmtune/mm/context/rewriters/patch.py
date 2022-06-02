@@ -48,6 +48,10 @@ class BatchConfigPathcer(BaseRewriter):
 
         Returns:
             Dict: The context after rewriting.
+        Examples:
+            inputs = {'$(a & b)': 1}
+            >>> BatchConfigPathcer()(inputs)
+            {'a': 1, 'b': 1}
         """
         cfg = context[self.key]
 
@@ -84,6 +88,10 @@ class SequeunceConfigPathcer(BaseRewriter):
 
         Returns:
             Dict: The context after rewriting.
+        Examples:
+            inputs = {'$(a - b)': [1, 2]}
+            >>> SequeunceConfigPathcer()(inputs)
+            {'a': 1, 'b': 2}
         """
         cfg = context[self.key]
 
