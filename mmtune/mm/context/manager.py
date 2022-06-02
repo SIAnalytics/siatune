@@ -7,7 +7,7 @@ from .rewriters.builder import build_rewriter
 # TODO: Use a context manager as decorator.
 class ContextManager:
     """The context manager receives the context from the user and the ray
-    tuning algorithm and refines it into a form usable by the task
+    tuning algorithm, and refines it into a form usable by the task
     processor."""
 
     def __init__(self, rewriters: List[dict] = []) -> None:
