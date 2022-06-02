@@ -15,7 +15,8 @@ class ContextManager:
 
         Args:
             rewriters (List[dict]):
-            User-defined context rewriting pipeline. Defaults to [].
+                User-defined context rewriting pipeline.
+                Defaults to [].
 
         Raises:
             TypeError: If the rewriters are not a list.
