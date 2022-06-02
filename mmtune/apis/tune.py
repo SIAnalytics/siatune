@@ -17,7 +17,7 @@ def tune(task_processor: BaseTask, tune_config: Config,
 
     Args:
         task_processor (BaseTask): The task processor.
-        In each task processor, a targeted task is carried out.
+            In each task processor, a targeted task is carried out.
         tune_config (Config): The config to control overall tuning.
         exp_name (str): The name of the experiment.
 
