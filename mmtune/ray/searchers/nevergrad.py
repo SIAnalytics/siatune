@@ -37,23 +37,23 @@ class NevergradSearch(_NevergradSearch, Searcher):
         """Initialize NevergradSearch.
 
         Args:
-            optimizer (str, optional): The optimizer. Defaults to 'OnePlusOne'.
-            space (Optional[Union[Dict, Parameter]], optional):
+            optimizer (str): The optimizer. Defaults to 'OnePlusOne'.
+            space (Optional[Union[Dict, Parameter]]):
                 The space to search. Defaults to None.
-            metric (Optional[str], optional):
+            metric (Optional[str]):
                 Performance evaluation metrics.. Defaults to None.
-            mode (Optional[str], optional):
+            mode (Optional[str]):
                 Determines whether objective is
                 minimizing or maximizing the metric attribute.
                 Defaults to None.
-            points_to_evaluate (Optional[List[Dict]], optional):
+            points_to_evaluate (Optional[List[Dict]]):
                 Initial parameter suggestions to be run first.
                 Defaults to None.
-            num_workers (int, optional):
+            num_workers (int):
                 The number of evaluations
                 which will be run in parallel at once.
                 Defaults to 1.
-            budget (Optional[int], optional):
+            budget (Optional[int]):
                 The number of allowed evaluations.
                 Defaults to None.
         """
@@ -130,13 +130,13 @@ class NevergradSearch(_NevergradSearch, Searcher):
         Args:
             parameters (Dict): The parameters.
             value (float): The value.
-            error (bool, optional):
+            error (bool):
                 Whether the point was evaluated in error. Defaults to False.
-            pruned (bool, optional):
+            pruned (bool):
                 Whether the point was pruned. Defaults to False.
-            intermediate_values (Optional[List[float]], optional):
+            intermediate_values (Optional[List[float]]):
                 The intermediate values. Defaults to None.
-            trial_id (str, optional): The trial id. Defaults to None.
+            trial_id (str): The trial id. Defaults to None.
         """
 
         candidate = self._nevergrad_opt.parametrization.spawn_child(

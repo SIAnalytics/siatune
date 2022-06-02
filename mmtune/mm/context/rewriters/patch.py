@@ -7,12 +7,13 @@ from .builder import REWRITERS
 WRAPPING_REGEXP = r'^\$\((.*)\)$'
 
 
-def unwrap_regexp(value, regexp=WRAPPING_REGEXP) -> Tuple[str, bool]:
+def unwrap_regexp(value: str,
+                  regexp: str = WRAPPING_REGEXP) -> Tuple[str, bool]:
     """Unwrap the value if it is wrapped by the regexp.
 
     Args:
         value (str): The value to unwrap.
-        regexp (str, optional): The regexp to match.
+        regexp (str): The regexp to match.
         Defaults to WRAPPING_REGEXP.
 
     Returns:

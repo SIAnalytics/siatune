@@ -17,9 +17,9 @@ class Constant(BaseSpace):
 
         Args:
             value (Any): The value.
-            alias (Optional[str], optional):
+            alias (Optional[str]):
                 A alias to be expressed. Defaults to None.
-            use_container (bool, optional):
+            use_container (bool):
                 Whether to use containers. Defaults to True.
         """
         if use_container:

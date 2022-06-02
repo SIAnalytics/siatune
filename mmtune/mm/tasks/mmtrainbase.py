@@ -60,7 +60,7 @@ class MMTrainBasedTask(BaseTask):
 
         Args:
             searched_cfg (Config): The searched configs.
-            backend (str, optional):
+            backend (str):
                 The backend for dist training. Defaults to 'nccl'.
             kwargs (**kwargs): The kwargs.
         """
@@ -78,12 +78,12 @@ class MMTrainBasedTask(BaseTask):
         """Get ray trainable task.
 
         Args:
-            backend (str, optional):
+            backend (str):
                 The backend for dist training. Defaults to 'nccl'.
-            num_workers (int, optional): The number of workers. Defaults to 1.
-            num_gpus_per_worker (int, optional):
+            num_workers (int): The number of workers. Defaults to 1.
+            num_gpus_per_worker (int):
                 The number of gpus per worker. Defaults to 1.
-            num_cpus_per_worker (int, optional):
+            num_cpus_per_worker (int):
                 The number of cpus per worker. Defaults to 1.
 
         Returns:

@@ -23,7 +23,7 @@ class EarlyDroppingStopper(Stopper):
                 Determines whether objective is
                 minimizing or maximizing the metric attribute.
             metric_threshold (float): The threshold for early stopping.
-            grace_period (int, optional):
+            grace_period (int):
                 Only stop trials at least this old in time. Defaults to 0.
         """
 

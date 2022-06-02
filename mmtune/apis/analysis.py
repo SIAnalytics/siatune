@@ -18,8 +18,8 @@ def log_analysis(analysis: tune.ExperimentAnalysis,
     Args:
         analysis (tune.ExperimentAnalysis): The analysis of the experiment.
         tune_config (Config): The tune config.
-        task_config (Config, optional): The task config. Defaults to None.
-        log_dir (str, optional): The log dir. Defaults to None.
+        task_config (Optional[Config]): The task config. Defaults to None.
+        log_dir (Optional[str]): The log dir. Defaults to None.
     """
     log_dir = log_dir or tune_config.work_dir
     with open(osp.join(log_dir, 'tune_config.py'), 'w', encoding='utf-8') as f:

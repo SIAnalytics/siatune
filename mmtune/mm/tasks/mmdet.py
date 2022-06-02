@@ -84,9 +84,9 @@ class MMDetection(MMTrainBasedTask):
 
         Args:
             cfg (Config): The configs.
-            train_cfg (Optional[Config], optional):
+            train_cfg (Optional[Config]):
                 The train opt. Defaults to None.
-            test_cfg (Optional[Config], optional):
+            test_cfg (Optional[Config]):
                 The Test opt. Defaults to None.
 
         Returns:
@@ -104,7 +104,7 @@ class MMDetection(MMTrainBasedTask):
 
         Args:
             cfg (Config): The configs.
-            default_args (Optional[Config], optional):
+            default_args (Optional[Config]):
                 The default args. Defaults to None.
 
         Returns:
@@ -128,13 +128,13 @@ class MMDetection(MMTrainBasedTask):
             model (torch.nn.Module): The model.
             dataset (torch.utils.data.Dataset): The dataset.
             cfg (Config): The configs.
-            distributed (bool, optional):
+            distributed (bool):
                 Whether or not distributed. Defaults to True.
-            validate (bool, optional):
+            validate (bool):
                 Whether or not validate. Defaults to False.
-            timestamp (Optional[str], optional):
+            timestamp (Optional[str]):
                 The timestamp. Defaults to None.
-            meta (Optional[dict], optional):
+            meta (Optional[dict]):
                 The meta. Defaults to None.
         """
 

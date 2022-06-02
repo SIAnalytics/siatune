@@ -14,7 +14,7 @@ class ContextManager:
         """initialize the context manager.
 
         Args:
-            rewriters (List[dict], optional):
+            rewriters (List[dict]):
             User-defined context rewriting pipeline. Defaults to [].
 
         Raises:

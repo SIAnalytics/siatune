@@ -15,7 +15,7 @@ class BaseTask(metaclass=ABCMeta):
         """Initialize the task.
 
         Args:
-            rewriters (List[dict], optional):
+            rewriters (List[dict]):
                 Context redefinition pipeline. Defaults to [].
         """
 

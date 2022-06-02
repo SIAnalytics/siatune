@@ -18,9 +18,9 @@ class Choice(BaseSpace):
 
         Args:
             categories (Sequence): The categories.
-            alias (Optional[Sequence], optional):
+            alias (Optional[Sequence]):
                 A alias to be expressed. Defaults to None.
-            use_container (bool, optional):
+            use_container (bool):
                 Whether to use containers. Defaults to True.
         """
 
