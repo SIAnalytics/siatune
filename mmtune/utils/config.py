@@ -16,5 +16,8 @@ def dump_cfg(cfg: Config, save_path: str) -> bool:
         with open(save_path, 'w', encoding='utf-8') as f:
             f.write(cfg.pretty_text)
         return True
-    except Exception:
+    except Exception as err:
+        from mmtune.utils import get_root_logger
+        logger = get_root_logger()
+        logger.error(f'Failed to dump config to {save_path}: {err}')
         return False
