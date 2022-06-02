@@ -1,17 +1,20 @@
 import tempfile
 from os import path as osp
+from typing import Dict
 
 import ray
 
+from mmtune.utils import dump_cfg
+from .base import BaseRewriter
 from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class Dump:
+class Dump(BaseRewriter):
     """Dump the configs in the context."""
 
     def __init__(self, ctx_key: str, arg_key: str):
-        """inintialize the Dump class.
+        """Inintialize the Dump class.
 
         Args:
             ctx_key (str): The key in the context.
@@ -30,22 +33,20 @@ class Dump:
         Returns:
             str: The temporary path.
         """
-        temp_dir = tempfile.gettempdir()
-        return osp.join(temp_dir, file_name)
+        return osp.join(tempfile.gettempdir(), file_name)
 
-    def __call__(self, context: dict) -> dict:
+    def __call__(self, context: Dict) -> Dict:
         """Dump the configs in the context.
 
         Args:
-            context (dict): The context to be rewritten.
+            context (Dict): The context to be rewritten.
 
         Returns:
-            dict: The context after rewriting.
+            Dict: The context after rewriting.
         """
         cfg = context.pop(self.ctx_key)
         trial_id = ray.tune.get_trial_id()
         tmp_path = self.get_temporary_path(f'{trial_id}.py')
         setattr(context.get('args'), self.arg_key, tmp_path)
-        with open(tmp_path, 'w', encoding='utf-8') as f:
-            f.write(cfg.pretty_text)
+        dump_cfg(cfg, tmp_path)
         return context

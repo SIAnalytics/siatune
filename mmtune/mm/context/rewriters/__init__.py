@@ -1,3 +1,4 @@
+from .base import BaseRewriter
 from .builder import REWRITERS, build_rewriter
 from .decouple import Decouple
 from .dump import Dump
@@ -8,7 +9,7 @@ from .path import PathJoinTrialId
 from .register import CustomHookRegister
 
 __all__ = [
-    'REWRITERS', 'build_rewriter', 'Decouple', 'Dump', 'ConfigMerger',
-    'PathJoinTrialId', 'BatchConfigPathcer', 'SequeunceConfigPathcer',
-    'CustomHookRegister', 'InstantiateCfg'
+    'BaseRewriter', 'REWRITERS', 'build_rewriter', 'Decouple', 'Dump',
+    'ConfigMerger', 'PathJoinTrialId', 'BatchConfigPathcer',
+    'SequeunceConfigPathcer', 'CustomHookRegister', 'InstantiateCfg'
 ]

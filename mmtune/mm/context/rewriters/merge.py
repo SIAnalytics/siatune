@@ -1,20 +1,22 @@
 from mmcv.utils import Config, ConfigDict
 from mmcv.utils.config import DELETE_KEY
 
+from .base import BaseRewriter
 from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class ConfigMerger:
+class ConfigMerger(BaseRewriter):
     """Merge the two configs."""
 
     def __init__(self, src_key: str, dst_key: str, ctx_key: str):
         """Initialize the ConfigMerger class.
 
         Args:
-            src_key (str): The key of the configs in the immutable container.
-            dst_key (str): The key of the configs in the immutable container.
-            ctx_key (str): The key of the configs in the context.
+            src_key (str): The key of the configs.
+            dst_key (str): The key of the configs.
+            ctx_key (str):
+                The context key where the merged config will be stored.
         """
         self.src_key = src_key
         self.dst_key = dst_key
@@ -79,7 +81,7 @@ class ConfigMerger:
         return dst
 
     def __call__(self, context: dict, allow_list_keys: bool = True) -> dict:
-        """Merge the configs in the immutable container.
+        """Semantically merge and save the two configs.
 
         Args:
             context (dict): The context to be rewritten.

@@ -17,8 +17,17 @@ from .mmtrainbase import MMTrainBasedTask
 
 @TASKS.register_module()
 class MMClassification(MMTrainBasedTask):
+    """MMClassification Wrapping class for ray tune."""
 
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        """Define and parse the necessary arguments for the task.
+
+        Args:
+            args (Sequence[str]): The args.
+        Returns:
+            argparse.Namespace: The parsed args.
+        """
+
         parser = argparse.ArgumentParser(description='Train a model')
         parser.add_argument('config', help='train config file path')
         parser.add_argument(
@@ -56,6 +65,19 @@ class MMClassification(MMTrainBasedTask):
                     cfg: Config,
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
+        """Build the model from configs.
+
+        Args:
+            cfg (Config): The configs.
+            train_cfg (Optional[Config], optional):
+                The train opt. Defaults to None.
+            test_cfg (Optional[Config], optional):
+                The Test opt. Defaults to None.
+
+        Returns:
+            torch.nn.Module: The model.
+        """
+
         from mmcls.models import build_classifier
         return build_classifier(cfg)
 
@@ -63,6 +85,17 @@ class MMClassification(MMTrainBasedTask):
             self,
             cfg: Config,
             default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
+        """Build the dataset from configs.
+
+        Args:
+            cfg (Config): The configs.
+            default_args (Optional[Config], optional):
+                The default args. Defaults to None.
+
+        Returns:
+            torch.utils.data.Dataset: The dataset.
+        """
+
         from mmcls.datasets.builder import build_dataset
         return build_dataset(cfg, default_args)
 
@@ -75,11 +108,34 @@ class MMClassification(MMTrainBasedTask):
                     timestamp: Optional[str] = None,
                     meta: Optional[dict] = None) -> None:
         from mmcls.apis.train import train_model
+        """Train the model.
+
+        Args:
+            model (torch.nn.Module): The model.
+            dataset (torch.utils.data.Dataset): The dataset.
+            cfg (Config): The configs.
+            distributed (bool, optional):
+                Whether or not distributed. Defaults to True.
+            validate (bool, optional):
+                Whether or not validate. Defaults to False.
+            timestamp (Optional[str], optional):
+                The timestamp. Defaults to None.
+            meta (Optional[dict], optional):
+                The meta. Defaults to None.
+        """
+
         train_model(
             model, dataset, cfg, distributed, validate, timestamp, meta=meta)
         return
 
-    def run(self, *, args, **kwargs):
+    def run(self, *, args: argparse.Namespace, **kwargs) -> None:
+        """Run the task.
+
+        Args:
+            args (argparse.Namespace):
+                The args that received from context manager.
+        """
+
         from mmcls import __version__
         from mmcls.apis import init_random_seed, set_random_seed
         from mmcls.utils import (collect_env, get_root_logger,

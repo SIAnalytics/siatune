@@ -13,7 +13,7 @@ from mmtune.ray.stoppers import build_stopper
 
 def tune(task_processor: BaseTask, tune_config: Config,
          exp_name: str) -> ray.tune.ExperimentAnalysis:
-    """Tune a task with Ray Tune.
+    """Tune the task.
 
     Args:
         task_processor (BaseTask): The task processor.

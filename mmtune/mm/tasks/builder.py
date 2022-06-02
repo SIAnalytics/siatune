@@ -1,7 +1,20 @@
+from typing import Dict
+
 from mmcv.utils import Registry
+
+from .base import BaseTask
 
 TASKS = Registry('tasks')
 
 
-def build_task_processor(task: dict):
+def build_task_processor(task: Dict) -> BaseTask:
+    """Build the task processor.
+
+    Args:
+        task (Dict): The task config to build.
+
+    Returns:
+        BaseTask: The task processor.
+    """
+
     return TASKS.build(task)

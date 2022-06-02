@@ -1,6 +1,7 @@
 import re
-from typing import Tuple
+from typing import Dict, Tuple
 
+from .base import BaseRewriter
 from .builder import REWRITERS
 
 WRAPPING_REGEXP = r'^\$\((.*)\)$'
@@ -27,18 +28,26 @@ def unwrap_regexp(value, regexp=WRAPPING_REGEXP) -> Tuple[str, bool]:
 
 
 @REWRITERS.register_module()
-class BatchConfigPathcer:
-    """Patch the config path in the context."""
+class BatchConfigPathcer(BaseRewriter):
+    """Patch the config in the context."""
 
-    def __init__(self, key) -> None:
+    def __init__(self, key: str) -> None:
         """Initialize the rewriter.
 
         Args:
-            key (str): The key of the config path in the context.
+            key (str): The key of the config in the context.
         """
         self.key = key
 
-    def __call__(self, context: dict) -> dict:
+    def __call__(self, context: Dict) -> Dict:
+        """Batch adjustment of elements connected by &.
+
+        Args:
+            context (Dict): The context to be rewritten.
+
+        Returns:
+            Dict: The context after rewriting.
+        """
         cfg = context[self.key]
 
         for key, value in cfg.items():
@@ -54,8 +63,8 @@ class BatchConfigPathcer:
 
 
 @REWRITERS.register_module()
-class SequeunceConfigPathcer:
-    """Patch the config path in the context."""
+class SequeunceConfigPathcer(BaseRewriter):
+    """Patch the config in the context."""
 
     def __init__(self, key: str) -> None:
         """Initialize the rewriter.
@@ -66,7 +75,15 @@ class SequeunceConfigPathcer:
 
         self.key = key
 
-    def __call__(self, context: dict) -> dict:
+    def __call__(self, context: Dict) -> Dict:
+        """Adjust the elements connected by - in order.
+
+        Args:
+            context (Dict): The context to be rewritten.
+
+        Returns:
+            Dict: The context after rewriting.
+        """
         cfg = context[self.key]
 
         for key, value in cfg.items():

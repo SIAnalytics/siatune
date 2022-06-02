@@ -2,16 +2,18 @@ from typing import Dict
 
 from mmcv.utils import Registry
 
+from .base import BaseRewriter
+
 REWRITERS = Registry('rewriters')
 
 
-def build_rewriter(cfg: Dict) -> object:
+def build_rewriter(cfg: Dict) -> BaseRewriter:
     """Build a rewriter.
 
     Args:
         cfg (Dict): The config of the rewriter.
 
     Returns:
-        object: The rewriter.
+        BaseRewriter: The rewriter.
     """
     return REWRITERS.build(cfg)

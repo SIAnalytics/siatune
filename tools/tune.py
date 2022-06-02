@@ -10,6 +10,12 @@ from mmtune.mm.tasks import build_task_processor
 
 
 def parse_args() -> Namespace:
+    """Parse arguments.
+
+    Returns:
+        Namespace: The parsed arguments.
+    """
+
     parser = ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
     parser.add_argument(
@@ -57,7 +63,9 @@ def parse_args() -> Namespace:
     return args
 
 
-def main():
+def main() -> None:
+    """Main function."""
+
     args = parse_args()
     tune_config = Config.fromfile(args.tune_config)
 
