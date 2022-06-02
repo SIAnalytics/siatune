@@ -86,8 +86,8 @@ class ConfigMerger(BaseRewriter):
         Args:
             context (dict): The context to be rewritten.
             allow_list_keys (bool): If True, int string keys (e.g. '0', '1')
-              are allowed in source ``a`` and will replace the element of the
-              corresponding index in b if b is a list. Default: True.
+                are allowed in source ``a`` and will replace the element of the
+                corresponding index in b if b is a list. Default: True.
 
         Returns:
             dict: The context after rewriting.
