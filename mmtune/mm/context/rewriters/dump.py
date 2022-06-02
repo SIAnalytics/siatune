@@ -11,7 +11,7 @@ from .builder import REWRITERS
 
 @REWRITERS.register_module()
 class Dump(BaseRewriter):
-    """Dump the configs in the context."""
+    """Dump the configs in the context as a file."""
 
     def __init__(self, ctx_key: str, arg_key: str):
         """Inintialize the Dump class.
