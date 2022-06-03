@@ -1,7 +1,9 @@
 from os import path as osp
 from typing import Dict
 from unittest.mock import MagicMock, patch
-
+from mmtune.mm.context.rewriters.builder import build_rewriter
+import pytest
+import ImmutableContainer
 import mmcv
 import pytest
 
@@ -20,6 +22,11 @@ def test_base_rewriter():
     assert getattr(BaseRewriter, '__call__', None) is not None
 
 
+def test_base_rewriter():
+    with pytest.raises(TypeError):
+        BaseRewriter()
+    getattr(BaseRewriter, '__call__', None) is not None
+ 
 def test_build_base_cfg():
 
     @REWRITERS.register_module()
@@ -81,6 +88,8 @@ def test_merge():
     assert context['cp']._cfg_dict == mmcv.Config(dict(a=1, b=2, c=3,
                                                        d=4))._cfg_dict
 
+    merger(context)
+    assert context['cp'] == mmcv.Config(dict(a=1, b=2, c=3, d=4))  
 
 def test_patch():
     from mmtune.mm.context.rewriters.patch import unwrap_regexp
