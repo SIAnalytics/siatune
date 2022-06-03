@@ -3,10 +3,10 @@ from unittest.mock import MagicMock, patch
 
 import mmcv
 
-from mmtune.mm.context.rewriters import (BatchConfigPathcer, ConfigMerger,
+from mmtune.mm.context.rewriters import (BatchConfigPatcher, ConfigMerger,
                                          CustomHookRegister, Decouple, Dump,
                                          InstantiateCfg, PathJoinTrialId,
-                                         SequeunceConfigPathcer)
+                                         SequeunceConfigPatcher)
 
 
 def test_build_base_cfg():
@@ -68,10 +68,10 @@ def test_patch():
                 dict(type='DummyModel6'),
                 dict(type='DummyModel2'),
             ])))
-    patcher = BatchConfigPathcer(key='searched_cfg')
+    patcher = BatchConfigPatcher(key='searched_cfg')
     patcher(context)
 
-    patcher = SequeunceConfigPathcer(key='searched_cfg')
+    patcher = SequeunceConfigPatcher(key='searched_cfg')
     patcher(context)
 
 
