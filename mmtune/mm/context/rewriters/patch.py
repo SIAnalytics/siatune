@@ -107,7 +107,7 @@ class BatchConfigPatcher(BaseRewriter):
 
 
 @REWRITERS.register_module()
-class SequeunceConfigPathcer(BaseRewriter):
+class SequeunceConfigPatcher(BaseRewriter):
     """Patch the config in the context. An extended form of BatchConfigPatcher.
 
      The change is that the elements to be changed
@@ -146,7 +146,7 @@ class SequeunceConfigPathcer(BaseRewriter):
          dict(type='Choice', categories=[[c_a, a], [c_b, b], ...])
      }
      'context rewriter'
-     dict(type='SequeunceConfigPathcer', key=...),
+     dict(type='SequeunceConfigPatcher', key=...),
 
      1. Connect the elements you want
      to change collectively with ``-`` in the search configuration.
@@ -172,7 +172,7 @@ class SequeunceConfigPathcer(BaseRewriter):
             Dict: The context after rewriting.
         Examples:
             inputs = {'$(a - b)': [1, 2]}
-            >>> SequeunceConfigPathcer()(inputs)
+            >>> SequeunceConfigPatcher()(inputs)
             {'a': 1, 'b': 2}
         """
         cfg = context[self.key]
