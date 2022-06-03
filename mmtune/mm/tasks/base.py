@@ -9,7 +9,7 @@ from mmtune.mm.context import ContextManager
 
 
 class BaseTask(metaclass=ABCMeta):
-    """Wrap the apis of target task."""
+    """Base class to specify the target task."""
 
     def __init__(self, rewriters: List[dict] = []) -> None:
         """Initialize the task.
@@ -23,7 +23,7 @@ class BaseTask(metaclass=ABCMeta):
         self._rewriters: List[dict] = rewriters
 
     def set_args(self, args: Sequence[str]) -> None:
-        """Parse and Set the args.
+        """Parse and set the argss.
 
         Args:
             args (Sequence[str]): The args.
@@ -51,7 +51,7 @@ class BaseTask(metaclass=ABCMeta):
         pass
 
     def context_aware_run(self, searched_cfg: Dict, **kwargs) -> Any:
-        """Gathers and refines the information received by users and Raytune to
+        """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:
@@ -71,7 +71,7 @@ class BaseTask(metaclass=ABCMeta):
 
     @abstractmethod
     def run(self, *, args: argparse.Namespace, **kwargs) -> None:
-        """The objective task.
+        """Run the target task.
 
         Args:
             args (argparse.Namespace): The args.

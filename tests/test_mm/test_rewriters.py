@@ -3,9 +3,10 @@ from unittest.mock import MagicMock, patch
 
 import mmcv
 
-from mmtune.mm.context.rewriters import (BatchConfigPatcher, ConfigMerger,
+from mmtune.mm.context.rewriters import (AppendTrialIDtoPath,
+                                         BatchConfigPatcher, ConfigMerger,
                                          CustomHookRegister, Decouple, Dump,
-                                         InstantiateCfg, PathJoinTrialId,
+                                         InstantiateCfg,
                                          SequeunceConfigPatcher)
 
 
@@ -41,7 +42,7 @@ def test_suffix_trial_id(mock_get_trial_id):
     args = argparse.Namespace()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = PathJoinTrialId(key='work_dir')
+    suffix = AppendTrialIDtoPath(key='work_dir')
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/123'
 

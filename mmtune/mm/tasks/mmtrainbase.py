@@ -55,7 +55,7 @@ class MMTrainBasedTask(BaseTask):
                           searched_cfg,
                           backend='nccl',
                           **kwargs) -> None:
-        """Gathers and refines the information received by users and Raytune to
+        """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:

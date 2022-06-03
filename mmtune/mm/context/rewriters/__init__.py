@@ -5,11 +5,11 @@ from .dump import Dump
 from .instantiate import InstantiateCfg
 from .merge import ConfigMerger
 from .patch import BatchConfigPatcher, SequeunceConfigPatcher
-from .path import PathJoinTrialId
+from .path import AppendTrialIDtoPath
 from .register import CustomHookRegister
 
 __all__ = [
     'BaseRewriter', 'REWRITERS', 'build_rewriter', 'Decouple', 'Dump',
-    'ConfigMerger', 'PathJoinTrialId', 'BatchConfigPatcher',
+    'ConfigMerger', 'AppendTrialIDtoPath', 'BatchConfigPatcher',
     'SequeunceConfigPatcher', 'CustomHookRegister', 'InstantiateCfg'
 ]

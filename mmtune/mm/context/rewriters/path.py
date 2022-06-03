@@ -7,7 +7,7 @@ from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class PathJoinTrialId(BaseRewriter):
+class AppendTrialIDtoPath(BaseRewriter):
     """Add the identifier of the tials to the workspace path to prevent the
     artifacts of each trial from being stored in the same path."""
 

@@ -18,5 +18,5 @@ task = dict(rewriters=[
         ctx_key='cfg',
         post_custom_hooks=post_custom_hooks),
     dict(type='Dump', ctx_key='cfg', arg_key='config'),
-    dict(type='PathJoinTrialId', key='work_dir')
+    dict(type='AppendTrialIDtoPath', key='work_dir')
 ])
