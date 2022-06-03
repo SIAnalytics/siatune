@@ -16,8 +16,17 @@ from .mmtrainbase import MMTrainBasedTask
 
 @TASKS.register_module()
 class MMSegmentation(MMTrainBasedTask):
+    """MMSegmentation Wrapping class for ray tune."""
 
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        """Define and parse the necessary arguments for the task.
+
+        Args:
+            args (Sequence[str]): The args.
+        Returns:
+            argparse.Namespace: The parsed args.
+        """
+
         parser = argparse.ArgumentParser(description='Train a segmentor')
         parser.add_argument('config', help='train config file path')
         parser.add_argument(
@@ -61,6 +70,19 @@ class MMSegmentation(MMTrainBasedTask):
                     cfg: Config,
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
+        """Build the model from configs.
+
+        Args:
+            cfg (Config): The configs.
+            train_cfg (Optional[Config]):
+                The train opt. Defaults to None.
+            test_cfg (Optional[Config]):
+                The Test opt. Defaults to None.
+
+        Returns:
+            torch.nn.Module: The model.
+        """
+
         from mmseg.models.builder import build_segmentor
         return build_segmentor(cfg, train_cfg, test_cfg)
 
@@ -68,6 +90,17 @@ class MMSegmentation(MMTrainBasedTask):
             self,
             cfg: Config,
             default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
+        """Build the dataset from configs.
+
+        Args:
+            cfg (Config): The configs.
+            default_args (Optional[Config]):
+                The default args. Defaults to None.
+
+        Returns:
+            torch.utils.data.Dataset: The dataset.
+        """
+
         from mmseg.datasets.builder import build_dataset
         return build_dataset(cfg, default_args)
 
@@ -79,17 +112,37 @@ class MMSegmentation(MMTrainBasedTask):
                     validate: bool = False,
                     timestamp: Optional[str] = None,
                     meta: Optional[dict] = None) -> None:
-        from mmseg.apis.train import train_segmentor
-        train_segmentor(model, dataset, cfg, distributed, validate, timestamp,
-                        meta)
-        return
+        """Train the model.
 
-    def run(self, *args, **kwargs):
+        Args:
+            model (torch.nn.Module): The model.
+            dataset (torch.utils.data.Dataset): The dataset.
+            cfg (Config): The configs.
+            distributed (bool):
+                Whether or not distributed. Defaults to True.
+            validate (bool):
+                Whether or not validate. Defaults to False.
+            timestamp (Optional[str]):
+                The timestamp. Defaults to None.
+            meta (Optional[dict]): The meta. Defaults to None.
+        """
+
+        from mmseg.apis.train import train_segmentor
+        return train_segmentor(model, dataset, cfg, distributed, validate,
+                               timestamp, meta)
+
+    def run(self, *, args, **kwargs) -> None:
+        """Run the task.
+
+        Args:
+            args (argparse.Namespace):
+                The args that received from context manager.
+        """
+
         from mmseg import __version__
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
-        args = self.args
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:

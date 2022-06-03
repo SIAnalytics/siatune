@@ -3,7 +3,8 @@ from setuptools import find_packages, setup
 version_file = 'mmtune/version.py'
 
 
-def parse_requirements(fname='requirements.txt', with_version=True):
+def parse_requirements(fname: str = 'requirements.txt',
+                       with_version: bool = True):
     """Parse the package dependencies listed in a requirements file but strips
     specific versioning information.
 
@@ -20,8 +21,14 @@ def parse_requirements(fname='requirements.txt', with_version=True):
     from os.path import exists
     require_fpath = fname
 
-    def parse_line(line):
-        """Parse information from a line in a requirements text file."""
+    def parse_line(line: str):
+        """Parse information from a line in a requirements text file.
+
+        Args:
+            line (str): a line in a requirements text file
+        Yields:
+            Dict: a dictionary of parsed information
+        """
         if line.startswith('-r '):
             # Allow specifying requirements in other files
             target = line.split(' ')[1]
@@ -53,7 +60,15 @@ def parse_requirements(fname='requirements.txt', with_version=True):
                     info['version'] = (op, version)
             yield info
 
-    def parse_require_file(fpath):
+    def parse_require_file(fpath: str):
+        """Parse the package dependencies in a requirements file.
+
+        Args:
+            fpath (str): path to requirements file
+
+        Yields:
+            Dict: a dictionary of parsed information
+        """
         with open(fpath, 'r') as f:
             for line in f.readlines():
                 line = line.strip()
@@ -61,7 +76,13 @@ def parse_requirements(fname='requirements.txt', with_version=True):
                     for info in parse_line(line):
                         yield info
 
-    def gen_packages_items():
+    def gen_packages_items() -> str:
+        """Generated package items.
+
+        Yields:
+            str: package items
+        """
+
         if exists(require_fpath):
             for info in parse_require_file(require_fpath):
                 parts = [info['package']]
@@ -79,7 +100,12 @@ def parse_requirements(fname='requirements.txt', with_version=True):
     return packages
 
 
-def get_version():
+def get_version() -> str:
+    """Get the version string from the package.
+
+    Returns:
+        str: The version string.
+    """
     with open(version_file, 'r') as f:
         exec(compile(f.read(), version_file, 'exec'))
     return locals()['__version__']

@@ -2,6 +2,8 @@ _base_ = [
     './_base_/context/blackbox.py', './_base_/searcher/nevergrad_oneplusone.py'
 ]
 
+task = dict(type='Sphere')
+
 metric = 'result'
 mode = 'min'
 

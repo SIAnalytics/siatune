@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 import ray
 from mmcv.utils import Config
@@ -8,9 +10,17 @@ from .builder import TASKS
 
 @TASKS.register_module()
 class Sphere(BlackBoxTask):
+    """Test function for continuous evaluation.
 
-    def run(self, *args, **kwargs):
-        args = self.args
+    https://en.wikipedia.org/wiki/Test_functions_for_optimization
+    """
+
+    def run(self, *, args: argparse.Namespace, **kwargs) -> None:
+        """Run the task.
+
+        Args:
+            args (argparse.Namespace): The arguments.
+        """
         cfg = Config.fromfile(args.config)
 
         inputs = []

@@ -23,6 +23,7 @@ except ImportError:
 
 @SEARCHERS.register_module(force=True)
 class NevergradSearch(_NevergradSearch, Searcher):
+    """Search with Nevergrad."""
 
     def __init__(self,
                  optimizer: str = 'OnePlusOne',
@@ -32,7 +33,30 @@ class NevergradSearch(_NevergradSearch, Searcher):
                  points_to_evaluate: Optional[List[Dict]] = None,
                  num_workers: int = 1,
                  budget: Optional[int] = None,
-                 **kwargs):
+                 **kwargs) -> None:
+        """Initialize NevergradSearch.
+
+        Args:
+            optimizer (str): The optimizer. Defaults to 'OnePlusOne'.
+            space (Optional[Union[Dict, Parameter]]):
+                The space to search. Defaults to None.
+            metric (Optional[str]):
+                Performance evaluation metrics.. Defaults to None.
+            mode (Optional[str]):
+                Determines whether objective is
+                minimizing or maximizing the metric attribute.
+                Defaults to None.
+            points_to_evaluate (Optional[List[Dict]]):
+                Initial parameter suggestions to be run first.
+                Defaults to None.
+            num_workers (int):
+                The number of evaluations
+                which will be run in parallel at once.
+                Defaults to 1.
+            budget (Optional[int]):
+                The number of allowed evaluations.
+                Defaults to None.
+        """
         assert optimizer in optimizer_registry, (
             f'{optimizer} is not registered')
         optimizer = optimizer_registry[optimizer]
@@ -47,7 +71,9 @@ class NevergradSearch(_NevergradSearch, Searcher):
             max_concurrent=None,
             **kwargs)
 
-    def _setup_nevergrad(self):
+    def _setup_nevergrad(self) -> None:
+        """setup Nevergrad optimizer."""
+
         if self._opt_factory:
             self._nevergrad_opt = self._opt_factory(
                 parametrization=self._space,
@@ -91,14 +117,27 @@ class NevergradSearch(_NevergradSearch, Searcher):
                 self._nevergrad_opt.suggest(self._points_to_evaluate[i])
 
     def add_evaluated_point(
-        self,
-        parameters: Dict,
-        value: float,
-        error: bool = False,
-        pruned: bool = False,
-        intermediate_values: Optional[List[float]] = None,
-        trial_id: str = None,
-    ):
+            self,
+            parameters: Dict,
+            value: float,
+            error: bool = False,
+            pruned: bool = False,
+            intermediate_values: Optional[List[float]] = None,
+            trial_id: str = None,
+    ) -> None:
+        """Add evaluated point to Nevergrad optimizer.
+
+        Args:
+            parameters (Dict): The parameters.
+            value (float): The value.
+            error (bool):
+                Whether the point was evaluated in error. Defaults to False.
+            pruned (bool):
+                Whether the point was pruned. Defaults to False.
+            intermediate_values (Optional[List[float]]):
+                The intermediate values. Defaults to None.
+            trial_id (str): The trial id. Defaults to None.
+        """
 
         candidate = self._nevergrad_opt.parametrization.spawn_child(
             new_value=parameters)

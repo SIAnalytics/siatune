@@ -10,6 +10,12 @@ from mmtune.mm.tasks import build_task_processor
 
 
 def parse_args() -> Namespace:
+    """Parse arguments.
+
+    Returns:
+        Namespace: The parsed arguments.
+    """
+
     parser = ArgumentParser(description='tune')
     parser.add_argument('tune_config', help='tune config file path')
     parser.add_argument(
@@ -57,13 +63,14 @@ def parse_args() -> Namespace:
     return args
 
 
-def main():
+def main() -> None:
+    """Main function."""
+
     args = parse_args()
     tune_config = Config.fromfile(args.tune_config)
 
     task_processor = build_task_processor(tune_config.task)
     task_processor.set_args(args.trainable_args)
-    task_processor.set_rewriters(tune_config.get('rewriters', []))
 
     file_name = osp.splitext(osp.basename(args.tune_config))[0]
     exp_name = args.exp_name or tune_config.get('exp_name', file_name)
@@ -75,7 +82,7 @@ def main():
         tune_config.work_dir = osp.join('./work_dirs', file_name)
     mmcv.mkdir_or_exist(tune_config.work_dir)
     # work_dir in task is overridden with work_dir in tune
-    if tune_config.task.type.startswith('MM'):
+    if hasattr(task_processor.args, 'work_dir'):
         task_processor.args.work_dir = tune_config.work_dir
 
     ray.init(

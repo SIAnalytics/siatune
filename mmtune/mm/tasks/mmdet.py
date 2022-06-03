@@ -17,8 +17,17 @@ from .mmtrainbase import MMTrainBasedTask
 
 @TASKS.register_module()
 class MMDetection(MMTrainBasedTask):
+    """MMDetection Wrapping class for ray tune."""
 
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+        """Define and parse the necessary arguments for the task.
+
+        Args:
+            args (Sequence[str]): The args.
+        Returns:
+            argparse.Namespace: The parsed args.
+        """
+
         parser = argparse.ArgumentParser(description='Train a detector')
         parser.add_argument('config', help='train config file path')
         parser.add_argument(
@@ -71,6 +80,19 @@ class MMDetection(MMTrainBasedTask):
                     cfg: Config,
                     train_cfg: Optional[Config] = None,
                     test_cfg: Optional[Config] = None) -> torch.nn.Module:
+        """Build the model from configs.
+
+        Args:
+            cfg (Config): The configs.
+            train_cfg (Optional[Config]):
+                The train opt. Defaults to None.
+            test_cfg (Optional[Config]):
+                The Test opt. Defaults to None.
+
+        Returns:
+            torch.nn.Module: The model.
+        """
+
         from mmdet.models.builder import build_detector
         return build_detector(cfg, train_cfg, test_cfg)
 
@@ -78,6 +100,17 @@ class MMDetection(MMTrainBasedTask):
             self,
             cfg: Config,
             default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
+        """Build the dataset from configs.
+
+        Args:
+            cfg (Config): The configs.
+            default_args (Optional[Config]):
+                The default args. Defaults to None.
+
+        Returns:
+            torch.utils.data.Dataset: The dataset.
+        """
+
         from mmdet.datasets.builder import build_dataset
         return build_dataset(cfg, default_args)
 
@@ -89,16 +122,38 @@ class MMDetection(MMTrainBasedTask):
                     validate: bool = False,
                     timestamp: Optional[str] = None,
                     meta: Optional[dict] = None) -> None:
+        """Train the model.
+
+        Args:
+            model (torch.nn.Module): The model.
+            dataset (torch.utils.data.Dataset): The dataset.
+            cfg (Config): The configs.
+            distributed (bool):
+                Whether or not distributed. Defaults to True.
+            validate (bool):
+                Whether or not validate. Defaults to False.
+            timestamp (Optional[str]):
+                The timestamp. Defaults to None.
+            meta (Optional[dict]):
+                The meta. Defaults to None.
+        """
+
         from mmdet.apis.train import train_detector
         train_detector(model, dataset, cfg, distributed, validate, timestamp,
                        meta)
 
-    def run(self, *args, **kwargs):
+    def run(self, *, args: argparse.Namespace, **kwargs) -> None:
+        """Run the task.
+
+        Args:
+            args (argparse.Namespace):
+                The args that received from context manager.
+        """
+
         from mmdet import __version__
         from mmdet.apis import init_random_seed, set_random_seed
         from mmdet.utils import (collect_env, get_device, get_root_logger,
                                  setup_multi_processes)
-        args = self.args
 
         if 'LOCAL_RANK' not in os.environ:
             os.environ['LOCAL_RANK'] = str(dist.get_rank())

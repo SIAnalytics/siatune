@@ -11,4 +11,12 @@ for v in set(tune.schedulers.SCHEDULER_IMPORT.values()):
 
 
 def build_scheduler(cfg: Config) -> tune.schedulers.TrialScheduler:
+    """Build the scheduler from configs.
+
+    Args:
+        cfg (Config): The configs.
+    Returns:
+        tune.schedulers.TrialScheduler: The scheduler.
+    """
+
     return SCHEDULERS.build(cfg)

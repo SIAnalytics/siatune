@@ -1,18 +1,29 @@
-from typing import Union
-
 from mmcv.utils import Config, ConfigDict
 from mmcv.utils.config import DELETE_KEY
 
+from .base import BaseRewriter
 from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class ConfigMerger:
+class ConfigMerger(BaseRewriter):
+    """Merge the two configs."""
+
+    def __init__(self, src_key: str, dst_key: str, ctx_key: str):
+        """Initialize the ConfigMerger class.
+
+        Args:
+            src_key (str): The key of the configs.
+            dst_key (str): The key of the configs.
+            ctx_key (str):
+                The context key where the merged config will be stored.
+        """
+        self.src_key = src_key
+        self.dst_key = dst_key
+        self.ctx_key = ctx_key
 
     @staticmethod
-    def merge_dict(src: dict,
-                   dst: dict,
-                   allow_list_keys: Union[list, dict, bool] = False):
+    def merge_dict(src: dict, dst: dict, allow_list_keys: bool = False):
         """merge dict ``a`` into dict ``b`` (non-inplace).
         Values in ``a`` will overwrite ``b``. ``b`` is copied first to avoid
         in-place modifications.
@@ -69,9 +80,20 @@ class ConfigMerger:
                 dst[k] = v
         return dst
 
-    def __call__(self, context: dict, allow_list_keys=True):
-        src = context.pop('searched_cfg')
-        dst = context.pop('base_cfg')
+    def __call__(self, context: dict, allow_list_keys: bool = True) -> dict:
+        """Semantically merge and save the two configs.
+
+        Args:
+            context (dict): The context to be rewritten.
+            allow_list_keys (bool): If True, int string keys (e.g. '0', '1')
+                are allowed in source ``a`` and will replace the element of the
+                corresponding index in b if b is a list. Default: True.
+
+        Returns:
+            dict: The context after rewriting.
+        """
+        src = context.pop(self.src_key)
+        dst = context.pop(self.dst_key)
         unpacked_src = {}
         for full_key, v in src.items():
             d = unpacked_src
@@ -81,12 +103,11 @@ class ConfigMerger:
                 d = d[subkey]
             subkey = key_list[-1]
             d[subkey] = v
-        context['cfg'] = Config(
+        context[self.ctx_key] = Config(
             self.merge_dict(
                 unpacked_src,
                 dst.__getattribute__('_cfg_dict'),
                 allow_list_keys=allow_list_keys),
             cfg_text=dst.text,
             filename=dst.filename)
-
         return context

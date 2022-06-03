@@ -13,8 +13,7 @@ def test_mmseg(mock_build_dataset, mock_train_model):
 
     task = MMSegmentation()
     task.set_args([config_path])
-
-    task.run()
+    task.run(args=task.args)
 
 
 @patch.object(MMDetection, 'train_model', return_value=None)
@@ -26,8 +25,7 @@ def test_mmdet(mock_build_dataset, mock_train_model):
 
     task = MMDetection()
     task.set_args([config_path])
-
-    task.run()
+    task.run(args=task.args)
 
 
 @patch.object(MMClassification, 'train_model', return_value=None)
@@ -39,8 +37,7 @@ def test_mmcls(mock_build_dataset, mock_train_model):
 
     task = MMClassification()
     task.set_args([config_path])
-
-    task.run()
+    task.run(args=task.args)
 
 
 def test_sphere():

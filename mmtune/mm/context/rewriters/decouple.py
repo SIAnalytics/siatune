@@ -1,19 +1,29 @@
-from typing import Dict, List
+from typing import Dict
 
 from mmtune.utils import ImmutableContainer
+from .base import BaseRewriter
 from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class Decouple:
+class Decouple(BaseRewriter):
+    """Decouple the configs in the immutable container."""
 
-    def __init__(self, keys: List[str] = []):
-        self.keys = keys
+    def __init__(self, key: str) -> None:
+        """
+        Args:
+            key (str): The key of the configs in the immutable container.
+        """
+        self.key = key
 
-    def __call__(self, context: Dict):
-        assert set(context).issuperset(set(
-            self.keys)), ('context should have superset of keys!')
+    def __call__(self, context: Dict) -> Dict:
+        """Decouple the configs in the immutable container.
 
-        for key in self.keys:
-            context[key] = ImmutableContainer.decouple(context[key])
+        Args:
+            context (Dict): The context to be rewritten.
+
+        Returns:
+            Dict: The context after rewriting.
+        """
+        context[self.key] = ImmutableContainer.decouple(context[self.key])
         return context

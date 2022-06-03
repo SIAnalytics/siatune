@@ -1,27 +1,34 @@
+import argparse
 from unittest.mock import MagicMock, patch
 
 import mmcv
 
-from mmtune.mm.context.rewriters import (BatchConfigPathcer, ConfigMerger,
+from mmtune.mm.context.rewriters import (AppendTrialIDtoPath,
+                                         BatchConfigPatcher, ConfigMerger,
                                          CustomHookRegister, Decouple, Dump,
-                                         SequeunceConfigPathcer, SetEnv)
+                                         InstantiateCfg,
+                                         SequeunceConfigPatcher)
+
+
+def test_build_base_cfg():
+    build_base_cfg = InstantiateCfg(dst_key='base_cfg')
+    context = dict()
+    build_base_cfg(context)
 
 
 def test_decouple():
-    decouple = Decouple(keys=['searched_cfg', 'base_cfg'])
+    decouple = Decouple(key='searched_cfg')
 
     context = dict(
-        base_cfg=dict(model=dict(type='DummyModel')),
         searched_cfg=dict(model=[
             dict(type='DummyModel'),
             dict(type='DummyModel2'),
-        ]),
-    )
+        ]), )
     decouple(context)
 
 
 def test_dump():
-    dump = Dump()
+    dump = Dump(ctx_key='cfg', arg_key='config')
     config = mmcv.Config(dict())
     args = MagicMock()
     args.config = config
@@ -30,18 +37,19 @@ def test_dump():
 
 
 @patch('ray.tune.get_trial_id')
-def test_setenv(mock_get_trial_id):
-    mock_get_trial_id.return_value = 'sdfkj234'
-    setenv = SetEnv()
-
-    args = MagicMock()
-    args.work_dir = 'tmpdir'
+def test_suffix_trial_id(mock_get_trial_id):
+    mock_get_trial_id.return_value = '123'
+    args = argparse.Namespace()
+    args.work_dir = '/tmp'
     context = dict(args=args)
-    setenv(context)
+    suffix = AppendTrialIDtoPath(key='work_dir')
+    context = suffix(context)
+    assert context['args'].work_dir == '/tmp/123'
 
 
 def test_merge():
-    merger = ConfigMerger()
+    merger = ConfigMerger(
+        src_key='searched_cfg', dst_key='base_cfg', ctx_key='cfg')
 
     context = dict(
         base_cfg=mmcv.Config(dict(model=dict(type='DummyModel'))),
@@ -61,16 +69,17 @@ def test_patch():
                 dict(type='DummyModel6'),
                 dict(type='DummyModel2'),
             ])))
-    patcher = BatchConfigPathcer()
+    patcher = BatchConfigPatcher(key='searched_cfg')
     patcher(context)
 
-    patcher = SequeunceConfigPathcer()
+    patcher = SequeunceConfigPatcher(key='searched_cfg')
     patcher(context)
 
 
 def test_register():
     post_custom_hooks = ['a', 'b']
-    register = CustomHookRegister(post_custom_hooks)
+    register = CustomHookRegister(
+        ctx_key='cfg', post_custom_hooks=post_custom_hooks)
     cfg = MagicMock()
     cfg.custom_hooks = []
     context = dict(cfg=cfg)
