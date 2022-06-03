@@ -29,7 +29,7 @@ def unwrap_regexp(value: str,
 
 
 @REWRITERS.register_module()
-class BatchConfigPathcer(BaseRewriter):
+class BatchConfigPatcher(BaseRewriter):
     """Patch the config in the context. It was introduced with the intention of
     changing two or more elements at once. To take object detection as an
     example, suppose you want to find the optimal number of fpn output
@@ -64,7 +64,7 @@ class BatchConfigPathcer(BaseRewriter):
     }
 
     'context rewriter'
-    dict(type='BatchConfigPathcer', key=...),
+    dict(type='BatchConfigPatcher', key=...),
 
     1. Connect the elements you want
     to change collectively with ``&`` in the search configuration.
@@ -89,7 +89,7 @@ class BatchConfigPathcer(BaseRewriter):
             Dict: The context after rewriting.
         Examples:
             inputs = {'$(a & b)': 1}
-            >>> BatchConfigPathcer()(inputs)
+            >>> BatchConfigPatcher()(inputs)
             {'a': 1, 'b': 1}
         """
         cfg = context[self.key]
@@ -108,7 +108,7 @@ class BatchConfigPathcer(BaseRewriter):
 
 @REWRITERS.register_module()
 class SequeunceConfigPathcer(BaseRewriter):
-    """Patch the config in the context. An extended form of BatchConfigPathcer.
+    """Patch the config in the context. An extended form of BatchConfigPatcher.
 
      The change is that the elements to be changed
      in batches do not have to have the same value.

@@ -7,7 +7,7 @@ from torch import distributed as dist
 
 @HOOKS.register_module()
 class RayTuneLoggerHook(LoggerHook):
-    """Logger hook for Ray Tune."""
+    """MMCV Logger hook for Ray Tune."""
 
     def __init__(
             self,
