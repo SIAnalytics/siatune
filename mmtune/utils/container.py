@@ -1,6 +1,8 @@
 import copy
 from typing import Any, Optional
 import copy
+from typing import Any, Optional
+
 
 class _Freezer(object):
     """Freeze any class, such that instantiated objects become immutable.

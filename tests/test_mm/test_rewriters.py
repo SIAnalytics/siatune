@@ -1,8 +1,7 @@
 from os import path as osp
 from typing import Dict
 from unittest.mock import MagicMock, patch
-from mmtune.mm.context.rewriters.builder import build_rewriter
-import pytest
+
 import ImmutableContainer
 import mmcv
 import pytest
@@ -26,7 +25,8 @@ def test_base_rewriter():
     with pytest.raises(TypeError):
         BaseRewriter()
     getattr(BaseRewriter, '__call__', None) is not None
- 
+
+
 def test_build_base_cfg():
 
     @REWRITERS.register_module()
@@ -45,6 +45,7 @@ def test_decouple():
     assert decouple(context).get('test') == dict(a=1, b=2)
 
 
+
 @patch('ray.tune.get_trial_id')
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
@@ -61,6 +62,7 @@ def test_dump(mock_get_trial_id):
     assert context['args'].config == tmp_path
     assert osp.exists(tmp_path)
     assert mmcv.utils.Config.fromfile(tmp_path)._cfg_dict == config._cfg_dict
+
 
 
 def test_instantiate():
@@ -111,6 +113,7 @@ def test_patch():
         'c': 1,
         'd': 2
     })._cfg_dict
+
 
 
 @patch('ray.tune.get_trial_id')

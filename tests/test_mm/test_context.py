@@ -2,6 +2,7 @@ import pytest
 
 from mmtune.mm.context import REWRITERS, ContextManager
 
+
 def test_contextmanager():
     with pytest.raises(TypeError):
         ContextManager(['test'])

@@ -10,12 +10,6 @@ def test_freezer():
     with pytest.raises(AttributeError):
         del freezer._lock
 
-def test_freezer():
-    freezer = _Freezer()
-    with pytest.raises(AttributeError):
-        freezer._lock = False
-    with pytest.raises(AttributeError):
-        del freezer._lock
 
 def test_immutablecontainer():
     container = ImmutableContainer(dict(test='test'), 'test')
