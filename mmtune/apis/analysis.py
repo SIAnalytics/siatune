@@ -26,7 +26,7 @@ def log_analysis(analysis: tune.ExperimentAnalysis,
     dump_cfg(tune_config, osp.join(log_dir, 'tune_config.py'))
 
     if task_config is not None:
-        dump_cfg(task_config, osp.join(log_dir, 'task_config.py')) 
+        dump_cfg(task_config, osp.join(log_dir, 'task_config.py'))
 
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     logger = get_logger(

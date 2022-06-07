@@ -1,5 +1,6 @@
-from typing import Any, Optional
 import copy
+from typing import Any, Optional
+
 
 class _Freezer(object):
     """Freeze any class, such that instantiated objects become immutable.
@@ -80,7 +81,7 @@ class ImmutableContainer(_Freezer):
         Args:
             other (Any): The other object to compare.
         Returns:
-            bool: True if the other object is equal.        
+            bool: True if the other object is equal.
         """
 
         if other.__class__ is self.__class__:

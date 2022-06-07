@@ -1,7 +1,10 @@
-from mmcv.utils import Config
 import tempfile
-from mmtune.utils import dump_cfg
 from os import path as osp
+
+from mmcv.utils import Config
+
+from mmtune.utils import dump_cfg
+
 
 def test_dump_cfg():
     cfg = Config(dict())
