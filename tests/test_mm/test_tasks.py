@@ -34,7 +34,7 @@ def test_base_task():
         def create_trainable(self):
             return self.context_aware_run
 
-    task = TestTask(TestRewriter())
+    task = TestTask([TestRewriter()])
     task.set_args('')
     assert task.args == argparse.Namespace(test=1)
     assert isinstance(task.rewriters, list)

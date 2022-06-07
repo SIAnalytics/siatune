@@ -2,7 +2,6 @@ from os import path as osp
 from typing import Dict
 from unittest.mock import MagicMock, patch
 
-import ImmutableContainer
 import mmcv
 import pytest
 
@@ -12,7 +11,7 @@ from mmtune.mm.context.rewriters import (AppendTrialIDtoPath, BaseRewriter,
                                          InstantiateCfg,
                                          SequeunceConfigPatcher)
 from mmtune.mm.context.rewriters.builder import build_rewriter
-from mmtune.utils import dump_cfg
+from mmtune.utils import ImmutableContainer, dump_cfg
 
 
 def test_base_rewriter():
