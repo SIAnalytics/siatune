@@ -224,7 +224,7 @@ def test_sphere(mock_report, mock_fromfile):
         _variable1=-1,
     ))
     args = argparse.Namespace(config='')
-    task = Sphere()  # noqa
-    task.run(args)
+    task = Sphere()
+    task.run(args=args)
 
     assert get_session().get('result') == 2.0

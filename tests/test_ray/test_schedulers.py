@@ -3,7 +3,7 @@ from mmtune.ray.schedulers import SCHEDULERS, build_scheduler
 
 def test_build_schedulers():
 
-    @SCHEDULERS
+    @SCHEDULERS.register_module()
     class TestScheduler:
         pass
 
