@@ -1,7 +1,7 @@
 import argparse
+import os
 from unittest.mock import patch
 
-import numpy as np
 import pytest
 import torch
 from mmcv.utils import Config
@@ -16,7 +16,7 @@ _session = dict()
 
 def report_to_session(*args, **kwargs):
     _session = get_session()
-    _session = kwargs.copy()
+    _session.update(kwargs)
     for arg in args:
         if isinstance(arg, dict):
             _session.update(arg)
@@ -28,7 +28,7 @@ def get_session():
 
 
 @patch('ray.tune.report', side_effect=report_to_session)
-def test_base_task():
+def test_base_task(mock_report):
     with pytest.raises(TypeError):
         BaseTask()
 
@@ -54,6 +54,7 @@ def test_base_task():
     task.set_args('')
     assert task.args == argparse.Namespace(test=1)
     assert isinstance(task.rewriters, list)
+    task.context_aware_run({})
     assert get_session().get('test') == -1
 
     tune.run(task.create_trainable(), config={})
@@ -95,6 +96,7 @@ def test_build_task_processor():
 @patch.object(MMSegmentation, 'build_dataset')
 def test_mmseg(mock_build_dataset, mock_train_model):
     mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
+    os.environ['LOCAL_RANK'] = '0'
 
     config_path = 'configs/mmseg/pspnet/pspnet_r18-d8_4x4_512x512_80k_potsdam.py'  # noqa
 
@@ -107,6 +109,7 @@ def test_mmseg(mock_build_dataset, mock_train_model):
 @patch.object(MMDetection, 'build_dataset')
 def test_mmdet(mock_build_dataset, mock_train_model):
     mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
+    os.environ['LOCAL_RANK'] = '0'
 
     config_path = 'configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
 
@@ -119,6 +122,7 @@ def test_mmdet(mock_build_dataset, mock_train_model):
 @patch.object(MMClassification, 'build_dataset')
 def test_mmcls(mock_build_dataset, mock_train_model):
     mock_build_dataset.return_value.CLASSES = ['a', 'b', 'c']
+    os.environ['LOCAL_RANK'] = '0'
 
     config_path = 'configs/mmcls/resnet/resnet18_8xb16_cifar10.py'
 
@@ -128,11 +132,15 @@ def test_mmcls(mock_build_dataset, mock_train_model):
 
 
 @patch('ray.tune.report', side_effect=report_to_session)
-def test_mm_train_based_task():
+def test_mm_train_based_task(mock_report):
     with pytest.raises(TypeError):
         MMTrainBasedTask()
 
     class TestTask(MMTrainBasedTask):
+
+        def parse_args(self, args):
+            parser = argparse.ArgumentParser()
+            return parser.parse_args(args)
 
         def build_model(self, cfg):
 
@@ -152,14 +160,13 @@ def test_mm_train_based_task():
             class Dataset(torch.utils.data.Dataset):
 
                 def __init__(self, num_points):
-                    np.random.seed(0)
-                    self._x = np.randn(num_points)
+                    torch.manual_seed(0)
+                    self._x = torch.randn(num_points, 1)
                     self._y = 2 * self._x + 1
                     self.num_points = num_points
 
                 def __getitem__(self, index):
-                    return torch.FloatTensor(
-                        self._x[index]), torch.FloatTensor(self._y[index])
+                    return self._x[index], self._y[index]
 
                 def __len__(self):
                     return self.num_points
@@ -181,12 +188,11 @@ def test_mm_train_based_task():
                     optimizer.step()
                     total_loss += loss.item()
                 tune.report(loss=total_loss / (batch_idx + 1))
-            self.train_model(model, dataset, cfg.train)
 
         def run(self, *, searched_cfg, **kwargs):
             cfg = searched_cfg.get('cfg')
             model = self.build_model(cfg.model)
-            dataset = self.build_dataset(cfg.dataset)
+            dataset = self.build_dataset(cfg.data)
             self.train_model(model, dataset, cfg.train)
 
     cfg = Config(
@@ -198,7 +204,7 @@ def test_mm_train_based_task():
             data=dict(num_points=128, ),
             train=dict(
                 lr=0.1,
-                batch_size=4,
+                batch_size=32,
                 num_epochs=4,
             )))
 
@@ -206,12 +212,13 @@ def test_mm_train_based_task():
     task.context_aware_run(searched_cfg=dict(cfg=cfg))
     assert 'loss' in get_session()
     tune.run(
-        task.create_trainable(num_gpus_per_worker=0), config=dict(cfg=cfg))
+        task.create_trainable(backend='gloo', num_gpus_per_worker=0),
+        config=dict(cfg=cfg))
 
 
 @patch.object(Config, 'fromfile')
 @patch('ray.tune.report', side_effect=report_to_session)
-def test_sphere(mock_fromfile):
+def test_sphere(mock_report, mock_fromfile):
     mock_fromfile.return_value = Config(dict(
         _variable0=-1,
         _variable1=-1,
@@ -220,4 +227,4 @@ def test_sphere(mock_fromfile):
     task = Sphere()  # noqa
     task.run(args)
 
-    assert get_session().get('result') == 1
+    assert get_session().get('result') == 2.0

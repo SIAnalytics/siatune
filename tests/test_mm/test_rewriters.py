@@ -34,9 +34,9 @@ def test_build_base_cfg():
 
 
 def test_decouple():
-    context = dict(ImmutableContainer(test=dict(a=1, b=2)))
+    context = dict(test=ImmutableContainer(dict(a=1, b=2)))
     decouple = Decouple(key='test')
-    assert decouple(context) == dict(test=dict(a=1, b=2))
+    assert decouple(context).get('test') == dict(a=1, b=2)
 
 
 @patch('ray.tune.get_trial_id')
@@ -52,19 +52,20 @@ def test_dump(mock_get_trial_id):
     tmp_path = dump.get_temporary_path('test.py')
     assert context['args'].config == tmp_path
     assert osp.exists(tmp_path)
-    assert mmcv.utils.Config.from_file(tmp_path) == config
+    assert mmcv.utils.Config.fromfile(tmp_path)._cfg_dict == config._cfg_dict
 
 
 def test_instantiate():
     dump_cfg(mmcv.utils.Config(dict(test='test')), 'test.py')
 
-    instantiate = InstantiateCfg(ctx_key='cfg', arg_key='config')
+    instantiate = InstantiateCfg(dst_key='cfg', arg_key='config')
     args = MagicMock()
     args.config = 'test.py'
     context = dict(args=args)
     instantiate(context)
 
-    assert context['cfg'] == mmcv.utils.Config(dict(test='test'))
+    assert context['cfg']._cfg_dict == mmcv.utils.Config(
+        dict(test='test'))._cfg_dict
 
 
 def test_merge():
@@ -76,7 +77,8 @@ def test_merge():
     )
 
     merger(context)
-    assert context['cp'] == mmcv.Config(dict(a=1, b=2, c=3, d=4))
+    assert context['cp']._cfg_dict == mmcv.Config(dict(a=1, b=2, c=3,
+                                                       d=4))._cfg_dict
 
 
 def test_patch():
@@ -90,9 +92,15 @@ def test_patch():
     seq_config_patcher = SequeunceConfigPatcher(key='seq_test_cfg')
 
     context = batch_config_patcher(context)
-    assert context['batch_test_cfg'] == mmcv.Config({'a': 0, 'b': 0})
+    assert context['batch_test_cfg']._cfg_dict == mmcv.Config({
+        'a': 0,
+        'b': 0
+    })._cfg_dict
     context = seq_config_patcher(context)
-    assert context['seq_test_cfg'] == mmcv.Config({'c': 1, 'd': 2})
+    assert context['seq_test_cfg']._cfg_dict == mmcv.Config({
+        'c': 1,
+        'd': 2
+    })._cfg_dict
 
 
 @patch('ray.tune.get_trial_id')
@@ -103,7 +111,7 @@ def test_append_trial_id_to_path(mock_get_trial_id):
     context = dict(args=args)
     suffix = AppendTrialIDtoPath(key='work_dir')
     context = suffix(context)
-    assert context['args'].work_dir == '/tmp/123'
+    assert context['args'].work_dir == '/tmp/test'
 
 
 def test_register():

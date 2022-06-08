@@ -14,7 +14,7 @@ def test_freezer():
 def test_immutablecontainer():
     container = ImmutableContainer(dict(test='test'), 'test')
     assert str(container) == 'test'
-    assert str(container.data) == dict(test='test')
+    assert container.data == dict(test='test')
     with pytest.raises(AttributeError):
         container.data = dict(test='modified')
     assert container.alias == 'test'

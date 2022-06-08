@@ -44,5 +44,5 @@ def test_earlydroppingstopper():
             return dict(result=0)
 
     stopper = EarlyDroppingStopper(
-        metric='acc', mode='max', metric_threshold=0.5)
+        metric='result', mode='max', metric_threshold=0.5)
     tune.run(TestTrainable, config={}, stop=stopper)
