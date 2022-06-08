@@ -11,7 +11,23 @@ from mmtune.mm.tasks import (TASKS, BaseTask, BlackBoxTask, MMClassification,
                              MMDetection, MMSegmentation, MMTrainBasedTask,
                              Sphere, build_task_processor)
 
+_session = dict()
 
+
+def report_to_session(*args, **kwargs):
+    _session = get_session()
+    _session = kwargs.copy()
+    for arg in args:
+        if isinstance(arg, dict):
+            _session.update(arg)
+
+
+def get_session():
+    global _session
+    return _session
+
+
+@patch('ray.tune.report', side_effect=report_to_session)
 def test_base_task():
     with pytest.raises(TypeError):
         BaseTask()
@@ -38,7 +54,7 @@ def test_base_task():
     task.set_args('')
     assert task.args == argparse.Namespace(test=1)
     assert isinstance(task.rewriters, list)
-    assert task.context_aware_run(searched_cfg={}) == -1
+    assert get_session().get('test') == -1
 
     tune.run(task.create_trainable(), config={})
 
@@ -111,6 +127,7 @@ def test_mmcls(mock_build_dataset, mock_train_model):
     task.run(args=task.args)
 
 
+@patch('ray.tune.report', side_effect=report_to_session)
 def test_mm_train_based_task():
     with pytest.raises(TypeError):
         MMTrainBasedTask()
@@ -187,12 +204,13 @@ def test_mm_train_based_task():
 
     task = TestTask()
     task.context_aware_run(searched_cfg=dict(cfg=cfg))
-    assert 'loss' in tune.session.get_session()._queue.get()
+    assert 'loss' in get_session()
     tune.run(
         task.create_trainable(num_gpus_per_worker=0), config=dict(cfg=cfg))
 
 
 @patch.object(Config, 'fromfile')
+@patch('ray.tune.report', side_effect=report_to_session)
 def test_sphere(mock_fromfile):
     mock_fromfile.return_value = Config(dict(
         _variable0=-1,
@@ -202,4 +220,4 @@ def test_sphere(mock_fromfile):
     task = Sphere()  # noqa
     task.run(args)
 
-    assert tune.session.get_session()._queue.get()['result'] == 1
+    assert get_session().get('result') == 1
