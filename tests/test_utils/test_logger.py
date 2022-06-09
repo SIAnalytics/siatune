@@ -1,13 +1,10 @@
-import tempfile
-from os import path as osp
+import logging
 
 from mmtune.utils import get_root_logger
 
 
 def test_get_root_logger():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        save_path = osp.join(tmpdir, 'test.log')
-        logger = get_root_logger(log_file=save_path)
-        logger.info('test')
-        assert osp.exists(save_path)
-        assert logger.name == 'mmtune'
+    logger = get_root_logger()
+    logger.info('test')
+    assert isinstance(logger, logging.Logger)
+    assert logger.name == 'mmtune'
