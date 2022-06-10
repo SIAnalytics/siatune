@@ -102,7 +102,6 @@ def test_continuous_test_function(mock_report):
         'sphere',
         'sphere1',
         'sphere2',
-        'sphere3',
         'sphere4',
         'maxdeceptive',
         'sumdeceptive',
