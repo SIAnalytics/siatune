@@ -4,7 +4,7 @@ import pickle
 import random
 from dataclasses import dataclass
 from functools import partial
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import gpytorch
 import numpy as np
@@ -28,9 +28,18 @@ from .builder import SEARCHERS
 
 
 class _Optimizer:
+    """A wrapper class for gp based trust region optimization."""
 
     @dataclass(frozen=True)
     class ParamMeta:
+        """A data class responsible for mapping parameter information into a
+        vector space.
+
+        idx (int): The index of the parameter. category (Optional[List]): The
+        category of the parameter. lower (float): The lower bound of the
+        parameter. upper (float): The upper bound of the parameter. is_int
+        (bool): Whether the parameter is an integer.
+        """
         idx: int
         category: Optional[List] = None
         lower: Optional[float] = None
@@ -39,13 +48,25 @@ class _Optimizer:
         # TODO: support quantization
 
     class ConstraintsGaussianProcess(ExactGP):
+        """Gaussian Processes with Constraints."""
 
         def __init__(self, train_inputs: torch.Tensor,
-                     train_targets: torch.Tensor, likelihood,
+                     train_targets: torch.Tensor, likelihood: torch.nn.Module,
                      lengthscale_constraint: tuple,
                      outputscale_constraint: tuple,
                      covar_base_kernel_nu: float):
+            """Initialize the Gaussian Process.
+
+            Args:
+                train_inputs (torch.Tensor): The training inputs.
+                train_targets (torch.Tensor): The training targets.
+                likelihood (torch.nn.Module): The likelihood.
+                lengthscale_constraint (tuple): The lengthscale constraint.
+                outputscale_constraint (tuple): The outputscale constraint.
+                covar_base_kernel_nu (float): The nu of the base kernel.
+            """
             for constraint in [lengthscale_constraint, outputscale_constraint]:
+
                 assert len(constraint) == 2 and constraint[0] <= constraint[1]
             super().__init__(train_inputs, train_targets, likelihood)
             self.mean = ConstantMean()
@@ -57,41 +78,86 @@ class _Optimizer:
                 outputscale_constraint=Interval(*outputscale_constraint))
 
         def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+            """Forward the Gaussian Process.
+
+            Args:
+                inputs (torch.Tensor): The inputs.
+            Returns:
+                torch.Tensor: The outputs.
+            """
             return MultivariateNormal(self.mean(inputs), self.covar(inputs))
 
-        def get_weights(self):
+        def get_weights(self) -> torch.Tensor:
+            """Get the weights of the Gaussian Process.
+
+            Returns:
+                torch.Tensor: The weights.
+            """
             return self.covar.base_kernel.lengthscale.detach().numpy().ravel()
 
     @staticmethod
     def stable_softmax(inputs: np.array) -> np.array:
+        """Stable softmax for numpy.
+
+        Args:
+            inputs (np.array): The inputs.
+        Returns:
+            np.array: The outputs.
+        """
         max_value = np.max(inputs)
         return np.exp(inputs - max_value) / np.sum(np.exp(inputs - max_value))
 
     def __init__(
-        self,
-        metas: dict,
-        mode: str = min,
-        min_num_cands: int = 4096,
-        likelihood_noise_constraint: tuple = (5e-4, 2e-1),
-        lengthscale_constraint: tuple = (5e-3, 2.0),
-        outputscale_constraint: tuple = (5e-2, 2e1),
-        covar_base_kernel_nu: float = 2.5,
-        gp_model_init_cfg={
-            'covar.outputscale': 1.0,
-            'covar.base_kernel.lengthscale': 0.5,
-            'likelihood.noise': 0.005
-        },
-        lr: float = 0.1,
-        num_training_steps: int = 64,
-        max_num_successes: int = 3,
-        max_num_fails: int = 4,
-        trust_region_expand_rate: float = 2.0,
-        max_trust_region: float = 1.6,
-        trust_region_shrink_rate: float = 0.5,
-        min_trust_region: float = 0.5**7,
-        init_trust_region: float = 0.8,
-        suc_bound: float = 0.,
-        max_cholesky_size: int = 2048):  # noqa E129
+            self,
+            metas: dict,
+            mode: str = min,
+            min_num_cands: int = 4096,
+            likelihood_noise_constraint: tuple = (5e-4, 2e-1),
+            lengthscale_constraint: tuple = (5e-3, 2.0),
+            outputscale_constraint: tuple = (5e-2, 2e1),
+            covar_base_kernel_nu: float = 2.5,
+            gp_model_init_cfg={
+                'covar.outputscale': 1.0,
+                'covar.base_kernel.lengthscale': 0.5,
+                'likelihood.noise': 0.005
+            },
+            lr: float = 0.1,
+            num_training_steps: int = 64,
+            max_num_successes: int = 3,
+            max_num_fails: int = 4,
+            trust_region_expand_rate: float = 2.0,
+            max_trust_region: float = 1.6,
+            trust_region_shrink_rate: float = 0.5,
+            min_trust_region: float = 0.5**7,
+            init_trust_region: float = 0.8,
+            suc_bound: float = 0.,
+            max_cholesky_size: int = 2048) -> None:  # noqa E129
+        """Initialize the optimizer.
+
+        Args:
+            metas (dict): The metas of the parameters.
+            mode (str): The mode of the optimizer.
+            min_num_cands (int): The minimum number of candidates.
+            likelihood_noise_constraint (tuple):
+                The likelihood noise constraint.
+            lengthscale_constraint (tuple): The lengthscale constraint.
+            outputscale_constraint (tuple): The outputscale constraint.
+            covar_base_kernel_nu (float): The nu of the base kernel.
+            gp_model_init_cfg (dict):
+                The initial configuration of the Gaussian Process.
+            lr (float): The learning rate.
+            num_training_steps (int): The number of training steps.
+            max_num_successes (int): The maximum number of successes.
+            max_num_fails (int): The maximum number of fails.
+            trust_region_expand_rate (float):
+                The expand rate of the trust region.
+            max_trust_region (float): The maximum trust region.
+            trust_region_shrink_rate (float):
+                The shrink rate of the trust region.
+            min_trust_region (float): The minimum trust region.
+            suc_bound (float): The bound of the success rate.
+            max_cholesky_size (int): The maximum size of the cholesky factor.
+        """
 
         self.metas = metas
         self._vector_dims = len(self.metas)
@@ -120,14 +186,30 @@ class _Optimizer:
         self.max_cholesky_size = max_cholesky_size
 
     @property
-    def num_evals(self):
+    def num_evals(self) -> int:
+        """Get the number of evaluations.
+
+        Returns:
+            int: The number of evaluations.
+        """
         return self.history.get('x').shape[0]
 
     @property
-    def vector_dims(self):
+    def vector_dims(self) -> int:
+        """Get the number of vector dimensions.
+
+        Returns:
+            int: The number of vector dimensions.
+        """
         return self._vector_dims
 
-    def _build(self, train_x: torch.Tensor, train_y: torch.Tensor):
+    def _build(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+        """Build the optimizer.
+
+        Args:
+            train_x (torch.Tensor): The training inputs.
+            train_y (torch.Tensor): The training outputs.
+        """
         self.train_x = train_x
         self.train_y = train_y
         self.likelihood = GaussianLikelihood(
@@ -142,6 +224,7 @@ class _Optimizer:
         return
 
     def _train(self):
+        """Fit the Gaussian Process."""
         self.gp_model.train()
         self.likelihood.train()
         for _ in range(self.num_training_steps):
@@ -152,6 +235,13 @@ class _Optimizer:
         self.likelihood.eval()
 
     def _encode(self, inputs: dict) -> np.ndarray:
+        """Encode the inputs. project inputs to vector space.
+
+        Args:
+            inputs (dict): The inputs.
+        Returns:
+            np.ndarray: The encoded inputs.
+        """
         results = [0.] * self.vector_dims
         for key, meta in self.metas.items():
             if meta.category is None:
@@ -165,6 +255,13 @@ class _Optimizer:
         return np.array(results)
 
     def _decode(self, inputs: np.array) -> dict:
+        """Decode the inputs. project inputs to original space.
+
+        Args:
+            inputs (np.array): The inputs.
+        Returns:
+            dict: The decoded inputs.
+        """
         result = dict()
         for key, meta in self.metas.items():
             if meta.category is None:
@@ -177,9 +274,16 @@ class _Optimizer:
         return result
 
     def _del(self):
+        """Delete gpytorch module."""
         del self.gp_model, self.likelihood, self.train_x, self.train_y, self.optimizer, self.loss  # noqa E501
 
     def _adjust_trust_region(self, y: float):
+        """Adjust the trust region. shrink the trust region if the success rate
+        is low. expand the trust region if the success rate is high.
+
+        Args:
+            y (float): The value of function.
+        """
         y_best = np.min(self.history['y']) if self.mode == 'min' else np.max(
             self.history['y'])
         comp_op = partial(
@@ -206,6 +310,13 @@ class _Optimizer:
             self.num_fails = 0
 
     def ask(self, seed: Optional[int] = None) -> Dict:
+        """Ask for a new point.
+
+        Args:
+            seed (Optional[int]): The seed.
+        Returns:
+            Dict: The new point.
+        """
         if self.num_evals == 0:
             return self._decode(np.random.rand(self.vector_dims))
 
@@ -256,7 +367,13 @@ class _Optimizer:
                         'min' else np.argmax(y_cand[..., 0])].copy()
         return self._decode(x_next)
 
-    def tell(self, x: dict, y: float):
+    def tell(self, x: dict, y: float) -> None:
+        """Tell the point and the value.
+
+        Args:
+            x (dict): The point.
+            y (float): The value.
+        """
         x_vector = self._encode(x)
         if self.num_evals != 0:
             self._adjust_trust_region(y)
@@ -267,13 +384,21 @@ class _Optimizer:
 
 @SEARCHERS.register_module()
 class TrustRegionSearcher(Searcher):
+    """Trust region searcher."""
 
     def __init__(
         self,
-        space: Optional[Union[Dict]] = None,
+        space: Optional[Dict] = None,
         metric: Optional[str] = None,
         mode: Optional[str] = None,
     ):
+        """Initialize the searcher.
+
+        Args:
+            space (Optional[Dict]): The space where the searcher is running.
+            metric (Optional[str]): The metric to optimize.
+            mode (Optional[str]): The mode to optimize. min or max.
+        """
 
         self._space = self.convert_search_space(space) if (
             isinstance(space, dict) and space) else dict()
@@ -283,12 +408,26 @@ class TrustRegionSearcher(Searcher):
         self._live_trial_mapping = {}
 
     def _setup_optimizer(self) -> Optional[_Optimizer]:
+        """Build the optimizer.
+
+        Returns:
+            Optional[_Optimizer]: The optimizer.
+        """
         if self._space and self._mode:
             return _Optimizer(self._space, self._mode)
         return None
 
     def set_search_properties(self, metric: Optional[str], mode: Optional[str],
                               config: Dict, **spec) -> bool:
+        """Set the search properties.
+
+        Args:
+            metric (Optional[str]): The metric to optimize.
+            mode (Optional[str]): The mode to optimize. min or max.
+            config (Dict): The config. the space is defined.
+        Returns:
+            bool: Whether the search properties are set.
+        """
         if self._optimizer and self._space:
             return False
 
@@ -302,6 +441,13 @@ class TrustRegionSearcher(Searcher):
         return True
 
     def suggest(self, trial_id: str) -> Optional[Dict]:
+        """Suggest a new trial.
+
+        Args:
+            trial_id (str): The trial id.
+        Returns:
+            Optional[Dict]: The new trial.
+        """
         if not self._optimizer:
             raise RuntimeError(
                 UNDEFINED_SEARCH_SPACE.format(
@@ -321,28 +467,58 @@ class TrustRegionSearcher(Searcher):
     def on_trial_complete(self,
                           trial_id: str,
                           result: Optional[Dict] = None,
-                          error: bool = False):
+                          error: bool = False) -> None:
+        """Handle the trial complete event.
+
+        Args:
+            trial_id (str): The trial id.
+            result (Optional[Dict]): The result.
+            error (bool): Whether the trial is error.
+        """
         if result:
             self._process_result(trial_id, result)
 
         self._live_trial_mapping.pop(trial_id)
 
-    def _process_result(self, trial_id: str, result: Dict):
+    def _process_result(self, trial_id: str, result: Dict) -> None:
+        """Process the result. Tell the result to the optimizer.
+
+        Args:
+            trial_id (str): The trial id.
+            result (Dict): The result.
+        """
         self._optimizer.tell(self._live_trial_mapping[trial_id],
                              result[self._metric])
 
-    def save(self, checkpoint_path: str):
+    def save(self, checkpoint_path: str) -> None:
+        """Save the searcher.
+
+        Args:
+            checkpoint_path (str): The path to save the searcher.
+        """
         save_object = self.__dict__
         with open(checkpoint_path, 'wb') as outputFile:
             pickle.dump(save_object, outputFile)
 
-    def restore(self, checkpoint_path: str):
+    def restore(self, checkpoint_path: str) -> None:
+        """Restore the searcher.
+
+        Args:
+            checkpoint_path (str): The path to restore the searcher.
+        """
         with open(checkpoint_path, 'rb') as inputFile:
             save_object = pickle.load(inputFile)
         self.__dict__.update(save_object)
 
     def convert_search_space(self, spec: Dict) -> Dict:
-        resolved_vars, domain_vars, grid_vars = parse_spec_vars(spec)
+        """Convert the search space to the format of the optimizer.
+
+        Args:
+            spec (Dict): The search space.
+        Returns:
+            Dict: The converted search space.
+        """
+        _, domain_vars, grid_vars = parse_spec_vars(spec)
 
         if grid_vars:
             raise ValueError(
@@ -351,7 +527,7 @@ class TrustRegionSearcher(Searcher):
 
         # Flatten and resolve again after checking for grid search.
         spec = flatten_dict(spec, prevent_delimiter=True)
-        resolved_vars, domain_vars, grid_vars = parse_spec_vars(spec)
+        _, domain_vars, grid_vars = parse_spec_vars(spec)
 
         def resolve_value(domain: Domain,
                           vector_idx: int = 0) -> _Optimizer.ParamMeta:

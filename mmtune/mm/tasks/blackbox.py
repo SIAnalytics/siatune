@@ -1,15 +1,7 @@
 import argparse
 from abc import ABCMeta
-<<<<<<< HEAD
-=======
-from argparse import ArgumentParser
-from functools import partial
->>>>>>> f0b2478 (Fix base cfg)
 from typing import Callable, Sequence
 
-from mmcv import Config
-
-from mmtune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
 
