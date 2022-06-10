@@ -34,7 +34,7 @@ def _step(s: float) -> float:
     Returns:
         float: output.
     """
-    return float(np.exp(int(np.nan_to_num(np.log(s)))))
+    return np.nan_to_num(np.exp(np.round(np.log(s))))
 
 
 @TASKS.register_module()
