@@ -144,7 +144,7 @@ def test_continuous_test_function(mock_report):
             Config(dict(func=func_name, _variable0=0.0, _variable1=0.0)),
             'test.py')
         args = argparse.Namespace(config='test.py')
-        func.run(args)
+        func.run(args=args)
         assert isinstance(get_session().get('result'), float)
 
 
@@ -158,7 +158,7 @@ def test_discrete_test_function(mock_report):
             Config(dict(func=func_name, _variable0=0.0, _variable1=0.0)),
             'test.py')
         args = argparse.Namespace(config='test.py')
-        func.run(args)
+        func.run(args=args)
         assert isinstance(get_session().get('result'), float)
 
 
