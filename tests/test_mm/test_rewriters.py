@@ -17,7 +17,7 @@ from mmtune.utils import ImmutableContainer, dump_cfg
 def test_base_rewriter():
     with pytest.raises(TypeError):
         BaseRewriter()
-    getattr(BaseRewriter, '__call__', None) is not None
+    assert getattr(BaseRewriter, '__call__', None) is not None
 
 
 def test_build_base_cfg():
@@ -80,9 +80,6 @@ def test_merge():
     merger(context)
     assert context['cp']._cfg_dict == mmcv.Config(dict(a=1, b=2, c=3,
                                                        d=4))._cfg_dict
-
-    merger(context)
-    assert context['cp'] == mmcv.Config(dict(a=1, b=2, c=3, d=4))
 
 
 def test_patch():
