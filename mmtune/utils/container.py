@@ -68,7 +68,7 @@ class ImmutableContainer(_Freezer):
 
     @data.setter
     def data(self):
-        raise AttributeError
+        raise AttributeError('Setting data inside an immutable container is not allowed.')
 
     @property
     def alias(self):

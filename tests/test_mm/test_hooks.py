@@ -17,12 +17,6 @@ def test_raycheckpointhook():
     hook = RayCheckpointHook(
         interval=1,
         by_epoch=True,
-        out_dir='/tmp',
-        mode='min',
-        metric_name='loss',
-        max_concurrent=1,
-        checkpoint_metric=True,
-        checkpoint_at_end=True,
     )
     mock_runner = MagicMock()
     mock_runner.inner_iter = 3
