@@ -17,6 +17,6 @@ def test_contextmanager():
     assert context_manager(lambda **context: context)(test='fake') == dict(
         test='test')
 
-    dict_init_context_manager = ContextManager(dict(type='TestRewriter'))
+    dict_init_context_manager = ContextManager([dict(type='TestRewriter')])
     assert dict_init_context_manager(lambda **context: context)(
         test='fake') == dict(test='test')
