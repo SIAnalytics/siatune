@@ -36,10 +36,6 @@ def test_decouple():
     context = dict(test=ImmutableContainer(dict(a=1, b=2)))
     decouple = Decouple(key='test')
     assert decouple(context).get('test') == dict(a=1, b=2)
-<<<<<<< HEAD
-
-=======
->>>>>>> 7fa34bc (Fix test code)
 
 
 @patch('ray.tune.get_trial_id')
@@ -58,10 +54,6 @@ def test_dump(mock_get_trial_id):
     assert context['args'].config == tmp_path
     assert osp.exists(tmp_path)
     assert mmcv.utils.Config.fromfile(tmp_path)._cfg_dict == config._cfg_dict
-<<<<<<< HEAD
-
-=======
->>>>>>> 7fa34bc (Fix test code)
 
 
 def test_instantiate():
@@ -90,7 +82,8 @@ def test_merge():
                                                        d=4))._cfg_dict
 
     merger(context)
-    assert context['cp'] == mmcv.Config(dict(a=1, b=2, c=3, d=4))  
+    assert context['cp'] == mmcv.Config(dict(a=1, b=2, c=3, d=4))
+
 
 def test_patch():
     from mmtune.mm.context.rewriters.patch import unwrap_regexp

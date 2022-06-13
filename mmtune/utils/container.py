@@ -1,7 +1,5 @@
 import copy
 from typing import Any, Optional
-import copy
-from typing import Any, Optional
 
 
 class _Freezer(object):
