@@ -5,10 +5,10 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath, BaseRewriter,
-                                         BatchConfigPatcher, ConfigMerger,
-                                         CustomHookRegister, Decouple, Dump,
-                                         InstantiateCfg,
+from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
+                                         BaseRewriter, BatchConfigPatcher,
+                                         ConfigMerger, CustomHookRegister,
+                                         Decouple, Dump, InstantiateCfg,
                                          SequeunceConfigPatcher)
 from mmtune.mm.context.rewriters.builder import build_rewriter
 from mmtune.utils import ImmutableContainer, dump_cfg
@@ -21,6 +21,7 @@ def test_base_rewriter():
 
 
 def test_build_base_cfg():
+
     @REWRITERS.register_module()
     class DummyRewriter(BaseRewriter):
 
@@ -48,7 +49,8 @@ def test_dump(mock_get_trial_id):
     dump(context)
 
     tmp_path = dump.get_temporary_path('test.py')
-    # the dumped file name follows the return value of `ray.tune.get_trial_id` as f'{trial_id}.py'.
+    # the dumped file name follows the return value of
+    # `ray.tune.get_trial_id` as f'{trial_id}.py'.
     assert context['args'].config == tmp_path
     assert osp.exists(tmp_path)
     assert mmcv.utils.Config.fromfile(tmp_path)._cfg_dict == config._cfg_dict

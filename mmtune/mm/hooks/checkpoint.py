@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Optional
 
 import mmcv
 import torch
@@ -9,21 +10,22 @@ from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
 from mmcv.runner.dist_utils import master_only
 from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
 from ray.tune.integration.torch import distributed_checkpoint_dir
-from typing import Optional
+
 
 @HOOKS.register_module()
 class RayCheckpointHook(_CheckpointHook):
+
     def __init__(self,
-                 interval: int=-1,
-                 by_epoch:bool=True,
-                 save_optimizer:bool=True,
-                 max_keep_ckpts:int=-1,
-                 save_last:bool=True,
-                 sync_buffer:Optional[bool]=False,
-                 file_client_args:Optional[dict]=None,
+                 interval: int = -1,
+                 by_epoch: bool = True,
+                 save_optimizer: bool = True,
+                 max_keep_ckpts: int = -1,
+                 save_last: bool = True,
+                 sync_buffer: Optional[bool] = False,
+                 file_client_args: Optional[dict] = None,
                  **kwargs):
         """Initialize the CheckpointHook.
-        
+
         Args:
             interval (int): The saving period. If ``by_epoch=True``, interval
                 indicates epochs, otherwise it indicates iterations.
@@ -37,15 +39,16 @@ class RayCheckpointHook(_CheckpointHook):
                 In some cases we want only the latest few checkpoints and would
                 like to delete old ones to save the disk space.
                 Default: -1, which means unlimited.
-            save_last (bool, optional): Whether to force the last checkpoint to be
+            save_last (bool, optional):
+                Whether to force the last checkpoint to be
                 saved regardless of interval. Default: True.
             sync_buffer (bool, optional): Whether to synchronize buffers in
                 different gpus. Default: False.
             file_client_args (dict, optional): Arguments to instantiate a
                 FileClient. See :class:`mmcv.fileio.FileClient` for details.
                 Default: None.
-                `New in version 1.3.16.` 
-        """  
+                `New in version 1.3.16.`
+        """
         self.interval = interval
         self.by_epoch = by_epoch
         self.save_optimizer = save_optimizer
@@ -53,7 +56,7 @@ class RayCheckpointHook(_CheckpointHook):
         self.save_last = save_last
         self.args = kwargs
         self.sync_buffer = sync_buffer
-        self.file_client_args = file_client_args 
+        self.file_client_args = file_client_args
 
     """Save checkpoints periodically."""
 

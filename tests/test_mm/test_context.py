@@ -1,7 +1,6 @@
 import pytest
 
-from mmtune.mm.context import ContextManager
-from mmtune.mm.context import REWRITERS
+from mmtune.mm.context import REWRITERS, ContextManager
 
 
 def test_contextmanager():
@@ -10,16 +9,14 @@ def test_contextmanager():
 
     @REWRITERS.register_module()
     class TestRewriter:
+
         def __call__(self, context):
             return dict(test='test')
 
     context_manager = ContextManager([TestRewriter()])
     assert context_manager(lambda **context: context)(test='fake') == dict(
         test='test')
-    
-    dict_init_context_manager = ContextManager(dict(type='TestRewriter')) 
-    assert dict_init_context_manager(lambda **context: context)(test='fake') == dict(
-        test='test')
 
-    
-
+    dict_init_context_manager = ContextManager(dict(type='TestRewriter'))
+    assert dict_init_context_manager(lambda **context: context)(
+        test='fake') == dict(test='test')
