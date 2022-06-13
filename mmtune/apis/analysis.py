@@ -6,7 +6,7 @@ from typing import Optional
 from mmcv.utils import Config, get_logger
 from ray import tune
 
-from mmtune.utils import ImmutableContainer
+from mmtune.utils import ImmutableContainer, dump_cfg
 
 
 def log_analysis(analysis: tune.ExperimentAnalysis,
@@ -22,14 +22,11 @@ def log_analysis(analysis: tune.ExperimentAnalysis,
         log_dir (Optional[str]): The log dir. Defaults to None.
     """
     log_dir = log_dir or tune_config.work_dir
-    with open(osp.join(log_dir, 'tune_config.py'), 'w', encoding='utf-8') as f:
-        f.write(tune_config.pretty_text)
+
+    dump_cfg(tune_config, osp.join(log_dir, 'tune_config.py'))
 
     if task_config is not None:
-        with open(
-                osp.join(log_dir, 'task_config.py'), 'w',
-                encoding='utf-8') as f:
-            f.write(task_config.pretty_text)
+        dump_cfg(task_config, osp.join(log_dir, 'task_config.py'))
 
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     logger = get_logger(

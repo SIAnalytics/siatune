@@ -1,3 +1,4 @@
+import copy
 from typing import Any, Optional
 
 
@@ -48,7 +49,7 @@ class ImmutableContainer(_Freezer):
             data (Any): The data to be stored.
             alias (Optional[str]): The alias of the data.
         """
-        self._data = data
+        self.__data = data
         self._alias = alias
         super().__init__()
 
@@ -56,19 +57,37 @@ class ImmutableContainer(_Freezer):
         """Return the string representation of the container."""
         if self._alias is not None:
             return self._alias
-        elif len(self._data.__repr__()) > ImmutableContainer.MAX_REPR_LEN:
+        elif len(self.__data.__repr__()) > ImmutableContainer.MAX_REPR_LEN:
             return f'{self.__class__.__name__}( * )'
         return f'{self.__class__.__name__}( {repr(self.data)} )'
 
     @property
     def data(self):
         """Return the data."""
-        return self._data
+        return copy.deepcopy(self.__data)
+
+    @data.setter
+    def data(self):
+        raise AttributeError(
+            'Setting data inside an immutable container is not allowed.')
 
     @property
     def alias(self):
         """Return the alias."""
         return self._alias
+
+    def __eq__(self, other: Any) -> bool:
+        """Return True if the containers are equal.
+
+        Args:
+            other (Any): The other object to compare.
+        Returns:
+            bool: True if the other object is equal.
+        """
+
+        if other.__class__ is self.__class__:
+            return self.data == other.data
+        raise NotImplementedError
 
     @classmethod
     def decouple(cls, inputs: Any) -> Any:

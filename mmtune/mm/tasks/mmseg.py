@@ -1,5 +1,6 @@
 import argparse
 import copy
+import os
 import time
 from os import path as osp
 from typing import Optional, Sequence
@@ -143,6 +144,9 @@ class MMSegmentation(MMTrainBasedTask):
         from mmseg.apis import init_random_seed, set_random_seed
         from mmseg.utils import (collect_env, get_root_logger,
                                  setup_multi_processes)
+
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(dist.get_rank())
 
         cfg = Config.fromfile(args.config)
         if args.cfg_options is not None:

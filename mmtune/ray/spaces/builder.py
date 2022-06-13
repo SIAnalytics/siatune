@@ -9,7 +9,7 @@ from .base import BaseSpace
 SPACES = Registry('spaces')
 
 
-def register_space(space: Callable) -> None:
+def _register_space(space: Callable) -> None:
     """Register a space.
 
     Args:
@@ -27,7 +27,7 @@ for space_name in dir(sample):
     space = getattr(sample, space_name)
     if not inspect.isfunction(space):
         continue
-    register_space(space)
+    _register_space(space)
 
 
 def build_space(cfgs: Dict) -> Dict:

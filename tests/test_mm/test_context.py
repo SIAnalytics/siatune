@@ -1,19 +1,22 @@
-import mmcv
 import pytest
 
-from mmtune.mm.context import ContextManager
+from mmtune.mm.context import REWRITERS, ContextManager
 
 
 def test_contextmanager():
-    rewriters = [dict(type='Decouple', key='cfg')]
-    context_manager = ContextManager(rewriters)
-
-    func = lambda **kargs: 1  # noqa
-    inner = context_manager(func)
-    config = mmcv.Config(dict())
-    context = dict(cfg=config)
-    inner(**context)
-
     with pytest.raises(TypeError):
-        rewriters = [dict(type='Decouple', key='cfg'), []]
-        context_manager = ContextManager(rewriters)
+        ContextManager(['test'])
+
+    @REWRITERS.register_module()
+    class TestRewriter:
+
+        def __call__(self, context):
+            return dict(test='test')
+
+    context_manager = ContextManager([TestRewriter()])
+    assert context_manager(lambda **context: context)(test='fake') == dict(
+        test='test')
+
+    dict_init_context_manager = ContextManager([dict(type='TestRewriter')])
+    assert dict_init_context_manager(lambda **context: context)(
+        test='fake') == dict(test='test')

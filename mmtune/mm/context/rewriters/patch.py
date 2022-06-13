@@ -94,7 +94,7 @@ class BatchConfigPatcher(BaseRewriter):
         """
         cfg = context[self.key]
 
-        for key, value in cfg.items():
+        for key, value in cfg.copy().items():
             inner_key, is_wrapped = unwrap_regexp(key)
             if not is_wrapped:
                 continue
@@ -177,7 +177,7 @@ class SequeunceConfigPatcher(BaseRewriter):
         """
         cfg = context[self.key]
 
-        for key, value in cfg.items():
+        for key, value in cfg.copy().items():
             inner_key, is_wrapped = unwrap_regexp(key)
             if not is_wrapped:
                 continue

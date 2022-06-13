@@ -1,5 +1,5 @@
 import os
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from functools import partial
 
 import mmcv
@@ -12,7 +12,7 @@ from .builder import TASKS
 
 
 @TASKS.register_module()
-class MMTrainBasedTask(BaseTask):
+class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
     """Wrap the apis of open mm train-based projects."""
 
     @abstractmethod

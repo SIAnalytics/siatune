@@ -84,7 +84,7 @@ class BaseTask(metaclass=ABCMeta):
         """Get ray trainable task.
 
         Args:
-            args (argparse.Namespace): The args.
+            args (Tuple): The args.
             kwargs (Dict): The kwargs.
         """
         pass

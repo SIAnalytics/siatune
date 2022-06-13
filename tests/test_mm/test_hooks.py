@@ -1,8 +1,10 @@
 import os
+from typing import Dict
 from unittest.mock import MagicMock, patch
 
 import torch
 import torch.distributed as dist
+from ray import tune
 
 from mmtune.mm.hooks import RayCheckpointHook, RayTuneLoggerHook
 
@@ -15,12 +17,6 @@ def test_raycheckpointhook():
     hook = RayCheckpointHook(
         interval=1,
         by_epoch=True,
-        out_dir='/tmp/ray_checkpoint',
-        mode='min',
-        metric_name='loss',
-        max_concurrent=1,
-        checkpoint_metric=True,
-        checkpoint_at_end=True,
     )
     mock_runner = MagicMock()
     mock_runner.inner_iter = 3
@@ -34,14 +30,19 @@ def test_raycheckpointhook():
     mock_runner.model = torch.nn.Linear(2, 2)
 
     hook._save_checkpoint(mock_runner)
+    assert os.path.exists('ray_checkpoint.pth')
 
 
 @patch.object(RayTuneLoggerHook, 'get_loggable_tags')
 def test_raytuneloggerhook(mock_get_loggable_tags):
-    mock_get_loggable_tags.return_value = {'train/Loss': 0.55, 'val/mAP': 0.6}
 
-    mock_runner = MagicMock()
-    mock_runner.iter = 5
+    def trainable(config: Dict):
+        mock_get_loggable_tags.return_value = config
+        mock_runner = MagicMock()
+        loggerhook = RayTuneLoggerHook(filtering_key='test')
 
-    loggerhook = RayTuneLoggerHook()
-    loggerhook.log(mock_runner)
+        for itr in range(16):
+            mock_runner.iter = itr
+            loggerhook.log(mock_runner)
+
+    tune.run(trainable, config={'test': tune.uniform(-5, -1)}, num_samples=10)
