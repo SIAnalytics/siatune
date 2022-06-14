@@ -7,9 +7,11 @@ import torch
 from mmcv.utils import Config
 from ray import tune
 
-from mmtune.mm.tasks import (TASKS, BaseTask, BlackBoxTask, MMClassification,
-                             MMDetection, MMSegmentation, MMTrainBasedTask,
-                             Sphere, build_task_processor)
+from mmtune.mm.tasks import (TASKS, BaseTask, BlackBoxTask,
+                             ContinuousTestFunction, DiscreteTestFunction,
+                             MMClassification, MMDetection, MMSegmentation,
+                             MMTrainBasedTask, build_task_processor)
+from mmtune.utils.config import dump_cfg
 
 _session = dict()
 
@@ -90,6 +92,73 @@ def test_build_task_processor():
 
     TASKS.register_module(TestTaks)
     assert isinstance(build_task_processor(dict(type='TestTaks')), TestTaks)
+
+
+@patch('ray.tune.report', side_effect=report_to_session)
+def test_continuous_test_function(mock_report):
+    func = ContinuousTestFunction()
+    predefined_cont_funcs = [
+        'delayedsphere',
+        'sphere',
+        'sphere1',
+        'sphere2',
+        'sphere4',
+        'maxdeceptive',
+        'sumdeceptive',
+        'altcigar',
+        'discus',
+        'cigar',
+        'bentcigar',
+        'multipeak',
+        'altellipsoid',
+        'stepellipsoid',
+        'ellipsoid',
+        'rastrigin',
+        'bucherastrigin',
+        'doublelinearslope',
+        'stepdoublelinearslope',
+        'hm',
+        'rosenbrock',
+        'ackley',
+        'schwefel_1_2',
+        'griewank',
+        'deceptiveillcond',
+        'deceptivepath',
+        'deceptivemultimodal',
+        'lunacek',
+        'genzcornerpeak',
+        'minusgenzcornerpeak',
+        'genzgaussianpeakintegral',
+        'minusgenzgaussianpeakintegral',
+        'slope',
+        'linear',
+        'st0',
+        'st1',
+        'st10',
+        'st100',
+    ]
+
+    for func_name in predefined_cont_funcs:
+        dump_cfg(
+            Config(dict(func=func_name, _variable0=0.0, _variable1=0.0)),
+            'test.py')
+        args = argparse.Namespace(config='test.py')
+        func.run(args=args)
+        assert isinstance(get_session().get('result'), float)
+
+
+@patch('ray.tune.report', side_effect=report_to_session)
+def test_discrete_test_function(mock_report):
+    func = DiscreteTestFunction()
+
+    predefined_discrete_funcs = ['onemax', 'leadingones', 'jump']
+    for func_name in predefined_discrete_funcs:
+        dump_cfg(
+            Config(dict(func=func_name, _variable0=0.0, _variable1=0.0)),
+            'test.py')
+        args = argparse.Namespace(config='test.py')
+        func.run(args=args)
+        assert isinstance(get_session().get('result'), float)
 
 
 @patch.object(MMSegmentation, 'train_model', return_value=None)
@@ -214,17 +283,3 @@ def test_mm_train_based_task(mock_report):
     tune.run(
         task.create_trainable(backend='gloo', num_gpus_per_worker=0),
         config=dict(cfg=cfg))
-
-
-@patch.object(Config, 'fromfile')
-@patch('ray.tune.report', side_effect=report_to_session)
-def test_sphere(mock_report, mock_fromfile):
-    mock_fromfile.return_value = Config(dict(
-        _variable0=-1,
-        _variable1=-1,
-    ))
-    args = argparse.Namespace(config='')
-    task = Sphere()
-    task.run(args=args)
-
-    assert get_session().get('result') == 2.0

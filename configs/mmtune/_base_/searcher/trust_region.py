@@ -1,0 +1,1 @@
+searcher = dict(type='TrustRegionSearcher', )
