@@ -11,13 +11,13 @@ class AppendTrialIDtoPath(BaseRewriter):
     """Add the identifier of the tials to the workspace path to prevent the
     artifacts of each trial from being stored in the same path."""
 
-    def __init__(self, key: str) -> None:
+    def __init__(self, arg_name: str) -> None:
         """Initialize the rewriter.
 
         Args:
-            key (str): The key to be changed.
+            arg_name (str): The arg_name to be changed.
         """
-        self.key = key
+        self.arg_name = arg_name
 
     def __call__(self, context: dict) -> dict:
         """Give the workspace a different ID for each trial.
@@ -28,7 +28,7 @@ class AppendTrialIDtoPath(BaseRewriter):
         Returns:
             dict: The context after rewriting.
         """
-        value = getattr(context['args'], self.key)
-        setattr(context['args'], self.key,
+        value = getattr(context['args'], self.arg_name)
+        setattr(context['args'], self.arg_name,
                 osp.join(value, ray.tune.get_trial_id()))
         return context

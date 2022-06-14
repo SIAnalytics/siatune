@@ -12,18 +12,18 @@ class InstantiateCfg(BaseRewriter):
 
     def __init__(
             self,
-            dst_key: str,
-            arg_key: Optional[str] = None,
+            key: str,
+            arg_name: Optional[str] = None,
     ) -> None:
         """Initialize the rewriter.
 
         Args:
-            dst_key (str): The key where the instantiated cfg is stored.
-            arg_key (Optional[str]):
+            key (str): The key where the instantiated cfg is stored.
+            arg_name (Optional[str]):
                 The argparse namespace key where the config path is stored.
         """
-        self.dst_key = dst_key
-        self.arg_key = arg_key
+        self.key = key
+        self.arg_name = arg_name
 
     def __call__(self, context: Dict) -> Dict:
         """Receive the config path from argparse namespace in the context and
@@ -35,7 +35,7 @@ class InstantiateCfg(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        context[self.dst_key] = Config(
-            dict()) if self.arg_key is None else Config.fromfile(
-                getattr(context.get('args'), self.arg_key))
+        context[self.key] = Config(
+            dict()) if self.arg_name is None else Config.fromfile(
+                getattr(context.get('args'), self.arg_name))
         return context

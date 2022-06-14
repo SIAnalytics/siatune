@@ -8,10 +8,10 @@ import pytest
 from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
                                          BaseRewriter, BatchConfigPatcher,
                                          ConfigMerger, CustomHookRegister,
-                                         Decouple, Dump, InstantiateCfg,
+                                         Dump, InstantiateCfg,
                                          SequeunceConfigPatcher)
 from mmtune.mm.context.rewriters.builder import build_rewriter
-from mmtune.utils import ImmutableContainer, dump_cfg
+from mmtune.utils import dump_cfg
 
 
 def test_base_rewriter():
@@ -32,16 +32,10 @@ def test_build_base_cfg():
         build_rewriter(dict(type='DummyRewriter')), DummyRewriter)
 
 
-def test_decouple():
-    context = dict(test=ImmutableContainer(dict(a=1, b=2)))
-    decouple = Decouple(key='test')
-    assert decouple(context).get('test') == dict(a=1, b=2)
-
-
 @patch('ray.tune.get_trial_id')
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
-    dump = Dump(ctx_key='cfg', arg_key='config')
+    dump = Dump(key='cfg', arg_name='config')
     config = mmcv.Config(dict())
     args = MagicMock()
     args.config = config
@@ -59,7 +53,7 @@ def test_dump(mock_get_trial_id):
 def test_instantiate():
     dump_cfg(mmcv.utils.Config(dict(test='test')), 'test.py')
 
-    instantiate = InstantiateCfg(dst_key='cfg', arg_key='config')
+    instantiate = InstantiateCfg(key='cfg', arg_name='config')
     args = MagicMock()
     args.config = 'test.py'
     context = dict(args=args)
@@ -70,7 +64,7 @@ def test_instantiate():
 
 
 def test_merge():
-    merger = ConfigMerger(src_key='src', dst_key='dst', ctx_key='cp')
+    merger = ConfigMerger(src_key='src', dst_key='dst', key='cp')
 
     context = dict(
         src=mmcv.Config(dict(a=1, b=2)),
@@ -110,7 +104,7 @@ def test_append_trial_id_to_path(mock_get_trial_id):
     args = MagicMock()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = AppendTrialIDtoPath(key='work_dir')
+    suffix = AppendTrialIDtoPath(arg_name='work_dir')
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/test'
 
@@ -118,7 +112,7 @@ def test_append_trial_id_to_path(mock_get_trial_id):
 def test_register():
     post_custom_hooks = ['a', 'b']
     register = CustomHookRegister(
-        ctx_key='cfg', post_custom_hooks=post_custom_hooks)
+        key='cfg', post_custom_hooks=post_custom_hooks)
     cfg = MagicMock()
     cfg.custom_hooks = []
     context = dict(cfg=cfg)

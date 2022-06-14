@@ -4,19 +4,18 @@ post_custom_hooks = [
 ]
 
 task = dict(rewriters=[
-    dict(type='InstantiateCfg', arg_key='config', dst_key='base_cfg'),
+    dict(type='InstantiateCfg', arg_name='config', key='base_cfg'),
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),
-    dict(type='Decouple', key='searched_cfg'),
     dict(
         type='ConfigMerger',
         src_key='searched_cfg',
         dst_key='base_cfg',
-        ctx_key='cfg'),
+        key='cfg'),
     dict(
         type='CustomHookRegister',
-        ctx_key='cfg',
+        key='cfg',
         post_custom_hooks=post_custom_hooks),
-    dict(type='Dump', ctx_key='cfg', arg_key='config'),
-    dict(type='AppendTrialIDtoPath', key='work_dir')
+    dict(type='Dump', key='cfg', arg_name='config'),
+    dict(type='AppendTrialIDtoPath', arg_name='work_dir')
 ])

@@ -9,18 +9,18 @@ from .builder import REWRITERS
 class ConfigMerger(BaseRewriter):
     """Merge the two configs."""
 
-    def __init__(self, src_key: str, dst_key: str, ctx_key: str):
+    def __init__(self, src_key: str, dst_key: str, key: str):
         """Initialize the ConfigMerger class.
 
         Args:
             src_key (str): The key of the configs.
             dst_key (str): The key of the configs.
-            ctx_key (str):
+            key (str):
                 The context key where the merged config will be stored.
         """
         self.src_key = src_key
         self.dst_key = dst_key
-        self.ctx_key = ctx_key
+        self.key = key
 
     @staticmethod
     def merge_dict(src: dict, dst: dict, allow_list_keys: bool = False):
@@ -103,7 +103,7 @@ class ConfigMerger(BaseRewriter):
                 d = d[subkey]
             subkey = key_list[-1]
             d[subkey] = v
-        context[self.ctx_key] = Config(
+        context[self.key] = Config(
             self.merge_dict(
                 unpacked_src,
                 dst.__getattribute__('_cfg_dict'),
