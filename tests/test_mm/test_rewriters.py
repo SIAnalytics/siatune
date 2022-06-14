@@ -7,8 +7,8 @@ import pytest
 
 from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
                                          BaseRewriter, BatchConfigPatcher,
-                                         ConfigMerger, CustomHookRegister,
-                                         Dump, InstantiateCfg,
+                                         CustomHookRegister, Dump,
+                                         InstantiateCfg, MergeConfig,
                                          SequeunceConfigPatcher)
 from mmtune.mm.context.rewriters.builder import build_rewriter
 from mmtune.utils import dump_cfg
@@ -64,7 +64,7 @@ def test_instantiate():
 
 
 def test_merge():
-    merger = ConfigMerger(src_key='src', dst_key='dst', key='cp')
+    merger = MergeConfig(src_key='src', dst_key='dst', key='cp')
 
     context = dict(
         src=mmcv.Config(dict(a=1, b=2)),

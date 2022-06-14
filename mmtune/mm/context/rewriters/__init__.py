@@ -2,13 +2,13 @@ from .base import BaseRewriter
 from .builder import REWRITERS, build_rewriter
 from .dump import Dump
 from .instantiate import InstantiateCfg
-from .merge import ConfigMerger
+from .merge import MergeConfig
 from .patch import BatchConfigPatcher, SequeunceConfigPatcher
 from .path import AppendTrialIDtoPath
 from .register import CustomHookRegister
 
 __all__ = [
-    'BaseRewriter', 'REWRITERS', 'build_rewriter', 'Dump', 'ConfigMerger',
+    'BaseRewriter', 'REWRITERS', 'build_rewriter', 'Dump', 'MergeConfig',
     'AppendTrialIDtoPath', 'BatchConfigPatcher', 'SequeunceConfigPatcher',
     'CustomHookRegister', 'InstantiateCfg'
 ]

@@ -8,7 +8,7 @@ task = dict(rewriters=[
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),
     dict(
-        type='ConfigMerger',
+        type='MergeConfig',
         src_key='searched_cfg',
         dst_key='base_cfg',
         key='cfg'),

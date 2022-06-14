@@ -2,7 +2,7 @@ task = dict(
     rewriters=[
         dict(type='InstantiateCfg', key='base_cfg'),
         dict(
-            type='ConfigMerger',
+            type='MergeConfig',
             src_key='searched_cfg',
             dst_key='base_cfg',
             key='cfg'),
