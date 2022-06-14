@@ -6,10 +6,33 @@ from typing import Any, Dict, List, Optional, Sequence
 import ray
 
 from mmtune.mm.context import ContextManager
+from mmtune.utils import ImmutableContainer
 
 
 class BaseTask(metaclass=ABCMeta):
-    """Base class to specify the target task."""
+    """Base class to specify the target task.
+
+    The main functions of the task processor are as follows:
+    1. CLI argument definition and parsing. (`parse_args`)
+        Inputs: args (Sequence[str])
+        Outputs: args (argparse.Namespace)
+    2. Objective function execution.
+        The result must be reported by calling tune.report. (`run`)
+        Inputs: args (argparse.Namespace)
+        Outputs: None
+    3. Gather and refine information from multiple sources.
+        Call the 'run' function of the task processor. (`context_aware_run`)
+        Aggregate the information we define as context,
+        convert it into a refined argparse namespace, and input it to run.
+        The context consists of:
+            1. args (argparse.Namespace): The low level CLI arguments.
+            2. searched_cfg (Dict):
+                The configuration searched by the algorithm.
+            3. checkpoint_dir (Optional[str]):
+                The directory of checkpoints that contains the states.
+        Inputs: searched_cfg (Dict), checkpoint_dir (Optional[str])
+        Outputs: None
+    """
 
     def __init__(self, rewriters: List[dict] = []) -> None:
         """Initialize the task.
@@ -50,7 +73,10 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self, searched_cfg: Dict, **kwargs) -> Any:
+    def context_aware_run(self,
+                          searched_cfg: Dict,
+                          checkpoint_dir: Optional[str] = None,
+                          **kwargs) -> Any:
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
@@ -64,7 +90,8 @@ class BaseTask(metaclass=ABCMeta):
         context_manager = ContextManager(self.rewriters)
         context = dict(
             args=deepcopy(self.args),
-            searched_cfg=deepcopy(searched_cfg),
+            searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
+            checkpoint_dir=checkpoint_dir,
         )
         context.update(kwargs)
         return context_manager(self.run)(**context)

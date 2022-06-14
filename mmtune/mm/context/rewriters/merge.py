@@ -6,21 +6,21 @@ from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class ConfigMerger(BaseRewriter):
+class MergeConfig(BaseRewriter):
     """Merge the two configs."""
 
-    def __init__(self, src_key: str, dst_key: str, ctx_key: str):
-        """Initialize the ConfigMerger class.
+    def __init__(self, src_key: str, dst_key: str, key: str):
+        """Initialize the MergeConfig class.
 
         Args:
             src_key (str): The key of the configs.
             dst_key (str): The key of the configs.
-            ctx_key (str):
+            key (str):
                 The context key where the merged config will be stored.
         """
         self.src_key = src_key
         self.dst_key = dst_key
-        self.ctx_key = ctx_key
+        self.key = key
 
     @staticmethod
     def merge_dict(src: dict, dst: dict, allow_list_keys: bool = False):
@@ -59,9 +59,9 @@ class ConfigMerger(BaseRewriter):
                         f'Index {k} exceeds the length of list {dst}')
                 # modified from the mmcv.config.Config._merge_a_into_b
                 # this allows merging with primitives such as int, float
-                dst[k] = ConfigMerger.merge_dict(v, dst[k],
-                                                 allow_list_keys) if hasattr(
-                                                     dst[k], 'copy') else v
+                dst[k] = MergeConfig.merge_dict(v, dst[k],
+                                                allow_list_keys) if hasattr(
+                                                    dst[k], 'copy') else v
             elif isinstance(v, dict):
                 if k in dst and not v.pop(DELETE_KEY, False):
                     allowed_types = (dict, list) if allow_list_keys else dict
@@ -72,8 +72,7 @@ class ConfigMerger(BaseRewriter):
                             f'but is of type {type(dst[k])} in base config. '
                             f'You may set `{DELETE_KEY}=True` to ignore the '
                             f'base config.')
-                    dst[k] = ConfigMerger.merge_dict(v, dst[k],
-                                                     allow_list_keys)
+                    dst[k] = MergeConfig.merge_dict(v, dst[k], allow_list_keys)
                 else:
                     dst[k] = ConfigDict(v)
             else:
@@ -103,7 +102,7 @@ class ConfigMerger(BaseRewriter):
                 d = d[subkey]
             subkey = key_list[-1]
             d[subkey] = v
-        context[self.ctx_key] = Config(
+        context[self.key] = Config(
             self.merge_dict(
                 unpacked_src,
                 dst.__getattribute__('_cfg_dict'),

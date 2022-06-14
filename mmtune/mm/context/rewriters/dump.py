@@ -13,15 +13,15 @@ from .builder import REWRITERS
 class Dump(BaseRewriter):
     """Dump the configs in the context as a file."""
 
-    def __init__(self, ctx_key: str, arg_key: str):
+    def __init__(self, key: str, arg_name: str):
         """Inintialize the Dump class.
 
         Args:
-            ctx_key (str): The key in the context.
-            arg_key (str): The key in the argparse namespace.
+            key (str): The key in the context.
+            arg_name (str): The key in the argparse namespace.
         """
-        self.ctx_key = ctx_key
-        self.arg_key = arg_key
+        self.key = key
+        self.arg_name = arg_name
 
     @staticmethod
     def get_temporary_path(file_name: str) -> str:
@@ -44,9 +44,9 @@ class Dump(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        cfg = context.pop(self.ctx_key)
+        cfg = context.pop(self.key)
         trial_id = ray.tune.get_trial_id()
         tmp_path = self.get_temporary_path(f'{trial_id}.py')
-        setattr(context.get('args'), self.arg_key, tmp_path)
+        setattr(context.get('args'), self.arg_name, tmp_path)
         dump_cfg(cfg, tmp_path)
         return context
