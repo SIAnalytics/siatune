@@ -8,8 +8,8 @@ import pytest
 from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
                                          BaseRewriter, BatchConfigPatcher,
                                          CustomHookRegister, Dump,
-                                         InstantiateCfg, MergeConfig,
-                                         SequeunceConfigPatcher)
+                                         InstantiateCfg, LoadFromCkpt,
+                                         MergeConfig, SequeunceConfigPatcher)
 from mmtune.mm.context.rewriters.builder import build_rewriter
 from mmtune.utils import dump_cfg
 
@@ -116,5 +116,15 @@ def test_register():
     cfg = MagicMock()
     cfg.custom_hooks = []
     context = dict(cfg=cfg)
+
     context = register(context)
     assert context['cfg'].custom_hooks == post_custom_hooks
+
+
+def test_load_ckpt():
+    cfg = MagicMock()
+    context = dict(cfg=cfg, chekpoint_dir='test')
+
+    load_from_ckpt = LoadFromCkpt(key='cfg')
+    context = load_from_ckpt(context)
+    assert context['cfg'].load_from == 'test'
