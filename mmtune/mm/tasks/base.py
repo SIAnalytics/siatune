@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import Any, Dict, List, Optional, Sequence
 
 import ray
+from mmcv.utils import import_modules_from_strings
 
 from mmtune.mm.context import ContextManager
 from mmtune.utils import ImmutableContainer
@@ -34,16 +35,24 @@ class BaseTask(metaclass=ABCMeta):
         Outputs: None
     """
 
-    def __init__(self, rewriters: List[dict] = []) -> None:
+    def __init__(self,
+                 rewriters: List[dict] = [],
+                 custom_imports: dict = dict()) -> None:
         """Initialize the task.
 
         Args:
             rewriters (List[dict]):
                 Context redefinition pipeline. Defaults to [].
+            custom_imports (dict):
+                Import custom modules. Defaults to dict()
         """
 
         self._args: Optional[argparse.Namespace] = None
         self._rewriters: List[dict] = rewriters
+        self._custom_imports = dict(imports=[], allow_failed_imports=True)
+        self._custom_imports.update(custom_imports)
+        assert set(self.custom_imports.keys()) == set(
+            ['imports', 'allow_failed_imports'])
 
     def set_args(self, args: Sequence[str]) -> None:
         """Parse and set the argss.
@@ -94,6 +103,7 @@ class BaseTask(metaclass=ABCMeta):
             checkpoint_dir=checkpoint_dir,
         )
         context.update(kwargs)
+        import_modules_from_strings(**self._custom_imports)
         return context_manager(self.run)(**context)
 
     @abstractmethod
