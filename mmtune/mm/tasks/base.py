@@ -51,7 +51,7 @@ class BaseTask(metaclass=ABCMeta):
         self._rewriters: List[dict] = rewriters
         self._custom_imports = dict(imports=[], allow_failed_imports=True)
         self._custom_imports.update(custom_imports)
-        assert set(self.custom_imports.keys()) == set(
+        assert set(self._custom_imports.keys()) == set(
             ['imports', 'allow_failed_imports'])
 
     def set_args(self, args: Sequence[str]) -> None:
