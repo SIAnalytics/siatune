@@ -29,7 +29,7 @@ def test_raycheckpointhook():
     assert cur_iter == 4
 
     mock_runner.model = torch.nn.Linear(2, 2)
-    mock_runner.optimizer = torch.optim.Adam()
+    mock_runner.optimizer = torch.optim.Adam(mock_runner.model.parameters())
 
     hook._save_checkpoint(mock_runner)
     assert os.path.exists('ray_checkpoint.pth')
