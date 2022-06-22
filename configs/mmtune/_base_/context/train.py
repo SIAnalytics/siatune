@@ -12,6 +12,7 @@ task = dict(rewriters=[
         src_key='searched_cfg',
         dst_key='base_cfg',
         key='cfg'),
+    dict(type='ResumeFromCkpt'),
     dict(
         type='CustomHookRegister',
         key='cfg',
