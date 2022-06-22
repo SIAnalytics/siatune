@@ -10,6 +10,7 @@ from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
 from mmcv.runner.dist_utils import master_only
 from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
 from ray.tune.integration.torch import distributed_checkpoint_dir
+from torch.optim import Optimizer
 
 
 @HOOKS.register_module()
@@ -85,8 +86,13 @@ class RayCheckpointHook(_CheckpointHook):
                 The runner to save checkpoints.
         """
         model = runner.model
+        optimizer = runner.optimizer
 
-        meta = dict(mmcv_version=mmcv.__version__, time=time.asctime())
+        meta = dict(
+            mmcv_version=mmcv.__version__,
+            time=time.asctime(),
+            epoch=runner.epoch + 1,
+            iter=runner.iter)
         if is_module_wrapper(model):
             model = model.module
         if hasattr(model, 'CLASSES') and model.CLASSES is not None:
@@ -96,6 +102,13 @@ class RayCheckpointHook(_CheckpointHook):
             'meta': meta,
             'state_dict': weights_to_cpu(get_state_dict(model))
         }
+
+        if isinstance(optimizer, Optimizer):
+            checkpoint['optimizer'] = optimizer.state_dict()
+        elif isinstance(optimizer, dict):
+            checkpoint['optimizer'] = {}
+            for name, optim in optimizer.items():
+                checkpoint['optimizer'][name] = optim.state_dict()
 
         with distributed_checkpoint_dir(
                 step=self.get_iter(runner)) as checkpoint_dir:
