@@ -1,42 +1,50 @@
-import glob
-import re
-import shutil
-import tempfile
-import threading
-from os import path as osp
-from typing import Dict, List, Optional
+from typing import List
 
 from ray.tune.integration.mlflow import \
     MLflowLoggerCallback as _MLflowLoggerCallback
 from ray.tune.integration.mlflow import logger
-from ray.tune.result import TIMESTEPS_TOTAL, TRAINING_ITERATION
 from ray.tune.trial import Trial
 from ray.tune.utils.util import is_nan_or_inf
 
 from .builder import CALLBACKS
 
 
-def _create_temporary_copy(path, temp_file_name):
-    temp_dir = tempfile.gettempdir()
-    temp_path = osp.join(temp_dir, temp_file_name)
-    shutil.copy2(path, temp_path)
-    return temp_path
-
-
 @CALLBACKS.register_module()
 class MLflowLoggerCallback(_MLflowLoggerCallback):
+    """Custom MLflow Logger to automatically log Tune results and config to
+    MLflow. The main differences from the original MLflow Logger are:
 
-    TRIAL_LIMIT = 5
+        1. Bind multiple runs into a parent run in the form of nested run.
+        2. Log artifacts of the best trial to the parent run.
+
+    Refer to https://github.com/ray-project/ray/blob/ray-1.9.1/python/ray/tune/integration/mlflow.py for details.  # noqa E501
+
+    Args:
+        metric (str): Key for trial info to order on.
+        mode (str): One of [min, max]. Defaults to ``self.default_mode``.
+        scope (str): One of [all, last, avg, last-5-avg, last-10-avg].
+            If `scope=last`, only look at each trial's final step for
+            `metric`, and compare across trials based on `mode=[min,max]`.
+            If `scope=avg`, consider the simple average over all steps
+            for `metric` and compare across trials based on
+            `mode=[min,max]`. If `scope=last-5-avg` or `scope=last-10-avg`,
+            consider the simple average over the last 5 or 10 steps for
+            `metric` and compare across trials based on `mode=[min,max]`.
+            If `scope=all`, find each trial's min/max score for `metric`
+            based on `mode`, and compare trials based on `mode=[min,max]`.
+        filter_nan_and_inf (bool): If True, NaN or infinite values
+            are disregarded and these trials are never selected as
+            the best trial. Default: True.
+        **kwargs: kwargs for original ``MLflowLoggerCallback``
+    """
 
     def __init__(self,
-                 work_dir: Optional[str],
                  metric: str = None,
                  mode: str = None,
                  scope: str = 'last',
                  filter_nan_and_inf: bool = True,
                  **kwargs):
-        super().__init__(**kwargs)
-        self.work_dir = work_dir
+        super(MLflowLoggerCallback, self).__init__(**kwargs)
         self.metric = metric
         if mode and mode not in ['min', 'max']:
             raise ValueError('`mode` has to be None or one of [min, max]')
@@ -51,12 +59,9 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
                     self.metric, scope))
         self.scope = scope if scope != 'all' else mode
         self.filter_nan_and_inf = filter_nan_and_inf
-        self.thrs = []
 
     def setup(self, *args, **kwargs):
-        cp_trial_runs = getattr(self, '_trial_runs', dict()).copy()
         super().setup(*args, **kwargs)
-        self._trial_runs = cp_trial_runs
         self.parent_run = self.client.create_run(
             experiment_id=self.experiment_id, tags=self.tags)
 
@@ -64,7 +69,7 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         # Create run if not already exists.
         if trial not in self._trial_runs:
 
-            # Set trial name in tags.
+            # Set trial name in tags
             tags = self.tags.copy()
             tags['trial_name'] = str(trial)
             tags['mlflow.parentRunId'] = self.parent_run.info.run_id
@@ -79,86 +84,9 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         config = trial.config
 
         for key, value in config.items():
-            key = re.sub(r'[^a-zA-Z0-9_=./\s]', '', key)
             self.client.log_param(run_id=run_id, key=key, value=value)
 
-    def log_trial_result(self, iteration: int, trial: 'Trial', result: Dict):
-        step = result.get(TIMESTEPS_TOTAL) or result[TRAINING_ITERATION]
-        run_id = self._trial_runs[trial]
-        for key, value in result.items():
-            key = re.sub(r'[^a-zA-Z0-9_=./\s]', '', key)
-            try:
-                value = float(value)
-            except (ValueError, TypeError):
-                logger.debug('Cannot log key {} with value {} since the '
-                             'value cannot be converted to float.'.format(
-                                 key, value))
-                continue
-            for idx in range(MLflowLoggerCallback.TRIAL_LIMIT):
-                try:
-                    self.client.log_metric(
-                        run_id=run_id, key=key, value=value, step=step)
-                except Exception as ex:
-                    print(ex)
-                    print(f'Retrying ... : {idx+1}')
-
-    def log_trial_end(self, trial: 'Trial', failed: bool = False):
-
-        def log_artifacts(run_id,
-                          path,
-                          trial_limit=MLflowLoggerCallback.TRIAL_LIMIT):
-            for idx in range(trial_limit):
-                try:
-                    self.client.log_artifact(
-                        run_id, local_path=path, artifact_path='checkpoint')
-                except Exception as ex:
-                    print(ex)
-                    print(f'Retrying ... : {idx+1}')
-
-        run_id = self._trial_runs[trial]
-
-        if self.save_artifact:
-            trial_id = trial.trial_id
-            work_dir = osp.join(self.work_dir, trial_id)
-            checkpoints = glob.glob(osp.join(work_dir, '*.pth'))
-            if checkpoints:
-                pth = _create_temporary_copy(
-                    max(checkpoints, key=osp.getctime), 'model_final.pth')
-                th = threading.Thread(target=log_artifacts, args=(run_id, pth))
-                self.thrs.append(th)
-                th.start()
-
-            cfg = _create_temporary_copy(
-                glob.glob(osp.join(work_dir, '*.py'))[0], 'model_config.py')
-            if cfg:
-                th = threading.Thread(target=log_artifacts, args=(run_id, cfg))
-                self.thrs.append(th)
-                th.start()
-
-        # Stop the run once trial finishes.
-        status = 'FINISHED' if not failed else 'FAILED'
-        self.client.set_terminated(run_id=run_id, status=status)
-
     def on_experiment_end(self, trials: List['Trial'], **info):
-        for th in self.thrs:
-            th.join()
-
-        def cp_artifacts(src_run_id,
-                         dst_run_id,
-                         tmp_dir,
-                         trial_limit=MLflowLoggerCallback.TRIAL_LIMIT):
-            for idx in range(trial_limit):
-                try:
-                    self.client.download_artifacts(
-                        run_id=src_run_id, path='checkpoint', dst_path=tmp_dir)
-                    self.client.log_artifacts(
-                        run_id=dst_run_id,
-                        local_dir=osp.join(tmp_dir, 'checkpoint'),
-                        artifact_path='checkpoint')
-                except Exception as ex:
-                    print(ex)
-                    print(f'Retrying ... : {idx+1}')
-
         if not self.metric or not self.mode:
             return
 
@@ -185,19 +113,19 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         if best_trial not in self._trial_runs:
             return
 
+        # Copy the run of best trial to parent run.
         run_id = self._trial_runs[best_trial]
         run = self.client.get_run(run_id)
         parent_run_id = self.parent_run.info.run_id
+
         for key, value in run.data.params.items():
             self.client.log_param(run_id=parent_run_id, key=key, value=value)
+
         for key, value in run.data.metrics.items():
             self.client.log_metric(run_id=parent_run_id, key=key, value=value)
 
         if self.save_artifact:
-            tmp_dir = tempfile.gettempdir()
-            th = threading.Thread(
-                target=cp_artifacts, args=(run_id, parent_run_id, tmp_dir))
-            th.start()
-            th.join()
+            self.client.log_artifacts(
+                parent_run_id, local_dir=best_trial.logdir)
 
         self.client.set_terminated(run_id=parent_run_id, status='FINISHED')
