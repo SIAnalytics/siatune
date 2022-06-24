@@ -61,11 +61,19 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         self.filter_nan_and_inf = filter_nan_and_inf
 
     def setup(self, *args, **kwargs):
+        """In addition to create `mlflow` experiment, create a parent run to
+        bind multiple trial runs."""
         super().setup(*args, **kwargs)
         self.parent_run = self.client.create_run(
             experiment_id=self.experiment_id, tags=self.tags)
 
     def log_trial_start(self, trial: 'Trial'):
+        """Overrides `log_trial_start` of original `MLflowLoggerCallback` to
+        set the parent run ID.
+
+        Args:
+            trial (Trial): `ray.tune.trial.Trial`
+        """
         # Create run if not already exists.
         if trial not in self._trial_runs:
 
@@ -87,6 +95,13 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
             self.client.log_param(run_id=run_id, key=key, value=value)
 
     def on_experiment_end(self, trials: List['Trial'], **info):
+        """Overrides `Callback` of `Callback` to copy a best trial to parent
+        run. Called after experiment is over and all trials have concluded.
+
+        Args:
+            trials (List[Trial]): List of trials.
+            **info: Kwargs dict for forward compatibility.
+        """
         if not self.metric or not self.mode:
             return
 
