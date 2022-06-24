@@ -41,7 +41,7 @@ def test_raytuneloggerhook(mock_get_loggable_tags):
     def trainable(config: Dict):
         mock_get_loggable_tags.return_value = config
         mock_runner = MagicMock()
-        loggerhook = RayTuneLoggerHook(filtering_key='test')
+        loggerhook = RayTuneLoggerHook(filter_key='test')
 
         for itr in range(16):
             mock_runner.iter = itr

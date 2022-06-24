@@ -1,8 +1,8 @@
+from typing import Optional
+
 import ray
-from mmcv.runner import HOOKS, BaseRunner
-from mmcv.runner.dist_utils import get_dist_info
+from mmcv.runner import HOOKS, BaseRunner, master_only
 from mmcv.runner.hooks.logger import LoggerHook
-from torch import distributed as dist
 
 
 @HOOKS.register_module()
@@ -15,7 +15,7 @@ class RayTuneLoggerHook(LoggerHook):
             ignore_last: bool = True,
             reset_flag: bool = False,
             by_epoch: bool = False,
-            filtering_key: str = 'val',
+            filter_key: Optional[str] = None,
     ) -> None:
         """Initialize the hook.
 
@@ -24,12 +24,13 @@ class RayTuneLoggerHook(LoggerHook):
             ignore_last (bool): Whether to ignore the last iteration.
             reset_flag (bool): Whether to reset the iteration.
             by_epoch (bool): Whether to log by epoch.
-            filtering_key (str): The key to filter.
+            filter_key (str, optional): The key to filter. Default: None.
         """
         super(RayTuneLoggerHook, self).__init__(interval, ignore_last,
                                                 reset_flag, by_epoch)
-        self.filtering_key = filtering_key
+        self.filter_key = filter_key
 
+    @master_only
     def log(self, runner: BaseRunner) -> None:
         """Log the information.
 
@@ -38,17 +39,9 @@ class RayTuneLoggerHook(LoggerHook):
         """
 
         tags = self.get_loggable_tags(runner)
-        rank, world_size = get_dist_info()
-        if world_size > 1:
-            if rank == 0:
-                broadcasted = [tags]
-            else:
-                broadcasted = [None]
-            dist.broadcast_object_list(broadcasted)
-            tags = broadcasted.pop()
-        if not dict(
-                filter(lambda elem: self.filtering_key in elem[0],
-                       tags.items())):
-            return
+        if self.filter_key is not None:
+            tags = dict(
+                filter(lambda key, _: key.startswith(self.filter_key),
+                       tags.items()))
         tags['global_step'] = self.get_iter(runner)
         ray.tune.report(**tags)

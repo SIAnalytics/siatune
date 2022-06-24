@@ -1,5 +1,5 @@
 post_custom_hooks = [
-    dict(type='RayTuneLoggerHook', filtering_key='val', priority='VERY_LOW'),
+    dict(type='RayTuneLoggerHook', filter_key='val', priority='VERY_LOW'),
     dict(type='RayCheckpointHook', by_epoch=True, interval=1)
 ]
 
