@@ -119,7 +119,6 @@ faster_rcnn_swin_s_p4_w7_fpn = dict(
     _delete_=True,
     type='FasterRCNN',
     backbone=dict(
-        _delete_=True,
         type='SwinTransformer',
         embed_dims=96,
         depths=[2, 2, 18, 2],

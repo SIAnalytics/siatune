@@ -1,8 +1,10 @@
-rewriters = [
-    dict(type='BatchConfigPathcer'),
-    dict(type='SequeunceConfigPathcer'),
-    dict(type='Decouple', keys=['searched_cfg', 'base_cfg']),
-    dict(type='ConfigMerger'),
-    dict(type='Dump'),
-    dict(type='SetEnv')
-]
+task = dict(
+    rewriters=[
+        dict(type='InstantiateCfg', key='base_cfg'),
+        dict(
+            type='MergeConfig',
+            src_key='searched_cfg',
+            dst_key='base_cfg',
+            key='cfg'),
+        dict(type='Dump', key='cfg', arg_name='config'),
+    ], )

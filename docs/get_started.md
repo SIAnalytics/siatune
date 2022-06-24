@@ -28,11 +28,11 @@ pip install mmdet
 
 ### Start hyperparameter tuning with existed configuration file.
 ```bash
-MMTUNE_TASK_NAME=${TASK_NAME} python tools/tune.py ${TUNE_CONFIG} --task-config ${TASK_CONFIG} [optional arguments]
+python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] [optional task arguments]
 ```
 
 
 ```bash
 # MMDetection Example
-MMTUNE_TASK_NAME=MMDetection python tools/tune.py configs/mmtune/mmdet_asynchb_nevergrad_pso.py --task-config configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+python tools/tune.py configs/mmtune/mmdet_asynchb_nevergrad_pso.py configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
 ```

@@ -13,7 +13,7 @@ Currently, MMTune is maintained by SI-Analytics.
 - **Fully support OpenMMLab models**
 
   We provide a unified model hyperparameter tuning toolbox for the codebases in OpenMMLab. The supported codebases are listed as below, and more will be added in the future
-  - [ ] [MMClassification](https://github.com/open-mmlab/mmclassification)
+  - [x] [MMClassification](https://github.com/open-mmlab/mmclassification)
   - [x] [MMDetection](https://github.com/open-mmlab/mmdetection)
   - [x] [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)
   - [ ] [MMEditing](https://github.com/open-mmlab/mmediting)

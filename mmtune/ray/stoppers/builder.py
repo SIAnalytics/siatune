@@ -14,4 +14,12 @@ for stopper in dir(tune.stopper):
 
 
 def build_stopper(cfg: Config) -> tune.stopper:
+    """Build a stopper.
+
+    Args:
+        cfg (Config): The configuration of the stopper.
+
+    Returns:
+        tune.stopper: The instantiated stopper.
+    """
     return STOPPERS.build(cfg)
