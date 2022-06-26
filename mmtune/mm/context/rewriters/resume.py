@@ -1,3 +1,4 @@
+from os import path as osp
 from typing import Dict
 
 from .base import BaseRewriter
@@ -25,6 +26,8 @@ class ResumeFromCkpt(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        setattr(
-            context.get('args'), self.arg_name, context.pop('checkpoint_dir'))
+        if context.get('checkpoint_dir') is not None:
+            setattr(
+                context.get('args'), self.arg_name,
+                osp.join(context.pop('checkpoint_dir'), 'ray_ckpt.pth'))
         return context
