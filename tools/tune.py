@@ -54,7 +54,7 @@ def parse_args() -> Namespace:
         help='number of gpus each worker uses.',
     )
     parser.add_argument(
-        '--trainable_args',
+        '--trainable-args',
         nargs=REMAINDER,
         type=str,
         help='Rest from the trainable process.',
