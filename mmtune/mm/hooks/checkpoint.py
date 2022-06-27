@@ -58,6 +58,7 @@ class RayCheckpointHook(_CheckpointHook):
         self.args = kwargs
         self.sync_buffer = sync_buffer
         self.file_client_args = file_client_args
+        self.out_dir = None
 
     """Save checkpoints periodically."""
 
