@@ -1,7 +1,7 @@
 from typing import Optional
 
 import ray
-from mmcv.runner import HOOKS, BaseRunner, master_only
+from mmcv.runner import HOOKS, BaseRunner
 from mmcv.runner.hooks.logger import LoggerHook
 
 
@@ -30,18 +30,16 @@ class RayTuneLoggerHook(LoggerHook):
                                                 reset_flag, by_epoch)
         self.filter_key = filter_key
 
-    @master_only
     def log(self, runner: BaseRunner) -> None:
         """Log the information.
 
         Args:
             runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
         """
-
         tags = self.get_loggable_tags(runner)
         if self.filter_key is not None:
             tags = dict(
-                filter(lambda key, _: key.startswith(self.filter_key),
+                filter(lambda e: e[0].startswith(self.filter_key),
                        tags.items()))
         tags['global_step'] = self.get_iter(runner)
         ray.tune.report(**tags)
