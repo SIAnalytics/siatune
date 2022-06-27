@@ -12,7 +12,7 @@ space = {
 }
 
 task = dict(type='MMClassification')
-metric = 'val/AP'
+metric = 'val/accuracy_top-1'
 mode = 'max'
 raise_on_failed_trial = False
 num_samples = 256
