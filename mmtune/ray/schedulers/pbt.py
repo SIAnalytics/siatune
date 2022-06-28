@@ -5,6 +5,7 @@ from typing import Callable, Dict, Optional
 from ray.tune.sample import Domain
 from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
+from ray.tune.trial import Trial
 
 from mmtune.ray.schedulers import SCHEDULERS
 from mmtune.ray.spaces import build_space
@@ -57,8 +58,16 @@ class PopulationBasedTraining(_PopulationBasedTraining):
         kwargs.update(hyperparam_mutations=build_space(hyperparam_mutations))
         super().__init__(*args, **kwargs)
 
-    def _get_new_config(self, trial, trial_to_clone):
-        """Gets new config for trial by exploring trial_to_clone's config."""
+    def _get_new_config(self, trial: Trial, trial_to_clone: Trial) -> Trial:
+        """Gets new config for trial by exploring trial_to_clone's config.
+
+        Argss:
+            trial: The trial to chenge.
+            trial_to_clone: The trial to reference.
+
+        Returns:
+            Trail: Changed Trial
+        """
         return explore(
             trial_to_clone.config,
             self._hyperparam_mutations,

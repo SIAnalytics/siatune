@@ -44,12 +44,11 @@ def tune(task_processor: BaseTask, tune_config: Config,
 
     resources_per_trial = None
     if not hasattr(trainable, 'default_resource_request'):
-        num_workers = trainable_cfg.get('num_workers', 1)
-        num_gpus_per_worker = trainable_cfg.get('num_gpus_per_worker', 1)
-        num_cpus_per_worker = trainable_cfg.get('num_cpus_per_worker', 1)
         resources_per_trial = dict(
-            gpu=num_workers * num_gpus_per_worker,
-            cpu=num_workers * num_cpus_per_worker)
+            gpu=task_processor.num_workers *
+            task_processor.num_gpus_per_worker,
+            cpu=task_processor.num_workers *
+            task_processor.num_cpus_per_worker)
 
     searcher = tune_config.get('searcher', None)
     if searcher is not None:

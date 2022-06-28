@@ -54,6 +54,37 @@ class BaseTask(metaclass=ABCMeta):
 
         self._args = self.parse_args(args)
 
+    def set_resource(self,
+                     num_cpus_per_worker: int = 1,
+                     num_gpus_per_worker: int = 1,
+                     num_workers: int = 1) -> None:
+        """Set resource per trial.
+
+        Args:
+            num_cpus_per_worker (int):
+                The number of CPUs that one worker can use. Defaults to 1.
+            num_gpus_per_worker (int):
+                The number of GPUs that one worker can use. Defaults to 1.
+            num_workers (int): The number of workers. Defaults to 1.
+        """
+        self._resource = dict(
+            num_cpus_per_worker=num_cpus_per_worker,
+            num_gpus_per_worker=num_gpus_per_worker,
+            num_workers=num_workers,
+        )
+
+    @property
+    def num_cpus_per_worker(self) -> int:
+        return self._resource.get('num_cpus_per_worker')
+
+    @property
+    def num_gpus_per_worker(self) -> int:
+        return self._resource.get('num_gpus_per_worker')
+
+    @property
+    def num_workers(self) -> int:
+        return self._resource.get('num_workers')
+
     @property
     def args(self) -> argparse.Namespace:
         return self._args
