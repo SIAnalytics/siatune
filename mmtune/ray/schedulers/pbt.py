@@ -2,11 +2,11 @@ import copy
 import random
 from typing import Callable, Dict, Optional
 
-from mmtun.ray.scheduler import SCHEDULERS
 from ray.tune.sample import Domain
 from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
 
+from mmtune.ray.schedulers import SCHEDULERS
 from mmtune.ray.spaces import build_space
 from mmtune.utils import ImmutableContainer
 
@@ -55,6 +55,7 @@ class PopulationBasedTraining(_PopulationBasedTraining):
         hyperparam_mutations = kwargs.get('hyperparam_mutations',
                                           dict()).copy()
         kwargs.update(hyperparam_mutations=build_space(hyperparam_mutations))
+        super().__init__(*args, **kwargs)
 
     def _get_new_config(self, trial, trial_to_clone):
         """Gets new config for trial by exploring trial_to_clone's config."""
