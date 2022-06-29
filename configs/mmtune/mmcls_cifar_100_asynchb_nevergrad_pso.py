@@ -6,7 +6,7 @@ _base_ = [
 
 space = {
     'model': {{_base_.model}},
-    'model.head.num_classes': dict(type='Constant', value=100),
+    'model.head.num_classes': 100,
     'optimizer': {{_base_.optimizer}},
     'data.samples_per_gpu': {{_base_.batch_size}},
 }

@@ -1,6 +1,6 @@
 from ray import tune
 
-from mmtune.ray.spaces import BaseSpace, Choice, Constant, build_space
+from mmtune.ray.spaces import BaseSpace, Choice, build_space
 
 
 def test_base_space():
@@ -26,14 +26,3 @@ def test_choice():
         objective,
         config=dict(
             test=Choice(categories=[1, 2, 3], use_container=False).space))
-
-
-def test_constant():
-
-    def objective(config):
-        assert config.get('test') == -1
-        tune.report(result=config['test'])
-
-    tune.run(
-        objective,
-        config=dict(test=Constant(value=-1, use_container=False).space))
