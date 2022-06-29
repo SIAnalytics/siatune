@@ -23,11 +23,6 @@ def test_raycheckpointhook():
     mock_runner.iter = 5
     mock_runner.epoch = 5
 
-    cur_iter = hook.get_iter(mock_runner, False)
-    assert cur_iter == 6
-    cur_iter = hook.get_iter(mock_runner, True)
-    assert cur_iter == 4
-
     mock_runner.model = torch.nn.Linear(2, 2)
     mock_runner.optimizer = torch.optim.Adam(mock_runner.model.parameters())
 
