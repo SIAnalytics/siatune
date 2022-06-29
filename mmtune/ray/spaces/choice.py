@@ -1,14 +1,16 @@
-from typing import Optional, Sequence
+from numbers import Number
+from typing import Callable, Optional, Sequence, Union
 
-from ray.tune.sample import choice
+import ray.tune as tune
 
 from mmtune.utils import ImmutableContainer
 from .base import BaseSpace
 from .builder import SPACES
 
 
-@SPACES.register_module(force=True)
+@SPACES.register_module()
 class Choice(BaseSpace):
+    sample: Callable = tune.choice
 
     def __init__(self,
                  categories: Sequence,
@@ -23,11 +25,16 @@ class Choice(BaseSpace):
             use_container (bool):
                 Whether to use containers. Defaults to True.
         """
-
         if alias is not None:
             assert len(categories) == len(alias)
-        categories = [
-            ImmutableContainer(c, None if alias is None else alias[idx])
-            if use_container else c for idx, c in enumerate(categories)
-        ]
-        self._space = choice(categories)
+
+        if use_container:
+            aliases = alias or [None] * len(categories)
+            categories = [
+                ImmutableContainer(*it) for it in zip(categories, aliases)
+            ]
+        self.categories = categories
+
+    @property
+    def space(self) -> Union[Number, list]:
+        return self.sample.__func__(self.categories)

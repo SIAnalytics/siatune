@@ -1,10 +1,69 @@
 from abc import ABCMeta
+from numbers import Number
+from typing import Callable, Union
+
+import ray.tune as tune
+
+from .builder import SPACES
 
 
 class BaseSpace(metaclass=ABCMeta):
     """Base Space class."""
+    sample: Callable
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
     @property
-    def space(self) -> callable:
-        """Return the space."""
-        return getattr(self, '_space', None)
+    def space(self) -> Union[Number, list]:
+        return self.sample.__func__(**self.kwargs)
+
+
+@SPACES.register_module()
+class Uniform(BaseSpace):
+    sample: Callable = tune.uniform
+
+
+@SPACES.register_module()
+class Quniform(BaseSpace):
+    sample: Callable = tune.quniform
+
+
+@SPACES.register_module()
+class Loguniform(BaseSpace):
+    sample: Callable = tune.loguniform
+
+
+@SPACES.register_module()
+class Qloguniform(BaseSpace):
+    sample: Callable = tune.qloguniform
+
+
+@SPACES.register_module()
+class Randn(BaseSpace):
+    sample: Callable = tune.randn
+
+
+@SPACES.register_module()
+class Qrandn(BaseSpace):
+    sample: Callable = tune.qrandn
+
+
+@SPACES.register_module()
+class Randint(BaseSpace):
+    sample: Callable = tune.randint
+
+
+@SPACES.register_module()
+class Qrandint(BaseSpace):
+    sample: Callable = tune.qrandint
+
+
+@SPACES.register_module()
+class Lograndint(BaseSpace):
+    sample: Callable = tune.lograndint
+
+
+@SPACES.register_module()
+class Qlograndint(BaseSpace):
+    sample: Callable = tune.qlograndint
