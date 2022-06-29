@@ -1,6 +1,5 @@
 from abc import ABCMeta
-from numbers import Number
-from typing import Callable, Union
+from typing import Callable
 
 import ray.tune as tune
 
@@ -9,13 +8,14 @@ from .builder import SPACES
 
 class BaseSpace(metaclass=ABCMeta):
     """Base Space class."""
-    sample: Callable
+    sample: Callable = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.kwargs = kwargs
 
     @property
-    def space(self) -> Union[Number, list]:
+    def space(self) -> tune.sample.Domain:
+        """Return the space."""
         return self.sample.__func__(**self.kwargs)
 
 

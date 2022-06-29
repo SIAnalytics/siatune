@@ -1,4 +1,3 @@
-from numbers import Number
 from typing import Callable, Union
 
 import ray.tune as tune
@@ -9,16 +8,21 @@ from .builder import SPACES
 
 @SPACES.register_module()
 class SampleFrom(BaseSpace):
+    """Specify that tune should sample configuration values from this function.
+
+    Args:
+        func (str | Callable): An string or callable function
+            to draw a sample from.
+    """
+
     sample: Callable = tune.sample_from
 
-    def __init__(self, func: Union[str, Callable], imports=None):
+    def __init__(self, func: Union[str, Callable]) -> None:
         if isinstance(func, str):
+            assert func.startswith('lambda')
             func = eval(func)
         self.func = func
-        self.imports = imports or []
 
     @property
-    def space(self) -> Union[Number, list]:
-        for module in self.imports:
-            exec(f'import {module}')
+    def space(self) -> tune.sample.Domain:
         return self.sample.__func__(self.func)
