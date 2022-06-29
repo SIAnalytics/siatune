@@ -27,7 +27,7 @@ def test_raycheckpointhook():
     mock_runner.optimizer = torch.optim.Adam(mock_runner.model.parameters())
 
     hook._save_checkpoint(mock_runner)
-    assert os.path.exists('ray_checkpoint.pth')
+    assert os.path.exists('ray_ckpt.pth')
 
 
 @patch.object(RayTuneLoggerHook, 'get_loggable_tags')
