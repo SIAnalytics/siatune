@@ -45,10 +45,6 @@ class RayCheckpointHook(_CheckpointHook):
                 saved regardless of interval. Default: True.
             sync_buffer (bool, optional): Whether to synchronize buffers in
                 different gpus. Default: False.
-            file_client_args (dict, optional): Arguments to instantiate a
-                FileClient. See :class:`mmcv.fileio.FileClient` for details.
-                Default: None.
-                `New in version 1.3.16.`
         """
         self.interval = interval
         self.by_epoch = by_epoch
@@ -57,25 +53,18 @@ class RayCheckpointHook(_CheckpointHook):
         self.save_last = save_last
         self.args = kwargs
         self.sync_buffer = sync_buffer
-        self.file_client_args = file_client_args
 
     """Save checkpoints periodically."""
 
-    def get_iter(self, runner: BaseRunner, inner_iter: bool = False):
-        """Get the current iteration.
+    def before_run(self, runner: BaseRunner):
+        """This hook omits the setting process because it gets information from
+        the ray session.
 
         Args:
             runner (:obj:`mmcv.runner.BaseRunner`):
-                The runner to get the current iteration.
-            inner_iter (bool):
-                Whether to get the inner iteration.
+                The runner.
         """
-
-        if self.by_epoch and inner_iter:
-            current_iter = runner.inner_iter + 1
-        else:
-            current_iter = runner.iter + 1
-        return current_iter
+        pass
 
     @master_only
     def _save_checkpoint(self, runner: BaseRunner) -> None:
@@ -92,7 +81,7 @@ class RayCheckpointHook(_CheckpointHook):
             mmcv_version=mmcv.__version__,
             time=time.asctime(),
             epoch=runner.epoch + 1,
-            iter=runner.iter)
+            iter=runner.iter + 1)
         if is_module_wrapper(model):
             model = model.module
         if hasattr(model, 'CLASSES') and model.CLASSES is not None:
@@ -111,6 +100,8 @@ class RayCheckpointHook(_CheckpointHook):
                 checkpoint['optimizer'][name] = optim.state_dict()
 
         with distributed_checkpoint_dir(
-                step=self.get_iter(runner)) as checkpoint_dir:
-            path = os.path.join(checkpoint_dir, 'ray_checkpoint.pth')
+                step=(runner.epoch + 1) //
+                self.interval if self.by_epoch else (runner.iter + 1) //
+                self.interval) as checkpoint_dir:
+            path = os.path.join(checkpoint_dir, 'ray_ckpt.pth')
             torch.save(checkpoint, path)

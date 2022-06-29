@@ -128,4 +128,4 @@ def test_resume_ckpt():
 
     resume_from_ckpt = ResumeFromCkpt()
     context = resume_from_ckpt(context)
-    assert context.get('args').resume_from == 'test'
+    assert context.get('args').resume_from == 'test/ray_ckpt.pth'

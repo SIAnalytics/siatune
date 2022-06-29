@@ -1,0 +1,67 @@
+import copy
+import random
+from typing import Callable, Dict, Optional
+
+from ray.tune.sample import Domain
+from ray.tune.schedulers.pbt import \
+    PopulationBasedTraining as _PopulationBasedTraining
+
+from mmtune.ray.schedulers import SCHEDULERS
+from mmtune.ray.spaces import build_space
+from mmtune.utils import ImmutableContainer
+
+
+def explore(
+        config: Dict,
+        mutations: Dict,
+        resample_probability: float,
+        custom_explore_fn: Optional[Callable],
+) -> Dict:
+    """Return a config perturbed as specified.
+
+    Args:
+        config: Original hyperparameter configuration.
+        mutations: Specification of mutations to perform as documented
+            in the PopulationBasedTraining scheduler.
+        resample_probability: Probability of allowing resampling of a
+            particular variable.
+        custom_explore_fn: Custom explore fn applied after built-in
+            config perturbations are.
+    """
+    new_config = copy.deepcopy(config)
+    for key, distribution in mutations.items():
+        assert isinstance(distribution, Domain)
+        if random.random() < resample_probability:
+            new_config[key] = ImmutableContainer.decouple(
+                distribution.sample(None))
+
+        try:
+            new_config[key] = config[key] * 1.2 if random.random(
+            ) > 0.5 else config[key] * 0.8
+            if isinstance(config[key], int):
+                new_config[key] = int(new_config[key])
+        except Exception:
+            new_config[key] = config[key]
+    if custom_explore_fn:
+        new_config = custom_explore_fn(new_config)
+        assert new_config is not None
+    return new_config
+
+
+@SCHEDULERS.register_module(force=True)
+class PopulationBasedTraining(_PopulationBasedTraining):
+
+    def __init__(self, *args, **kwargs) -> None:
+        hyperparam_mutations = kwargs.get('hyperparam_mutations',
+                                          dict()).copy()
+        kwargs.update(hyperparam_mutations=build_space(hyperparam_mutations))
+        super().__init__(*args, **kwargs)
+
+    def _get_new_config(self, trial, trial_to_clone):
+        """Gets new config for trial by exploring trial_to_clone's config."""
+        return explore(
+            trial_to_clone.config,
+            self._hyperparam_mutations,
+            self._resample_probability,
+            self._custom_explore_fn,
+        )
