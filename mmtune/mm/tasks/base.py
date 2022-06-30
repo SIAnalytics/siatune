@@ -67,6 +67,7 @@ class BaseTask(metaclass=ABCMeta):
                 The number of GPUs that one worker can use. Defaults to 1.
             num_workers (int): The number of workers. Defaults to 1.
         """
+        assert num_workers > 0
         self._resource = dict(
             num_cpus_per_worker=num_cpus_per_worker,
             num_gpus_per_worker=num_gpus_per_worker,
