@@ -1,33 +1,34 @@
-from typing import Optional, Sequence
+from typing import Callable, Optional, Sequence
 
-from ray.tune.sample import choice
+import ray.tune as tune
 
 from mmtune.utils import ImmutableContainer
 from .base import BaseSpace
 from .builder import SPACES
 
 
-@SPACES.register_module(force=True)
+@SPACES.register_module()
 class Choice(BaseSpace):
+    """Sample a categorical value.
+
+    Args:
+        categories (Sequence): The categories.
+        alias (Sequence, optional): A alias to be expressed.
+            Defaults to None.
+    """
+
+    sample: Callable = tune.choice
 
     def __init__(self,
                  categories: Sequence,
-                 alias: Optional[Sequence] = None,
-                 use_container: bool = True):
-        """Initialize Choice.
-
-        Args:
-            categories (Sequence): The categories.
-            alias (Optional[Sequence]):
-                A alias to be expressed. Defaults to None.
-            use_container (bool):
-                Whether to use containers. Defaults to True.
-        """
-
+                 alias: Optional[Sequence] = None) -> None:
         if alias is not None:
             assert len(categories) == len(alias)
-        categories = [
-            ImmutableContainer(c, None if alias is None else alias[idx])
-            if use_container else c for idx, c in enumerate(categories)
-        ]
-        self._space = choice(categories)
+            categories = [
+                ImmutableContainer(*it) for it in zip(categories, alias)
+            ]
+        self.categories = categories
+
+    @property
+    def space(self) -> tune.sample.Domain:
+        return self.sample.__func__(self.categories)

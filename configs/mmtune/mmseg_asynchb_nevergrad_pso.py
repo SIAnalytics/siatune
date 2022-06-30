@@ -8,8 +8,8 @@ space = {
     'model': {{_base_.model}},
     'optimizer': {{_base_.optimizer}},
     'data.samples_per_gpu': {{_base_.batch_size}},
-    'model.decode_head.num_classes': dict(type='Constant', value=21),
-    'model.auxiliary_head.num_classes': dict(type='Constant', value=21),
+    'model.decode_head.num_classes': 21,
+    'model.auxiliary_head.num_classes': 21,
 }
 
 task = dict(type='MMSegmentation')

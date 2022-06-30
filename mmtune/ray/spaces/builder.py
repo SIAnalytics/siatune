@@ -1,43 +1,28 @@
-import inspect
-from typing import Callable, Dict
+from typing import Mapping, Sequence
 
 from mmcv.utils import Registry
-from ray.tune import sample
-
-from .base import BaseSpace
 
 SPACES = Registry('spaces')
 
 
-def _register_space(space: Callable) -> None:
-    """Register a space.
-
-    Args:
-        space (Callable): The space to register.
-    """
-
-    @SPACES.register_module(name=space.__name__.capitalize())
-    class _ImplicitSpace(BaseSpace):
-
-        def __init__(self, *args, **kwargs):
-            self._space = space(*args, **kwargs)
-
-
-for space_name in dir(sample):
-    space = getattr(sample, space_name)
-    if not inspect.isfunction(space):
-        continue
-    _register_space(space)
-
-
-def build_space(cfgs: Dict) -> Dict:
+def build_space(cfg: dict) -> dict:
     """Build a space.
 
     Args:
-        cfgs (Dict): The configurations of the space.
+        cfg (dict): The configurations of the space.
 
     Returns:
-        Dict: The instantiated space.
+        dict: The instantiated space.
     """
-
-    return {key: SPACES.build(cfg).space for key, cfg in cfgs.items()}
+    cfg = cfg.copy()
+    for k, v in cfg.items():
+        if isinstance(v, (int, str, bool, float)):
+            continue
+        elif isinstance(v, Sequence):
+            cfg[k] = [build_space(_) if isinstance(_, dict) else _ for _ in v]
+        elif isinstance(v, Mapping):
+            cfg[k] = build_space(v)
+            typ = cfg[k].get('type', '')
+            if isinstance(typ, str) and typ in SPACES:
+                cfg[k] = SPACES.build(cfg[k]).space
+    return cfg

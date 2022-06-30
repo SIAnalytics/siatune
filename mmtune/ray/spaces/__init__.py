@@ -1,6 +1,12 @@
-from .base import BaseSpace
+from .base import (BaseSpace, Lograndint, Loguniform, Qlograndint, Qloguniform,
+                   Qrandint, Qrandn, Quniform, Randint, Randn, Uniform)
 from .builder import SPACES, build_space
 from .choice import Choice
-from .const import Constant
+from .grid_search import GridSearch
+from .sample_from import SampleFrom
 
-__all__ = ['BaseSpace', 'SPACES', 'build_space', 'Choice', 'Constant']
+__all__ = [
+    'BaseSpace', 'Uniform', 'Quniform', 'Loguniform', 'Qloguniform', 'Randn',
+    'Qrandn', 'Randint', 'Qrandint', 'Lograndint', 'Qlograndint', 'SPACES',
+    'build_space', 'Choice', 'GridSearch', 'SampleFrom'
+]
