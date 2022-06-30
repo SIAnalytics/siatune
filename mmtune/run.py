@@ -71,7 +71,10 @@ def main() -> None:
 
     task_processor = build_task_processor(tune_config.task)
     task_processor.set_args(args.trainable_args)
-
+    task_processor.set_resource(
+        num_cpus_per_worker=args.num_cpus_per_worker,
+        num_gpus_per_worker=args.num_gpus_per_worker,
+        num_workers=args.num_workers)
     file_name = osp.splitext(osp.basename(args.tune_config))[0]
     exp_name = args.exp_name or tune_config.get('exp_name', file_name)
 

@@ -70,21 +70,15 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
         return super().context_aware_run(searched_cfg, **kwargs)
 
-    def create_trainable(self,
-                         backend: str = 'nccl',
-                         num_workers: int = 1,
-                         num_gpus_per_worker: int = 1,
-                         num_cpus_per_worker: int = 1) -> ray.tune.trainable:
+    def create_trainable(
+            self,
+            backend: str = 'nccl',
+    ) -> ray.tune.trainable:
         """Get ray trainable task.
 
         Args:
             backend (str):
                 The backend for dist training. Defaults to 'nccl'.
-            num_workers (int): The number of workers. Defaults to 1.
-            num_gpus_per_worker (int):
-                The number of gpus per worker. Defaults to 1.
-            num_cpus_per_worker (int):
-                The number of cpus per worker. Defaults to 1.
 
         Returns:
             ray.tune.trainable: The trainable task.
@@ -98,6 +92,6 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
                 backend=backend,
             ),
             backend=backend,
-            num_workers=num_workers,
-            num_gpus_per_worker=num_gpus_per_worker,
-            num_cpus_per_worker=num_cpus_per_worker)
+            num_workers=self.num_workers,
+            num_gpus_per_worker=self.num_gpus_per_worker,
+            num_cpus_per_worker=self.num_cpus_per_worker)

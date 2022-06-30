@@ -278,8 +278,7 @@ def test_mm_train_based_task(mock_report):
             )))
 
     task = TestTask()
+    task.set_resource(1, 0, 1)
     task.context_aware_run(searched_cfg=dict(cfg=cfg))
     assert 'loss' in get_session()
-    tune.run(
-        task.create_trainable(backend='gloo', num_gpus_per_worker=0),
-        config=dict(cfg=cfg))
+    tune.run(task.create_trainable(backend='gloo'), config=dict(cfg=cfg))
