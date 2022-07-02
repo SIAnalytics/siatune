@@ -39,9 +39,13 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def train_model(self, model: torch.nn.Module,
-                    dataset: torch.utils.data.Dataset, cfg: mmcv.Config,
-                    **kwargs) -> None:
+    def train_model(
+            self,
+            model: torch.nn.Module,
+            dataset: torch.utils.data.Dataset,
+            cfg: mmcv.Config,
+            **kwargs,
+    ) -> None:
         """Train the model.
 
         Args:
@@ -73,12 +77,15 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
     def create_trainable(
             self,
             backend: str = 'nccl',
+            timeout_s: int = 1800,
     ) -> ray.tune.trainable:
         """Get ray trainable task.
 
         Args:
             backend (str):
                 The backend for dist training. Defaults to 'nccl'.
+            timeout_s (int):
+                Seconds before the torch process group times out.
 
         Returns:
             ray.tune.trainable: The trainable task.
@@ -92,6 +99,8 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
                 backend=backend,
             ),
             backend=backend,
+            timeout_s=timeout_s,
             num_workers=self.num_workers,
             num_gpus_per_worker=self.num_gpus_per_worker,
-            num_cpus_per_worker=self.num_cpus_per_worker)
+            num_cpus_per_worker=self.num_cpus_per_worker,
+        )
