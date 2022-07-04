@@ -30,6 +30,45 @@ class RayTuneLoggerHook(LoggerHook):
                                                 reset_flag, by_epoch)
         self.filtering_key = filtering_key
 
+    def after_train_iter(self, runner: BaseRunner) -> None:
+        """Log after train itr.
+
+        Args:
+            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+        """
+        if self.by_epoch and self.every_n_inner_iters(runner, self.interval):
+            runner.log_buffer.average(self.interval)
+        elif not self.by_epoch and self.every_n_iters(runner, self.interval):
+            runner.log_buffer.average(self.interval)
+        elif self.end_of_epoch(runner) and not self.ignore_last:
+            # not precise but more stable
+            runner.log_buffer.average(self.interval)
+
+        self.log(runner)
+        if self.reset_flag:
+            runner.log_buffer.clear_output()
+
+    def after_train_epoch(self, runner: BaseRunner) -> None:
+        """Log after train epoch.
+
+        Args:
+            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+        """
+        self.log(runner)
+        if self.reset_flag:
+            runner.log_buffer.clear_output()
+
+    def after_val_epoch(self, runner: BaseRunner) -> None:
+        """Log after val epoch.
+
+        Args:
+            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+        """
+        runner.log_buffer.average()
+        self.log(runner)
+        if self.reset_flag:
+            runner.log_buffer.clear_output()
+
     def log(self, runner: BaseRunner) -> None:
         """Log the information.
 
