@@ -1,5 +1,5 @@
-from tune.search.flaml import BlendSearch as _BlendSearch
 from tune.search.flaml import CFO as _CFO
+from tune.search.flaml import BlendSearch as _BlendSearch
 
 from .builder import SEARCHERS
 
