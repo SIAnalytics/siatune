@@ -21,14 +21,20 @@ def config():
         steps=10, width=tune.uniform(0, 20), height=tune.uniform(-100, 100))
 
 
-def trainable(config):
-    width, height = config['width'], config['height']
-    for step in range(config['steps']):
-        intermediate_score = (0.1 + width * step / 100)**(-1) + height * 0.1
-        tune.report(iterations=step, mean_loss=intermediate_score)
+@pytest.fixture
+def trainable():
+
+    def _trainable(config):
+        width, height = config['width'], config['height']
+        for step in range(config['steps']):
+            intermediate_score = (0.1 +
+                                  width * step / 100)**(-1) + height * 0.1
+            tune.report(iterations=step, mean_loss=intermediate_score)
+
+    return _trainable
 
 
-def test_ax(config):
+def test_ax(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
@@ -38,7 +44,7 @@ def test_ax(config):
         config=config)
 
 
-def test_blend(config):
+def test_blend(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
@@ -48,7 +54,7 @@ def test_blend(config):
         config=config)
 
 
-def test_cfo(config):
+def test_cfo(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
@@ -58,7 +64,7 @@ def test_cfo(config):
         config=config)
 
 
-def test_hyperopt(config):
+def test_hyperopt(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
@@ -68,7 +74,7 @@ def test_hyperopt(config):
         config=config)
 
 
-def test_nevergrad(config):
+def test_nevergrad(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
@@ -78,7 +84,7 @@ def test_nevergrad(config):
         config=config)
 
 
-def test_trust_region(config):
+def test_trust_region(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',

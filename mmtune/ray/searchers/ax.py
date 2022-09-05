@@ -1,4 +1,4 @@
-from tune.search.ax import AxSearch as _AxSearch
+from ray.tune.suggest.ax import AxSearch as _AxSearch
 
 from .builder import SEARCHERS
 
