@@ -85,7 +85,7 @@ class ImmutableContainer(_Freezer):
             bool: True if the other object is equal.
         """
 
-        if other.__class__ is self.__class__:
+        if other.__class__ is self.data.__class__:
             return self.data == other.data
         raise NotImplementedError
 
