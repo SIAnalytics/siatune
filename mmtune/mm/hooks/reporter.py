@@ -85,9 +85,8 @@ class RayTuneLoggerHook(LoggerHook):
                 broadcasted = [None]
             dist.broadcast_object_list(broadcasted)
             tags = broadcasted.pop()
-        if not dict(
-                filter(lambda elem: self.filtering_key in elem[0],
-                       tags.items())):
+        if not any(
+                filter(lambda elem: self.filtering_key in elem, tags.keys())):
             return
         tags['global_step'] = self.get_iter(runner)
         ray.tune.report(**tags)
