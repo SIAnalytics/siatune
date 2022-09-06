@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import math
 import operator
 import pickle

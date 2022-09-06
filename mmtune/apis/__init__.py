@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from .analysis import log_analysis
 from .tune import tune
 

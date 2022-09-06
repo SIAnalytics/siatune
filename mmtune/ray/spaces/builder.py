@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from typing import Mapping, Sequence
 
 from mmcv.utils import Registry

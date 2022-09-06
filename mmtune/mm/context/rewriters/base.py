@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from abc import ABCMeta, abstractmethod
 from typing import Dict
 

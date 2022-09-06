@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 __version__ = '0.0.1'
 from typing import Tuple
 

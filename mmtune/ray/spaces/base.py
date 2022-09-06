@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from abc import ABCMeta
 from typing import Callable
 

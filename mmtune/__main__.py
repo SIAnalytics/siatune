@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 """The mmtune entry point."""
 from .run import main
 

@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from mmcv.utils import Config, ConfigDict
 from mmcv.utils.config import DELETE_KEY
 

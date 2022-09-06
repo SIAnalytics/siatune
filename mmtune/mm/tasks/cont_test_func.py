@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 # https://github.com/facebookresearch/nevergrad/blob/main/nevergrad/functions/corefuncs.py
 import argparse
 from math import exp, sqrt, tanh

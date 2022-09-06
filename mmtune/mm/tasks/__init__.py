@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from .base import BaseTask
 from .blackbox import BlackBoxTask
 from .builder import TASKS, build_task_processor

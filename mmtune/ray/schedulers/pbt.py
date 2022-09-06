@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import copy
 import random
 from typing import Callable, Dict, Optional

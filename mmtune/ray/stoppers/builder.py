@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import inspect
 
 from mmcv.utils import Config, Registry

@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from .base import BaseRewriter
 from .builder import REWRITERS, build_rewriter
 from .dump import Dump
