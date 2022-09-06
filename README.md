@@ -22,10 +22,10 @@ Currently, MMTune is maintained by SI-Analytics.
 
     We provide state-of-the-art hyperparameter tuning algorithms such as below;
   - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
-  - [x] [Adaptive Experimentation (AX)](https://ax.dev/)
   - [x] [HyperOpt](https://github.com/hyperopt/hyperopt)
   - [x] [FLAML](https://github.com/microsoft/FLAML)
-  - [x] [Scikit-optimize](https://github.com/scikit-optimize/scikit-optimize)
+  - [ ] [Adaptive Experimentation (AX)](https://ax.dev/)
+  - [ ] [Scikit-optimize](https://github.com/scikit-optimize/scikit-optimize)
 
 - **Distributed tuning system based on Ray**
 

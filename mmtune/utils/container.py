@@ -84,10 +84,15 @@ class ImmutableContainer(_Freezer):
         Returns:
             bool: True if the other object is equal.
         """
+        return self.data == other.data
 
-        if other.__class__ is self.__class__:
-            return self.data == other.data
-        raise NotImplementedError
+    def __hash__(self) -> int:
+        """Return hash value of `str(self.data)`. It needs to use FLAML.
+
+        Returns:
+            int: hash value.
+        """
+        return hash(str(self.data))
 
     @classmethod
     def decouple(cls, inputs: Any) -> Any:
