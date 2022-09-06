@@ -1,7 +1,7 @@
 import pytest
 from ray import tune
 
-from mmtune.ray.searchers import (SEARCHERS, AxSearch, BlendSearch, CFOSearch,
+from mmtune.ray.searchers import (SEARCHERS, BlendSearch, CFOSearch,
                                   HyperOptSearch, NevergradSearch,
                                   TrustRegionSearcher, build_searcher)
 
@@ -32,16 +32,6 @@ def trainable():
             tune.report(iterations=step, mean_loss=intermediate_score)
 
     return _trainable
-
-
-def test_ax(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=AxSearch(),
-        num_samples=2,
-        config=config)
 
 
 def test_blend(trainable, config):
