@@ -3,7 +3,7 @@ from ray import tune
 
 from mmtune.ray.searchers import (SEARCHERS, BlendSearch, CFOSearch,
                                   HyperOptSearch, NevergradSearch,
-                                  TrustRegionSearcher, build_searcher)
+                                  build_searcher)
 
 
 def test_build_searcher():
@@ -70,15 +70,5 @@ def test_nevergrad(trainable, config):
         metric='mean_loss',
         mode='min',
         search_alg=NevergradSearch(optimizer='PSO', budget=2),
-        num_samples=2,
-        config=config)
-
-
-def test_trust_region(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=TrustRegionSearcher(),
         num_samples=2,
         config=config)
