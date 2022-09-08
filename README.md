@@ -38,3 +38,16 @@ This project is released under the [Apache 2.0 license](LICENSE).
 ## Installation and Getting Started
 
 Please refer to [get_started.md](docs/get_started.md) for installation and getting started.
+
+## Citing SIATune
+
+If you use SIATune in your research, please use the following BibTeX entry.
+
+```BibTeX
+@misc{na2022siatune,
+  author =       {Younghwan Na and Hakjin Lee and Junhwa Song},
+  title =        {SIATune},
+  howpublished = {\url{https://github.com/SIAnalytics/siatune}},
+  year =         {2022}
+}
+```
