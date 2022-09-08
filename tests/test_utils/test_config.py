@@ -3,7 +3,7 @@ from os import path as osp
 
 from mmcv.utils import Config
 
-from mmtune.utils import dump_cfg
+from siatune.utils import dump_cfg
 
 
 def test_dump_cfg():

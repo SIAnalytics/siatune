@@ -2,7 +2,7 @@ name: Build & Push Docker Image
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'test/*'
     tags:
       - '**'
@@ -14,7 +14,7 @@ concurrency:
 env:
   DOCKERFILE_PATH: "./docker/Dockerfile"
   PROJECT_NAME: "mlops"
-  APP_NAME: "mmtune"
+  APP_NAME: "siatune"
 
 jobs:
   build:

@@ -6,8 +6,8 @@ import mmcv
 import ray
 from mmcv import Config
 
-from mmtune.apis import log_analysis, tune
-from mmtune.mm.tasks import build_task_processor
+from siatune.apis import log_analysis, tune
+from siatune.mm.tasks import build_task_processor
 
 
 def parse_args() -> Namespace:

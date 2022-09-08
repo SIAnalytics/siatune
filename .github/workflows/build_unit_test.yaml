@@ -3,7 +3,7 @@ name: Build & Unit Test
 on:
   pull_request:
     branch:
-        - 'master'
+        - 'main'
     paths-ignore:
       - ".github/**.md"
       - "README.md"
@@ -31,7 +31,7 @@ jobs:
     - name: Run unittests and generate coverage report
       run: |
           pip install pytest coverage
-          coverage run --branch --source mmtune -m pytest tests/
+          coverage run --branch --source siatune -m pytest tests/
           coverage xml
           coverage report -m
     - name: Display coverage

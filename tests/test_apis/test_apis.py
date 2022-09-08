@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 import mmcv
 from ray.tune.trainable import Trainable
 
-from mmtune.apis import log_analysis, tune
+from siatune.apis import log_analysis, tune
 
 
 def test_log_analysis():

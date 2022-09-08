@@ -3,7 +3,7 @@ from typing import Callable, Optional, Sequence
 
 import ray.tune as tune
 
-from mmtune.utils import ImmutableContainer
+from siatune.utils import ImmutableContainer
 from .base import BaseSpace
 from .builder import SPACES
 

@@ -1,12 +1,12 @@
 
 <div align="center">
-  <img src="resources/mmtune-logo.png" width="450"/>
+  <img src="resources/siatune-logo.png" width="450"/>
 </div>
 
 ## Introduction
-MMTune is an open-source deep learning model hyperparameter tuning toolbox especially for OpenMMLab's model frameworks such as [mmdetection](https://github.com/open-mmlab/mmdetection) and [mmsegmentation](https://github.com/open-mmlab/mmsegmentation). In order to support job scheduling and resource management, MMTune adopts [Ray](https://github.com/ray-project/ray) and [Ray.tune](https://docs.ray.io/en/latest/tune/index.html).
+SIATune is an open-source deep learning model hyperparameter tuning toolbox especially for OpenMMLab's model frameworks such as [mmdetection](https://github.com/open-mmlab/mmdetection) and [mmsegmentation](https://github.com/open-mmlab/mmsegmentation). In order to support job scheduling and resource management, SIATune adopts [Ray](https://github.com/ray-project/ray) and [Ray.tune](https://docs.ray.io/en/latest/tune/index.html).
 
-Currently, MMTune is maintained by SI-Analytics.
+Currently, SIATune is maintained by SI-Analytics.
 
 ### Major features
 

@@ -10,7 +10,7 @@ def get_root_logger(log_file: Optional[str] = None,
     """Get the root logger. The logger will be initialized if it has not been
     initialized. By default a StreamHandler will be added. If `log_file` is
     specified, a FileHandler will also be added. The name of the root logger is
-    the top-level package name, e.g., "mmtune".
+    the top-level package name, e.g., "siatune".
 
     Args:
         log_file (Optional[str]): The log filename. If specified, a FileHandler
@@ -22,6 +22,6 @@ def get_root_logger(log_file: Optional[str] = None,
         logging.Logger: The root logger.
     """
 
-    logger = get_logger(name='mmtune', log_file=log_file, log_level=log_level)
+    logger = get_logger(name='siatune', log_file=log_file, log_level=log_level)
 
     return logger

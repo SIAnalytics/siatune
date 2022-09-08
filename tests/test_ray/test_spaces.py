@@ -1,8 +1,8 @@
 import pytest
 from ray import tune
 
-from mmtune.ray.spaces import Choice, GridSearch, SampleFrom, build_space
-from mmtune.utils import ImmutableContainer
+from siatune.ray.spaces import Choice, GridSearch, SampleFrom, build_space
+from siatune.utils import ImmutableContainer
 
 
 def test_build_space():

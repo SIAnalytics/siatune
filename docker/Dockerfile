@@ -23,7 +23,7 @@ ARG CUDA
 ARG MMCV_VERSION
 RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full==${MMCV_VERSION} -f https://download.openmmlab.com/mmcv/dist/cu${CUDA//./}/torch${PYTORCH}/index.html"]
 
-# Install MMTune
-COPY . /mmtune
-WORKDIR /mmtune
+# Install SIATune
+COPY . /siatune
+WORKDIR /siatune
 RUN pip install --no-cache-dir -e .

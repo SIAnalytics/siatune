@@ -1,7 +1,7 @@
 from ray import tune
 
-from mmtune.ray.stoppers import (STOPPERS, DictionaryStopper,
-                                 EarlyDroppingStopper, build_stopper)
+from siatune.ray.stoppers import (STOPPERS, DictionaryStopper,
+                                  EarlyDroppingStopper, build_stopper)
 
 
 def test_build_stopper():

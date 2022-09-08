@@ -21,7 +21,7 @@ class CustomHookRegister(BaseRewriter):
             hk_key (str): The key of the custom hooks.
         """
         # Re-register the hook in the new process.
-        from mmtune.mm import hooks  # noqa F401
+        from siatune.mm import hooks  # noqa F401
 
         self.post_custom_hooks = post_custom_hooks
         self.key = key

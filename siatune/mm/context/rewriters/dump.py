@@ -5,7 +5,7 @@ from typing import Dict
 
 import ray
 
-from mmtune.utils import dump_cfg
+from siatune.utils import dump_cfg
 from .base import BaseRewriter
 from .builder import REWRITERS
 

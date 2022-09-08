@@ -5,12 +5,12 @@ import mmcv
 import ray
 from mmcv.utils import Config
 
-from mmtune.mm.tasks import BaseTask
-from mmtune.ray.callbacks import build_callback
-from mmtune.ray.schedulers import build_scheduler
-from mmtune.ray.searchers import build_searcher
-from mmtune.ray.spaces import build_space
-from mmtune.ray.stoppers import build_stopper
+from siatune.mm.tasks import BaseTask
+from siatune.ray.callbacks import build_callback
+from siatune.ray.schedulers import build_scheduler
+from siatune.ray.searchers import build_searcher
+from siatune.ray.spaces import build_space
+from siatune.ray.stoppers import build_stopper
 
 
 def tune(task_processor: BaseTask, tune_config: Config,
