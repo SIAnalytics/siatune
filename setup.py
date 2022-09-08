@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version_file = 'mmtune/version.py'
+version_file = 'siatune/version.py'
 
 
 def parse_requirements(fname: str = 'requirements.txt',
@@ -113,7 +113,7 @@ def get_version() -> str:
 
 if __name__ == '__main__':
     setup(
-        name='mmtune',
+        name='siatune',
         version=get_version(),
         author='SIA',
         packages=find_packages(exclude=('configs', 'tools')),

@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import ray
 
-from mmtune.mm.context import ContextManager
-from mmtune.utils import ImmutableContainer
+from siatune.mm.context import ContextManager
+from siatune.utils import ImmutableContainer
 
 
 class BaseTask(metaclass=ABCMeta):

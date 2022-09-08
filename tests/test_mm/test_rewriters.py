@@ -5,14 +5,14 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from mmtune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
-                                         BaseRewriter, BatchConfigPatcher,
-                                         CustomHookRegister, Dump,
-                                         InstantiateCfg, MergeConfig,
-                                         ResumeFromCkpt,
-                                         SequeunceConfigPatcher)
-from mmtune.mm.context.rewriters.builder import build_rewriter
-from mmtune.utils import dump_cfg
+from siatune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
+                                          BaseRewriter, BatchConfigPatcher,
+                                          CustomHookRegister, Dump,
+                                          InstantiateCfg, MergeConfig,
+                                          ResumeFromCkpt,
+                                          SequeunceConfigPatcher)
+from siatune.mm.context.rewriters.builder import build_rewriter
+from siatune.utils import dump_cfg
 
 
 def test_base_rewriter():
@@ -78,7 +78,7 @@ def test_merge():
 
 
 def test_patch():
-    from mmtune.mm.context.rewriters.patch import unwrap_regexp
+    from siatune.mm.context.rewriters.patch import unwrap_regexp
     assert unwrap_regexp('$(a)') == ('a', True)
 
     context = dict(

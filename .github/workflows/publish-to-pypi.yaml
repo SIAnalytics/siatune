@@ -24,6 +24,7 @@ jobs:
       env:
           PYPI_USER: ${{ secrets.PYPI_USER }}
           PYPI_PW: ${{ secrets.PYPI_PW}}
+          PIP_INDEX_URL: ${{ secrets.PIP_INDEX_URL}}
       run: |
         pip3 install twine
-        twine upload --repository-url https://pypi.sia-service.kr/ dist/* -u ${PYPI_USER} -p ${PYPI_PW}
+        twine upload --repository-url ${PIP_INDEX_URL} dist/* -u ${PYPI_USER} -p ${PYPI_PW}

@@ -1,4 +1,4 @@
-from mmtune.ray.schedulers import SCHEDULERS, build_scheduler
+from siatune.ray.schedulers import SCHEDULERS, build_scheduler
 
 
 def test_build_schedulers():

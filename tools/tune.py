@@ -1,4 +1,4 @@
-from mmtune.run import main
+from siatune.run import main
 
 if __name__ == '__main__':
     main()

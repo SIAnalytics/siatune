@@ -7,11 +7,11 @@ import torch
 from mmcv.utils import Config
 from ray import tune
 
-from mmtune.mm.tasks import (TASKS, BaseTask, BlackBoxTask,
-                             ContinuousTestFunction, DiscreteTestFunction,
-                             MMClassification, MMDetection, MMSegmentation,
-                             MMTrainBasedTask, build_task_processor)
-from mmtune.utils.config import dump_cfg
+from siatune.mm.tasks import (TASKS, BaseTask, BlackBoxTask,
+                              ContinuousTestFunction, DiscreteTestFunction,
+                              MMClassification, MMDetection, MMSegmentation,
+                              MMTrainBasedTask, build_task_processor)
+from siatune.utils.config import dump_cfg
 
 _session = dict()
 

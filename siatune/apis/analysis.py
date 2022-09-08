@@ -7,7 +7,7 @@ from typing import Optional
 from mmcv.utils import Config, get_logger
 from ray import tune
 
-from mmtune.utils import ImmutableContainer, dump_cfg
+from siatune.utils import ImmutableContainer, dump_cfg
 
 
 def log_analysis(analysis: tune.ExperimentAnalysis,
@@ -31,7 +31,7 @@ def log_analysis(analysis: tune.ExperimentAnalysis,
 
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     logger = get_logger(
-        'mmtune', log_file=osp.join(log_dir, f'{timestamp}.log'))
+        'siatune', log_file=osp.join(log_dir, f'{timestamp}.log'))
 
     logger.info(
         f'Best Hyperparam: \n'

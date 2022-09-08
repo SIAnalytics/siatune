@@ -1,4 +1,4 @@
-from mmtune.version import parse_version_info
+from siatune.version import parse_version_info
 
 
 def test_version_check():

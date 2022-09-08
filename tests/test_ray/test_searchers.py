@@ -1,9 +1,9 @@
 import pytest
 from ray import tune
 
-from mmtune.ray.searchers import (SEARCHERS, BlendSearch, CFOSearch,
-                                  HyperOptSearch, NevergradSearch,
-                                  build_searcher)
+from siatune.ray.searchers import (SEARCHERS, BlendSearch, CFOSearch,
+                                   HyperOptSearch, NevergradSearch,
+                                   build_searcher)
 
 
 def test_build_searcher():

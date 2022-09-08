@@ -1,6 +1,6 @@
 import pytest
 
-from mmtune.utils.container import ImmutableContainer, _Freezer
+from siatune.utils.container import ImmutableContainer, _Freezer
 
 
 def test_freezer():
