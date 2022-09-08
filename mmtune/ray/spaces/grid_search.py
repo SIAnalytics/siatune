@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from typing import Callable, Optional, Sequence
 
 import ray.tune as tune

@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import collections
 from typing import List
 

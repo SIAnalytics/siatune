@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import os
 from abc import ABCMeta, abstractmethod
 from functools import partial

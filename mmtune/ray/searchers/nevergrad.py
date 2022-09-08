@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict, List, Optional, Union
 
 from ray.tune.result import DEFAULT_METRIC

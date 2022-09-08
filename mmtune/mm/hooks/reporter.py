@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import ray
 from mmcv.runner import HOOKS, BaseRunner
 from mmcv.runner.dist_utils import get_dist_info

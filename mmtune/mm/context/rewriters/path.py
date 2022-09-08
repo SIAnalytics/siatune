@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from os import path as osp
 
 import ray

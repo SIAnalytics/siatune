@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import time
 from os import path as osp
 from pprint import pformat

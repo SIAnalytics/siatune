@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from .builder import CALLBACKS, build_callback
 from .mlflow import MLflowLoggerCallback
 

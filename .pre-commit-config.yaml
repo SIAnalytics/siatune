@@ -37,3 +37,8 @@ repos:
     hooks:
       - id: docformatter
         args: ["--in-place", "--wrap-descriptions", "79"]
+  - repo: https://github.com/SIAnalytics/pre-commit-hooks
+    rev: v0.1.0  # Use the ref you want to point at
+    hooks:
+      - id: check-copyright
+        args: ["mmtune"]  # replace the dir_to_check with your expected directory to check

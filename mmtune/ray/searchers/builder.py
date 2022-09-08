@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from mmcv.utils import Config, Registry
 from ray import tune
 

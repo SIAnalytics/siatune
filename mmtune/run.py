@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from argparse import REMAINDER, ArgumentParser, Namespace
 from os import path as osp
 

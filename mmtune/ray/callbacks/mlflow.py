@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from typing import List
 
 from ray.tune.integration.mlflow import \

@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import argparse
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy

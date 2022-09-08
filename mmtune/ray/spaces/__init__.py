@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 from .base import (BaseSpace, Lograndint, Loguniform, Qlograndint, Qloguniform,
                    Qrandint, Qrandn, Quniform, Randint, Randn, Uniform)
 from .builder import SPACES, build_space

@@ -1,3 +1,4 @@
+# Copyright (c) SI-Analytics. All rights reserved.
 import tempfile
 from os import path as osp
 from typing import Dict
