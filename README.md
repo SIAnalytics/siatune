@@ -31,13 +31,13 @@ Currently, SIATune is maintained by SI-Analytics.
 
     Hyperparameter tuning with multi-GPU training or large-scale job scheduling are managed by Ray's distributed compute framework.
 
-## License
-
-This project is released under the [Apache 2.0 license](LICENSE).
-
 ## Installation and Getting Started
 
 Please refer to [get_started.md](docs/get_started.md) for installation and getting started.
+
+## License
+
+This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Citing SIATune
 
