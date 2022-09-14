@@ -6,8 +6,6 @@
 ## Introduction
 SIATune is an open-source deep learning model hyperparameter tuning toolbox especially for OpenMMLab's model frameworks such as [mmdetection](https://github.com/open-mmlab/mmdetection) and [mmsegmentation](https://github.com/open-mmlab/mmsegmentation). In order to support job scheduling and resource management, SIATune adopts [Ray](https://github.com/ray-project/ray) and [Ray.tune](https://docs.ray.io/en/latest/tune/index.html).
 
-Currently, SIATune is maintained by SI-Analytics.
-
 ### Major features
 
 - **Fully support OpenMMLab models**
