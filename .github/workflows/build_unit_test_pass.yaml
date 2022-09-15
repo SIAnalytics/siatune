@@ -1,0 +1,22 @@
+name: Build & Unit Test
+
+on:
+  pull_request:
+    branch:
+        - 'main'
+    paths:
+      - ".github/**.md"
+      - "README.md"
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+     - run: 'echo "No build required" '
