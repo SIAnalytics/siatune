@@ -4,7 +4,6 @@ on:
   pull_request:
     branch:
         - 'main'
-        - 'ci/*'
     paths-ignore:
       - ".github/**.md"
       - "README.md"
