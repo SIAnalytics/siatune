@@ -32,14 +32,17 @@ def _styblinksitang(x: np.ndarray, noise: float) -> float:
                  noise * np.random.normal(size=val.shape))
 
 
-def _step(s: float) -> float:
+def _step(s: float, eps: float = 1e-4) -> float:
     """Step function.
 
     Args:
         s (float): input.
+        eps (float): Number to avoid numerical errors.
     Returns:
         float: output.
     """
+    if s == 0:
+        s += eps
     return np.nan_to_num(np.exp(np.round(np.log(s))))
 
 
@@ -305,11 +308,12 @@ class ContinuousTestFunction(BlackBoxTask):
         return _step(np.abs(np.sum(x)))
 
     @staticmethod
-    def hm(x: np.ndarray, eps=1e-4) -> float:
+    def hm(x: np.ndarray, eps: float = 1e-4) -> float:
         """New multimodal function (proposed for Nevergrad).
 
         Args:
             x (np.ndarray): input vector.
+            eps (float): Number to avoid numerical errors.
         Returns:
             float: output.
         """
