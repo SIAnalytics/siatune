@@ -11,12 +11,12 @@ class RayTuneLoggerHook(LoggerHook):
     """MMCV Logger hook for Ray Tune."""
 
     def __init__(
-            self,
-            interval: int = 1,
-            ignore_last: bool = True,
-            reset_flag: bool = False,
-            by_epoch: bool = False,
-            filtering_key: str = 'val',
+        self,
+        interval: int = 1,
+        ignore_last: bool = True,
+        reset_flag: bool = False,
+        by_epoch: bool = False,
+        filtering_key: str = 'val',
     ) -> None:
         """Initialize the hook.
 

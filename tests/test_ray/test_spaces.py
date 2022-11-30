@@ -8,10 +8,12 @@ from siatune.utils import ImmutableContainer
 def test_build_space():
     space = dict(
         a=dict(type='Uniform', lower=0.0, upper=1.0),
-        b=dict(type='Randn', mean=0.0, sd=1.0))
+        b=dict(type='Randn', mean=0.0, sd=1.0),
+        c=(0, 1))
     space = build_space(space)
     assert str(space.get('a').get_sampler()) == 'Uniform'
     assert str(space.get('b').get_sampler()) == 'Normal'
+    assert space.get('c') == (0, 1)
 
 
 def test_choice():

@@ -11,13 +11,13 @@ try:
     from nevergrad.optimization import Optimizer
     from nevergrad.optimization.base import ConfiguredOptimizer
     Parameter = ng.p.Parameter
-    from nevergrad.optimization.optimizerlib import (registry as
-                                                     optimizer_registry)
+    from nevergrad.optimization.optimizerlib import \
+        registry as optimizer_registry
 except ImportError:
     ng = None
     Optimizer = None
     ConfiguredOptimizer = None
-    Parameter = ng.p.Parameter
+    Parameter = None
     optimizer_registry = dict()
 
 
@@ -117,13 +117,13 @@ class NevergradSearch(_NevergradSearch):
                 self._nevergrad_opt.suggest(self._points_to_evaluate[i])
 
     def add_evaluated_point(
-            self,
-            parameters: Dict,
-            value: float,
-            error: bool = False,
-            pruned: bool = False,
-            intermediate_values: Optional[List[float]] = None,
-            trial_id: str = None,
+        self,
+        parameters: Dict,
+        value: float,
+        error: bool = False,
+        pruned: bool = False,
+        intermediate_values: Optional[List[float]] = None,
+        trial_id: str = None,
     ) -> None:
         """Add evaluated point to Nevergrad optimizer.
 
