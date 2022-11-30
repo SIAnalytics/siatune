@@ -305,7 +305,7 @@ class ContinuousTestFunction(BlackBoxTask):
         return _step(np.abs(np.sum(x)))
 
     @staticmethod
-    def hm(x: np.ndarray) -> float:
+    def hm(x: np.ndarray, eps=1e-4) -> float:
         """New multimodal function (proposed for Nevergrad).
 
         Args:
@@ -313,6 +313,8 @@ class ContinuousTestFunction(BlackBoxTask):
         Returns:
             float: output.
         """
+        if x == 0:
+            x += eps
         return float((x**2).dot(1.1 + np.cos(1.0 / x)))
 
     @staticmethod
