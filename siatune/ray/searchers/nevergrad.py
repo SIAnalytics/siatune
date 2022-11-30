@@ -17,7 +17,7 @@ except ImportError:
     ng = None
     Optimizer = None
     ConfiguredOptimizer = None
-    Parameter = ng.p.Parameter
+    Parameter = None
     optimizer_registry = dict()
 
 
