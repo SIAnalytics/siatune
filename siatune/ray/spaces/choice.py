@@ -25,9 +25,9 @@ class Choice(BaseSpace):
                  alias: Optional[Sequence] = None) -> None:
         if alias is not None:
             assert len(categories) == len(alias)
-            categories = [
-                ImmutableContainer(*it) for it in zip(categories, alias)
-            ]
+        else:
+            alias = [None] * len(categories)
+        categories = [ImmutableContainer(*it) for it in zip(categories, alias)]
         self.categories = categories
 
     @property
