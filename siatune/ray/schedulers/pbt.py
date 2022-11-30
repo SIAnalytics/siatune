@@ -14,10 +14,10 @@ from siatune.utils import ImmutableContainer
 
 
 def explore(
-        config: Dict,
-        mutations: Dict,
-        resample_probability: float,
-        custom_explore_fn: Optional[Callable],
+    config: Dict,
+    mutations: Dict,
+    resample_probability: float,
+    custom_explore_fn: Optional[Callable],
 ) -> Dict:
     """Return a config perturbed as specified.
 

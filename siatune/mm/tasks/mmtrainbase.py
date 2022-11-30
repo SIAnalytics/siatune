@@ -41,11 +41,11 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
 
     @abstractmethod
     def train_model(
-            self,
-            model: torch.nn.Module,
-            dataset: torch.utils.data.Dataset,
-            cfg: mmcv.Config,
-            **kwargs,
+        self,
+        model: torch.nn.Module,
+        dataset: torch.utils.data.Dataset,
+        cfg: mmcv.Config,
+        **kwargs,
     ) -> None:
         """Train the model.
 
@@ -76,9 +76,9 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         return super().context_aware_run(searched_cfg, **kwargs)
 
     def create_trainable(
-            self,
-            backend: str = 'nccl',
-            timeout_s: int = 1800,
+        self,
+        backend: str = 'nccl',
+        timeout_s: int = 1800,
     ) -> ray.tune.trainable:
         """Get ray trainable task.
 
