@@ -12,9 +12,9 @@ class InstantiateCfg(BaseRewriter):
     """Instantiate the configs in the argparse namespace."""
 
     def __init__(
-            self,
-            key: str,
-            arg_name: Optional[str] = None,
+        self,
+        key: str,
+        arg_name: Optional[str] = None,
     ) -> None:
         """Initialize the rewriter.
 
