@@ -1,7 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from os import path as osp
 
-import ray
+from ray.air import session
 
 from .base import BaseRewriter
 from .builder import REWRITERS
@@ -31,5 +31,5 @@ class AppendTrialIDtoPath(BaseRewriter):
         """
         value = getattr(context['args'], self.arg_name)
         setattr(context['args'], self.arg_name,
-                osp.join(value, ray.tune.get_trial_id()))
+                osp.join(value, session.get_trial_id()))
         return context
