@@ -122,7 +122,6 @@ class BaseTask(metaclass=ABCMeta):
         context = dict(
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
-            # checkpoint_dir=checkpoint_dir,
         )
         return context_manager(self.run)(**context)
 

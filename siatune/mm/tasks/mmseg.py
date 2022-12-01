@@ -80,7 +80,6 @@ class MMSegmentation(MMTrainBasedTask):
                 The train opt. Defaults to None.
             test_cfg (Optional[Config]):
                 The Test opt. Defaults to None.
-
         Returns:
             torch.nn.Module: The model.
         """
@@ -98,7 +97,6 @@ class MMSegmentation(MMTrainBasedTask):
             cfg (Config): The configs.
             default_args (Optional[Config]):
                 The default args. Defaults to None.
-
         Returns:
             torch.utils.data.Dataset: The dataset.
         """

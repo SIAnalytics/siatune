@@ -90,7 +90,7 @@ class Tuner:
 
     @classmethod
     def resume(cls, path, **kwargs):
-        return RayTuner.restore(path, **kwargs)
+        return cls.restore(path, **kwargs)
 
     def fit(self):
         return self.tuner.fit()

@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 import mmcv
 import torch
 from ray.air.config import ScalingConfig
-from ray.train.torch import TorchTrainer
+from ray.train.torch import TorchConfig, TorchTrainer
 
 from .base import BaseTask
 from .builder import TASKS
@@ -67,8 +67,9 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         return TorchTrainer(
             self.context_aware_run,
             scaling_config=ScalingConfig(
-                num_workers=2,
-                use_gpu=True,
+                num_workers=self.num_workers,
+                use_gpu=torch.cuda.is_available(),
                 resources_per_worker=dict(
                     CPU=self.num_cpus_per_worker,
-                    GPU=self.num_gpus_per_worker)))
+                    GPU=self.num_gpus_per_worker)),
+            torch_config=TorchConfig(backend='gloo'))
