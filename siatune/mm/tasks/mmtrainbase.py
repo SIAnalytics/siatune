@@ -4,9 +4,9 @@ from abc import ABCMeta, abstractmethod
 from functools import partial
 
 import mmcv
-import ray
 import torch
-from ray.tune.integration.torch import DistributedTrainableCreator
+from ray.air.config import ScalingConfig
+from ray.train.torch import TorchTrainer
 
 from .base import BaseTask
 from .builder import TASKS
@@ -78,8 +78,7 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
     def create_trainable(
         self,
         backend: str = 'nccl',
-        timeout_s: int = 1800,
-    ) -> ray.tune.trainable:
+    ) -> TorchTrainer:
         """Get ray trainable task.
 
         Args:
@@ -94,14 +93,9 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
 
         assert backend in ['gloo', 'nccl']
 
-        return DistributedTrainableCreator(
-            partial(
-                self.context_aware_run,
-                backend=backend,
-            ),
-            backend=backend,
-            timeout_s=timeout_s,
-            num_workers=self.num_workers,
-            num_gpus_per_worker=self.num_gpus_per_worker,
-            num_cpus_per_worker=self.num_cpus_per_worker,
-        )
+        return TorchTrainer(
+            partial(self.context_aware_run, backend=backend),
+            scaling_config=ScalingConfig(
+                resources_per_worker=dict(
+                    CPU=self.num_cpus_per_worker,
+                    GPU=self.num_gpus_per_worker)))
