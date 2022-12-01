@@ -7,26 +7,27 @@ on:
     paths-ignore:
       - ".github/**.md"
       - "README.md"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  fail_if_pull_request_is_draft:
-    if: github.event.pull_request.draft == true
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-
-    steps:
-    - name: Fails in order to indicate that pull request needs to be marked as ready to review and unit tests workflow needs to pass.
-      run: exit 1
-
   unit_test:
     runs-on: ubuntu-latest
     timeout-minutes: 120
 
     steps:
+    - name: Fail if draft
+      if: github.event.pull_request.draft == true
+      run:
+        exit 1
+
     - name: checkout
       uses: actions/checkout@v2
 
