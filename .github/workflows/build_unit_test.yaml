@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Fail if draft
-      if: github.event.pull_request.draft
+      if: github.event.pull_request.draft == true
       run:
         exit 1
 
