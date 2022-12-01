@@ -2,16 +2,18 @@
 from os import path as osp
 from typing import Dict
 
+from mmcv.utils import Config
+
 from .base import BaseRewriter
 from .builder import REWRITERS
 
-from mmcv.utils import Config
-    
+
 @REWRITERS.register_module()
 class RestoreCkptToLoad(BaseRewriter):
     """Specifies the checkpoint for restoring training.
-    Rewriter classes required for PBT-based algorithms. 
-    Independent of optimizer state.
+
+    Rewriter classes required for PBT-based algorithms. Independent of
+    optimizer state.
     """
 
     ckpt_base_name = 'ray_ckpt.pth'
@@ -35,15 +37,17 @@ class RestoreCkptToLoad(BaseRewriter):
         """
         if context.get('checkpoint_dir') is not None:
             assert isinstance(context[self.key], Config)
-            context[self.key].load_from = osp.join(context.pop('checkpoint_dir'), self.ckpt_base_name)
+            context[self.key].load_from = osp.join(
+                context.pop('checkpoint_dir'), self.ckpt_base_name)
         return context
 
 
 @REWRITERS.register_module()
 class RestoreCkptToResume(BaseRewriter):
     """Specifies the checkpoint for restoring training.
-    Rewriter classes required for PBT-based algorithms. 
-    Dependent of optimizer state.
+
+    Rewriter classes required for PBT-based algorithms. Dependent of optimizer
+    state.
     """
 
     ckpt_base_name = 'ray_ckpt.pth'
