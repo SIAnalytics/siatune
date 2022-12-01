@@ -3,6 +3,7 @@ from abc import ABCMeta
 from typing import Callable
 
 import ray.tune as tune
+from ray.tune.search.sample import Domain
 
 from .builder import SPACES
 
@@ -15,7 +16,7 @@ class BaseSpace(metaclass=ABCMeta):
         self.kwargs = kwargs
 
     @property
-    def space(self) -> tune.sample.Domain:
+    def space(self) -> Domain:
         """Return the space."""
         return self.sample.__func__(**self.kwargs)
 

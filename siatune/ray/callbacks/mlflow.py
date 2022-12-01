@@ -1,10 +1,10 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import List
 
+from ray.tune.experiment import Trial
 from ray.tune.integration.mlflow import \
     MLflowLoggerCallback as _MLflowLoggerCallback
 from ray.tune.integration.mlflow import logger
-from ray.tune.trial import Trial
 from ray.tune.utils.util import is_nan_or_inf
 
 from .builder import CALLBACKS
@@ -73,7 +73,7 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         set the parent run ID.
 
         Args:
-            trial (Trial): `ray.tune.trial.Trial`
+            trial (Trial): :class:`ray.tune.experiment.trial.Trial`
         """
         # Create run if not already exists.
         if trial not in self._trial_runs:

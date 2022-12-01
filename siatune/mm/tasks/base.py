@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Sequence
 
-import ray
+from ray.tune import Trainable
 
 from siatune.mm.context import ContextManager
 from siatune.utils import ImmutableContainer
@@ -140,7 +140,7 @@ class BaseTask(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def create_trainable(self, *args, **kwargs) -> ray.tune.Trainable:
+    def create_trainable(self, *args, **kwargs) -> Trainable:
         """Get ray trainable task.
 
         Args:

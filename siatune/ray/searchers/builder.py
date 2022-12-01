@@ -1,11 +1,11 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from mmcv.utils import Config, Registry
-from ray import tune
+from ray.tune.search import Searcher
 
 SEARCHERS = Registry('searchers')
 
 
-def build_searcher(cfg: Config) -> tune.suggest.Searcher:
+def build_searcher(cfg: Config) -> Searcher:
     """Build the searcher from configs.
 
     Args:

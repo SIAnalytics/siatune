@@ -2,6 +2,7 @@
 from typing import Callable, Optional, Sequence
 
 import ray.tune as tune
+from ray.tune.search.sample import Domain
 
 from siatune.utils import ImmutableContainer
 from .base import BaseSpace
@@ -31,5 +32,5 @@ class Choice(BaseSpace):
         self.categories = categories
 
     @property
-    def space(self) -> tune.sample.Domain:
+    def space(self) -> Domain:
         return self.sample.__func__(self.categories)

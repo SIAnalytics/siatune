@@ -2,7 +2,7 @@
 from typing import Dict, List, Optional, Union
 
 from ray.tune.result import DEFAULT_METRIC
-from ray.tune.suggest.nevergrad import NevergradSearch as _NevergradSearch
+from ray.tune.search.nevergrad import NevergradSearch as _NevergradSearch
 
 from .builder import SEARCHERS
 

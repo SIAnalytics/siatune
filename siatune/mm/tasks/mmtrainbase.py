@@ -82,13 +82,11 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         """Get ray trainable task.
 
         Args:
-            backend (str):
-                The backend for dist training. Defaults to 'nccl'.
-            timeout_s (int):
-                Seconds before the torch process group times out.
+            backend (str): The backend for distributed training.
+                Defaults to 'nccl'.
 
         Returns:
-            ray.tune.trainable: The trainable task.
+            TorchTrainer: The trainable task.
         """
 
         assert backend in ['gloo', 'nccl']
@@ -96,6 +94,8 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         return TorchTrainer(
             partial(self.context_aware_run, backend=backend),
             scaling_config=ScalingConfig(
+                num_workers=2,
+                use_gpu=True,
                 resources_per_worker=dict(
                     CPU=self.num_cpus_per_worker,
                     GPU=self.num_gpus_per_worker)))

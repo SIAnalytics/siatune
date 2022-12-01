@@ -2,6 +2,7 @@
 from typing import Callable, Union
 
 import ray.tune as tune
+from ray.tune.search.sample import Domain
 
 from .base import BaseSpace
 from .builder import SPACES
@@ -25,5 +26,5 @@ class SampleFrom(BaseSpace):
         self.func = func
 
     @property
-    def space(self) -> tune.sample.Domain:
+    def space(self) -> Domain:
         return self.sample.__func__(self.func)

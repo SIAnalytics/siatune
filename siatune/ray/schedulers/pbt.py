@@ -3,10 +3,10 @@ import copy
 import random
 from typing import Callable, Dict, Optional
 
-from ray.tune.sample import Domain
+from ray.tune.experiment import Trial
 from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
-from ray.tune.trial import Trial
+from ray.tune.search.sample import Domain
 
 from siatune.ray.schedulers import SCHEDULERS
 from siatune.ray.spaces import build_space
