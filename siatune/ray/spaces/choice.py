@@ -23,7 +23,10 @@ class Choice(BaseSpace):
     def __init__(self,
                  categories: Sequence,
                  alias: Optional[Sequence] = None) -> None:
-        alias = alias or [None] * len(categories)
+        if alias is not None:
+            assert len(categories) == len(alias)
+        else:
+            alias = [None] * len(categories)
         categories = [ImmutableContainer(*it) for it in zip(categories, alias)]
         self.categories = categories
 
