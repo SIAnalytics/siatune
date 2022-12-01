@@ -317,7 +317,7 @@ class ContinuousTestFunction(BlackBoxTask):
         Returns:
             float: output.
         """
-        if x == 0:
+        if not np.all(x):
             x += eps
         return float((x**2).dot(1.1 + np.cos(1.0 / x)))
 
