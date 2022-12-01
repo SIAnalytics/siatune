@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 from typing import Tuple
 
 
