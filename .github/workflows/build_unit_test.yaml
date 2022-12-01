@@ -7,8 +7,6 @@ on:
     paths-ignore:
       - ".github/**.md"
       - "README.md"
-    types: [review_requested, ready_for_review]
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +21,7 @@ jobs:
     steps:
     - name: Fails in order to indicate that pull request needs to be marked as ready to review and unit tests workflow needs to pass.
       run: exit 1
-      
+
   unit_test:
     runs-on: ubuntu-latest
     timeout-minutes: 120
