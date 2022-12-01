@@ -7,7 +7,6 @@ on:
     paths-ignore:
       - ".github/**.md"
       - "README.md"
-    types: [ready_for_review]
 
 
 concurrency:
