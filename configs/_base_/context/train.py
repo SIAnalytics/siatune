@@ -7,12 +7,12 @@ task = dict(rewriters=[
     dict(type='InstantiateCfg', arg_name='config', key='base_cfg'),
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),
+    dict(type='RestoreCkptToLoad', key='searched_cfg'),
     dict(
         type='MergeConfig',
         src_key='searched_cfg',
         dst_key='base_cfg',
-        key='cfg'),
-    dict(type='ResumeFromCkpt'),
+        save_key='cfg'),
     dict(
         type='CustomHookRegister',
         key='cfg',

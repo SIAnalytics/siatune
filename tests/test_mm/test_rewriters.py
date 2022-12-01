@@ -5,38 +5,32 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from siatune.mm.context.rewriters import (REWRITERS, AppendTrialIDtoPath,
-                                          BaseRewriter, BatchConfigPatcher,
-                                          CustomHookRegister, Dump,
-                                          InstantiateCfg, MergeConfig,
-                                          ResumeFromCkpt,
-                                          SequeunceConfigPatcher)
-from siatune.mm.context.rewriters.builder import build_rewriter
+from siatune.mm.context import rewriters
 from siatune.utils import dump_cfg
 
 
 def test_base_rewriter():
     with pytest.raises(TypeError):
-        BaseRewriter()
-    assert getattr(BaseRewriter, '__call__', None) is not None
+        rewriters.BaseRewriter()
+    assert getattr(rewriters.BaseRewriter, '__call__', None) is not None
 
 
 def test_build_base_cfg():
 
-    @REWRITERS.register_module()
-    class DummyRewriter(BaseRewriter):
+    @rewriters.REWRITERS.register_module()
+    class DummyRewriter(rewriters.BaseRewriter):
 
         def __call__(self, context: Dict) -> Dict:
             return context
 
     assert isinstance(
-        build_rewriter(dict(type='DummyRewriter')), DummyRewriter)
+        rewriters.build_rewriter(dict(type='DummyRewriter')), DummyRewriter)
 
 
 @patch('ray.tune.get_trial_id')
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
-    dump = Dump(key='cfg', arg_name='config')
+    dump = rewriters.Dump(key='cfg', arg_name='config')
     config = mmcv.Config(dict())
     args = MagicMock()
     args.config = config
@@ -54,7 +48,7 @@ def test_dump(mock_get_trial_id):
 def test_instantiate():
     dump_cfg(mmcv.utils.Config(dict(test='test')), 'test.py')
 
-    instantiate = InstantiateCfg(key='cfg', arg_name='config')
+    instantiate = rewriters.InstantiateCfg(key='cfg', arg_name='config')
     args = MagicMock()
     args.config = 'test.py'
     context = dict(args=args)
@@ -65,7 +59,7 @@ def test_instantiate():
 
 
 def test_merge():
-    merger = MergeConfig(src_key='src', dst_key='dst', key='cp')
+    merger = rewriters.MergeConfig(src_key='src', dst_key='dst', save_key='cp')
 
     context = dict(
         src=mmcv.Config(dict(a=1, b=2)),
@@ -84,8 +78,8 @@ def test_patch():
     context = dict(
         batch_test_cfg=mmcv.Config({'$(a & b)': 0}),
         seq_test_cfg=mmcv.Config({'$(c - d)': [1, 2]}))
-    batch_config_patcher = BatchConfigPatcher(key='batch_test_cfg')
-    seq_config_patcher = SequeunceConfigPatcher(key='seq_test_cfg')
+    batch_config_patcher = rewriters.BatchConfigPatcher(key='batch_test_cfg')
+    seq_config_patcher = rewriters.SequeunceConfigPatcher(key='seq_test_cfg')
 
     context = batch_config_patcher(context)
     assert context['batch_test_cfg']._cfg_dict == mmcv.Config({
@@ -105,14 +99,14 @@ def test_append_trial_id_to_path(mock_get_trial_id):
     args = MagicMock()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = AppendTrialIDtoPath(arg_name='work_dir')
+    suffix = rewriters.AppendTrialIDtoPath(arg_name='work_dir')
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/test'
 
 
 def test_register():
     post_custom_hooks = ['a', 'b']
-    register = CustomHookRegister(
+    register = rewriters.CustomHookRegister(
         key='cfg', post_custom_hooks=post_custom_hooks)
     cfg = MagicMock()
     cfg.custom_hooks = []
@@ -122,10 +116,19 @@ def test_register():
     assert context['cfg'].custom_hooks == post_custom_hooks
 
 
+def test_load_ckpt():
+    cfg = MagicMock()
+    context = dict(cfg=cfg, checkpoint_dir='test')
+
+    restore_ckpt = rewriters.RestoreCkptToLoad(key='cfg')
+    context = restore_ckpt(context)
+    assert context.get('cfg').load_from == 'test/ray_ckpt.pth'
+
+
 def test_resume_ckpt():
     args = MagicMock()
     context = dict(args=args, checkpoint_dir='test')
 
-    resume_from_ckpt = ResumeFromCkpt()
-    context = resume_from_ckpt(context)
+    resume_ckpt = rewriters.RestoreCkptToResume()
+    context = resume_ckpt(context)
     assert context.get('args').resume_from == 'test/ray_ckpt.pth'

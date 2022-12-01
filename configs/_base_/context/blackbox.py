@@ -5,6 +5,6 @@ task = dict(
             type='MergeConfig',
             src_key='searched_cfg',
             dst_key='base_cfg',
-            key='cfg'),
+            save_key='cfg'),
         dict(type='Dump', key='cfg', arg_name='config'),
     ], )
