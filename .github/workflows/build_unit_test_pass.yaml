@@ -27,5 +27,5 @@ jobs:
       if: github.event.pull_request.draft == true
       run:
         exit 1
-    - name: Paas
+    - name: Pass
       run: 'echo "No build required" '
