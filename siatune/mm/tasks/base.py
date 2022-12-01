@@ -106,16 +106,14 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self,
-                          searched_cfg: Dict,
-                          checkpoint_dir: Optional[str] = None,
-                          **kwargs) -> Any:
+    def context_aware_run(self, searched_cfg: Dict) -> Any:
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:
             searched_cfg (Dict): The searched configuration.
             kwargs (**kwargs): The kwargs.
+
         Returns:
             Any: The result of the objective task.
         """
@@ -124,9 +122,8 @@ class BaseTask(metaclass=ABCMeta):
         context = dict(
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
-            checkpoint_dir=checkpoint_dir,
+            # checkpoint_dir=checkpoint_dir,
         )
-        context.update(kwargs)
         return context_manager(self.run)(**context)
 
     @abstractmethod

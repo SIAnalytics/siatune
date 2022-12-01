@@ -59,10 +59,9 @@ class Tuner:
 
         self.tuner = RayTuner(
             trainable,
-            param_space=param_space,
+            param_space=dict(train_loop_config=param_space),
             tune_config=TuneConfig(
-                searcher=searcher, trial_scheduler=trial_scheduler,
-                **tune_cfg),
+                search_alg=searcher, scheduler=trial_scheduler, **tune_cfg),
             run_config=RunConfig(
                 local_dir=work_dir,
                 stop=stopper,

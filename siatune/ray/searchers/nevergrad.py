@@ -68,7 +68,6 @@ class NevergradSearch(_NevergradSearch):
             metric=metric,
             mode=mode,
             points_to_evaluate=points_to_evaluate,
-            max_concurrent=None,
             **kwargs)
 
     def _setup_nevergrad(self) -> None:
