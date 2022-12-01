@@ -16,6 +16,7 @@ concurrency:
 jobs:
   unit_test:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
     timeout-minutes: 20
 
     steps:
