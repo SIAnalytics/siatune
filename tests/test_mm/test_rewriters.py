@@ -117,9 +117,9 @@ def test_register():
 
 
 def test_load_ckpt():
-    cfg = MagicMock()
+    from mmcv.utils import Config
+    cfg = Config(dict())
     context = dict(cfg=cfg, checkpoint_dir='test')
-
     restore_ckpt = rewriters.RestoreCkptToLoad(key='cfg')
     context = restore_ckpt(context)
     assert context.get('cfg').load_from == 'test/ray_ckpt.pth'

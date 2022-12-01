@@ -36,6 +36,7 @@ class RestoreCkptToLoad(BaseRewriter):
             Dict: The context after rewriting.
         """
         if context.get('checkpoint_dir') is not None:
+            assert self.key in context
             assert isinstance(context[self.key], Config)
             context[self.key].load_from = osp.join(
                 context.pop('checkpoint_dir'), self.ckpt_base_name)
