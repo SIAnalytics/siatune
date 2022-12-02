@@ -33,7 +33,7 @@ def test_build_base_cfg():
         build_rewriter(dict(type='DummyRewriter')), DummyRewriter)
 
 
-@patch('ray.tune.get_trial_id')
+@patch('ray.air.session.get_trial_id')
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
     dump = Dump(key='cfg', arg_name='config')
@@ -99,7 +99,7 @@ def test_patch():
     })._cfg_dict
 
 
-@patch('ray.tune.get_trial_id')
+@patch('ray.air.session.get_trial_id')
 def test_append_trial_id_to_path(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
     args = MagicMock()
