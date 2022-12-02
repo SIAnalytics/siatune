@@ -65,6 +65,9 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         Returns:
             TorchTrainer: The trainable task.
         """
+        assert self.num_workers == self.num_gpus_per_worker, (
+            '`num_workers` must be equal to `num_gpus_per_worker`.')
+
         return DataParallelTrainer(
             self.context_aware_run,
             backend_config=CustomBackendConfig(),
