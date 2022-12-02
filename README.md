@@ -16,14 +16,24 @@ SIATune is an open-source deep learning model hyperparameter tuning toolbox espe
   - [x] [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)
   - [ ] [MMEditing](https://github.com/open-mmlab/mmediting)
 
-- **Support state-of-the-art hyperparameter tuning algorithms**
+- **Support hyperparameter search algorithms**
 
-    We provide state-of-the-art hyperparameter tuning algorithms such as below;
+  We provide hyperparameter search algorithms such as below;
   - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
   - [x] [HyperOpt](https://github.com/hyperopt/hyperopt)
   - [x] [FLAML](https://github.com/microsoft/FLAML)
   - [ ] [Adaptive Experimentation (AX)](https://ax.dev/)
   - [ ] [Scikit-optimize](https://github.com/scikit-optimize/scikit-optimize)
+
+- **Schedule multiple experiments**
+
+  Various scheduling techniques are supported to efficiently manage many experiments.
+  - [x] [AsyncHyperBandScheduler](https://arxiv.org/abs/1810.05934)
+  - [ ] [PopulationBasedTraining](https://www.deepmind.com/blog/population-based-training-of-neural-networks)
+  - [ ] [MedianStoppingRule](https://research.google.com/pubs/pub46180.html)
+  - [ ] [Population Based Bandits](https://arxiv.org/abs/2002.02518)
+  - [ ] [HyperBandScheduler](https://arxiv.org/abs/1603.06560)
+
 
 - **Distributed tuning system based on Ray**
 
