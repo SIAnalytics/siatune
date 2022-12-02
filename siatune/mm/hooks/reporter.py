@@ -1,8 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import ray
 from mmcv.runner import HOOKS, BaseRunner
 from mmcv.runner.dist_utils import get_dist_info
 from mmcv.runner.hooks.logger import LoggerHook
+from ray.air import session
 from torch import distributed as dist
 
 
@@ -90,4 +90,4 @@ class RayTuneLoggerHook(LoggerHook):
                 filter(lambda elem: self.filtering_key in elem, tags.keys())):
             return
         tags['global_step'] = self.get_iter(runner)
-        ray.tune.report(**tags)
+        session.report(tags)

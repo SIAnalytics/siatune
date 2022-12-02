@@ -67,9 +67,9 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         return TorchTrainer(
             self.context_aware_run,
             scaling_config=ScalingConfig(
-                num_workers=self.num_workers,
-                use_gpu=torch.cuda.is_available(),
-                resources_per_worker=dict(
+                trainer_resources=dict(
                     CPU=self.num_cpus_per_worker,
-                    GPU=self.num_gpus_per_worker)),
+                    GPU=self.num_gpus_per_worker),
+                num_workers=self.num_workers,
+                use_gpu=torch.cuda.is_available()),
             torch_config=TorchConfig(backend='gloo'))
