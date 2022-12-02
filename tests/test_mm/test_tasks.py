@@ -6,6 +6,7 @@ import pytest
 import torch
 from mmcv.utils import Config
 from ray import tune
+from ray.air import session
 
 from siatune.mm.tasks import (TASKS, BaseTask, BlackBoxTask,
                               ContinuousTestFunction, DiscreteTestFunction,
@@ -194,7 +195,7 @@ def test_mmcls(*not_used):
     task.run(args=task.args)
 
 
-@patch('ray.tune.report', side_effect=report_to_session)
+@patch('ray.air.session.report', side_effect=report_to_session)
 def test_mm_train_based_task(mock_report):
     with pytest.raises(TypeError):
         MMTrainBasedTask()
@@ -250,7 +251,7 @@ def test_mm_train_based_task(mock_report):
                     loss.backward()
                     optimizer.step()
                     total_loss += loss.item()
-                tune.report(loss=total_loss / (batch_idx + 1))
+                session.report(loss=total_loss / (batch_idx + 1))
 
         def run(self, *, searched_cfg, **kwargs):
             cfg = searched_cfg.get('cfg')
@@ -275,4 +276,6 @@ def test_mm_train_based_task(mock_report):
     task.set_resource(1, 0, 1)
     task.context_aware_run(searched_cfg=dict(cfg=cfg))
     assert 'loss' in get_session()
-    tune.run(task.create_trainable(backend='gloo'), config=dict(cfg=cfg))
+
+    trainable = task.create_trainable()
+    tune.Tuner(trainable).fit()
