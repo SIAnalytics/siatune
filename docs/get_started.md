@@ -2,20 +2,23 @@
 
 ## Dockerfile (RECOMMENDED)
 ```bash
-docker build . -t siatune:master -f docker/Dockerfile
+docker build . -t siatune:main -f docker/Dockerfile
 ```
 
 ## Build From Source
 
 ```bash
-# 1. install pytorch
+# 1. Install pytorch
 pip install torch torchvision -f https://download.pytorch.org/whl/torch_stable.html
-# 2. install mmcv
-pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/{cu_version}/{torch_version}/index.html
-# 3. clone siatune
-git clone -b master https://github.com/SIAnalytics/siatune.git siatune
-# 4. install siatune
-cd siatune && pip install -e .
+
+# 2. Install MIM and MMCV
+pip install openmim
+mim install mmcv-full
+
+# 3. Install SIATune
+git clone https://github.com/SIAnalytics/siatune.git
+cd siatune
+pip install -e '.[optional]'
 ```
 
 # Hyperparamer tuning with OpenMMLab's model frameworks.
@@ -23,16 +26,17 @@ cd siatune && pip install -e .
 ### Install OpenMMLab's framework.
 ```bash
 # MMDetection Example
-pip install mmdet
+mim install mmdet
 ```
 
 ### Start hyperparameter tuning with existed configuration file.
 ```bash
-python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] [optional task arguments]
+python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] --trainable-args [optional task arguments]
 ```
 
 
 ```bash
 # MMDetection Example
-python tools/tune.py configs/siatune/mmdet_asynchb_nevergrad_pso.py --trainable_args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+mim download mmdet --config faster_rcnn_r50_fpn_1x_coco --dest configs/mmdet/faster_rcnn
+python tools/tune.py configs/siatune/mmdet_asynchb_nevergrad_pso.py --trainable-args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
 ```
