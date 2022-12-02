@@ -10,7 +10,7 @@ from mmcv.runner import HOOKS, BaseRunner
 from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
 from mmcv.runner.dist_utils import master_only
 from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
-from ray.tune.integration.torch import distributed_checkpoint_dir
+from ray.air import session
 from torch.optim import Optimizer
 
 
@@ -100,9 +100,7 @@ class RayCheckpointHook(_CheckpointHook):
             for name, optim in optimizer.items():
                 checkpoint['optimizer'][name] = optim.state_dict()
 
-        with distributed_checkpoint_dir(
-                step=(runner.epoch + 1) //
-                self.interval if self.by_epoch else (runner.iter + 1) //
-                self.interval) as checkpoint_dir:
+        ckpt = session.get_checkpoint()
+        with ckpt.as_directory() as checkpoint_dir:
             path = os.path.join(checkpoint_dir, 'ray_ckpt.pth')
             torch.save(checkpoint, path)
