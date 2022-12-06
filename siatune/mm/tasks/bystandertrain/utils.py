@@ -1,9 +1,13 @@
-from pkg_resources import get_distribution
-from os import path as osp
+# Copyright (c) SI-Analytics. All rights reserved.
+import argparse
 import importlib
-import pkg_resources
+from os import path as osp
+from typing import List
 
-PKG2PROJECT = {
+import pkg_resources
+from pkg_resources import get_distribution
+
+_PKG2PROJECT = {
     'mmcv-full': 'mmcv',
     'mmcls': 'mmclassification',
     'mmdet': 'mmdetection',
@@ -20,6 +24,7 @@ PKG2PROJECT = {
     'mmflow': 'mmflow',
     'mmyolo': 'mmyolo',
 }
+
 
 def get_installed_path(package: str) -> str:
     """Get installed path of package.
@@ -43,6 +48,7 @@ def get_installed_path(package: str) -> str:
 
 def package2module(package: str):
     """Infer module name from package.
+
     Args:
         package (str): Package to infer module name.
     """
@@ -54,7 +60,8 @@ def package2module(package: str):
         raise ValueError(f'can not infer the module name of {package}')
 
 
-def revert_args(args: dict) -> str:
+# TODO
+def revert_args(args: argparse.Namespace) -> List[str]:
     """Convert args dictionary to a string.
     Args:
         args (dict): A dictionary that contains parsed args.
@@ -70,11 +77,12 @@ def revert_args(args: dict) -> str:
         '--arg1 value1 value2 --arg2 value3 --arg3 value4'
     """
     result = []
+    args = vars(args)
     for key in args:
         revert_key = key.replace('_', '-')
         result.append(f'--{revert_key}')
         if isinstance(args[key], bool):
-            pass        
+            pass
         elif isinstance(args[key], list):
             result.extend([str(x) for x in args[key]])
         else:
@@ -83,8 +91,10 @@ def revert_args(args: dict) -> str:
         result.pop(0)
     return result
 
+
 def is_installed(package: str) -> bool:
     """Check package whether installed.
+
     Args:
         package (str): Name of package to be checked.
     """
@@ -97,8 +107,10 @@ def is_installed(package: str) -> bool:
     except pkg_resources.DistributionNotFound:
         return False
 
+
 def module_full_name(abbr: str) -> str:
     """Get the full name of the module given abbreviation.
+
     Args:
         abbr (str): The abbreviation, should be the sub-string of one
             (and only one) supported module.
@@ -106,7 +118,7 @@ def module_full_name(abbr: str) -> str:
         str: The full name of the corresponding module. If abbr is the
             sub-string of zero / multiple module names, return empty string.
     """
-    names = [x for x in PKG2PROJECT if abbr in x]
+    names = [x for x in _PKG2PROJECT if abbr in x]
     if len(names) == 1:
         return names[0]
     elif abbr in names or is_installed(abbr):
