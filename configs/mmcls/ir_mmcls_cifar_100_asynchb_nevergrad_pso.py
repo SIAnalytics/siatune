@@ -1,7 +1,8 @@
 _base_ = [
-    '../_base_/context/irresponsible_train.py', '../_base_/searcher/nevergrad_pso.py',
-    '../_base_/scheduler/asynchb.py', '../_base_/space/mmcls_model.py',
-    '../_base_/space/optimizer.py', '../_base_/space/batch_size.py'
+    '../_base_/context/irresponsible_train.py',
+    '../_base_/searcher/nevergrad_pso.py', '../_base_/scheduler/asynchb.py',
+    '../_base_/space/mmcls_model.py', '../_base_/space/optimizer.py',
+    '../_base_/space/batch_size.py'
 ]
 
 space = {
@@ -11,8 +12,8 @@ space = {
     'data.samples_per_gpu': {{_base_.batch_size}},
 }
 
-task = dict(type='BystanderTrainBasedTask', pkg_name='mmcls')
 metric = 'accuracy_top-1'
 mode = 'max'
 raise_on_failed_trial = False
 num_samples = 256
+task = dict(type='BystanderTrainBasedTask', pkg_name='mmcls', metric=metric)
