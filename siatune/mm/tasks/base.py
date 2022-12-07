@@ -44,6 +44,7 @@ class BaseTask(metaclass=ABCMeta):
         """
 
         self._args: Optional[argparse.Namespace] = None
+        self._raw_args: List[str] = []
         self._rewriters: List[dict] = rewriters
 
     def set_args(self, args: Sequence[str]) -> None:
@@ -52,7 +53,7 @@ class BaseTask(metaclass=ABCMeta):
         Args:
             args (Sequence[str]): The args.
         """
-
+        self._raw_args = args
         self._args = self.parse_args(args)
 
     def set_resource(self,

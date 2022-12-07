@@ -5,18 +5,18 @@ import subprocess
 import time
 from glob import glob
 from os import path as osp
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from mmcv import Config
 
-from ..blackbox import BlackBoxTask
+from ..base import BaseTask
 from ..builder import TASKS
 from ._bystander import reporter_factory
-from ._utils import get_installed_path, module_full_name, revert_args
+from ._utils import get_installed_path, module_full_name
 
 
 @TASKS.register_module()
-class BystanderTrainBasedTask(BlackBoxTask):
+class BystanderTrainBasedTask(BaseTask):
 
     def __init__(self,
                  pkg_name: str,
@@ -33,7 +33,16 @@ class BystanderTrainBasedTask(BlackBoxTask):
         self._train_script: str = self._get_train_script(pkg_name)
         self._metric: str = metric
         self._args: Optional[argparse.Namespace] = None
+        self._raw_args: List[str] = []
         self._rewriters: List[dict] = rewriters
+
+    def parse_args(self, *args, **kwargs) -> argparse.Namespace:
+        """Parse and set the argss.
+
+        Args:
+            args (Sequence[str]): The args.
+        """
+        return argparse.Namespace()
 
     def _get_train_script(self, pkg_name: str) -> str:
         pkg_full_name = module_full_name(pkg_name)
@@ -50,13 +59,24 @@ class BystanderTrainBasedTask(BlackBoxTask):
                 raise ValueError("Can't find train script")
         return train_script
 
-    def _get_work_dir(self, args: argparse.Namespace) -> str:
-        work_dir = getattr(args, 'work_dir', '')
+    def _get_args(raw_args: list[str], key: str) -> List[str]:
+        assert key.startswith('--')
+        ret: List[str] = []
+        if key not in raw_args:
+            return ret
+        for idx in range(raw_args.index(key) + 1, len(raw_args)):
+            cand = raw_args[idx]
+            if cand.startswith('--'):
+                break
+            ret.append(cand)
+        return ret
+
+    def _get_work_dir(self, raw_args: list[str], config_idx: int = 0) -> str:
+        work_dir = self._get_args(raw_args, '--work-dir')
         if work_dir:
             return work_dir
-        if not hasattr(args, 'config'):
-            raise ValueError
-        cfg = Config.fromfile(args.config)
+        # TODO
+        cfg = Config.fromfile(raw_args[config_idx])
         work_dir = cfg.get('work_dir', '')
         if work_dir:
             return work_dir
@@ -78,12 +98,17 @@ class BystanderTrainBasedTask(BlackBoxTask):
             raise ValueError
         return files.pop()
 
-    def run(self, *, args: argparse.Namespace, **kwargs) -> None:
+    def run(self, *, raw_args: List[str], **kwargs) -> None:
         port: int = kwargs.get('port', 29500)
         cmd: List[str]
-        if args.launcher == 'none':
+
+        launcher = self._get_args(raw_args, '--launcher')
+        assert launcher < 2
+        launcher = launcher.pop() if launcher else 'none'
+
+        if launcher == 'none':
             cmd = ['python', self._train_script]
-        elif args.launcher == 'pytorch':
+        elif launcher == 'pytorch':
             cmd = [
                 'python',
                 '-m',
@@ -94,13 +119,13 @@ class BystanderTrainBasedTask(BlackBoxTask):
             ]
         else:
             NotImplementedError
-        cmd.extend(revert_args(args))
+        cmd.extend(raw_args)
 
         worker = subprocess.Popen(
             cmd,
             stderr=subprocess.PIPE,
             env=dict(os.environ, MASTER_PORT=str(port)))
-        work_dir = self._get_work_dir(args)
+        work_dir = self._get_work_dir(raw_args)
         log_file = self._get_deffered_log(work_dir)
         reporter = reporter_factory(log_file, self._metric)
         reporter.start()
@@ -129,4 +154,15 @@ class BystanderTrainBasedTask(BlackBoxTask):
         # https://github.com/pytorch/pytorch/issues/50820
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
-        return super().context_aware_run(searched_cfg, **kwargs)
+
+        return super().context_aware_run(
+            searched_cfg, raw_args=self._raw_args, **kwargs)
+
+    def create_trainable(self) -> Callable:
+        """Get ray trainable task.
+
+        Returns:
+            Callable: The Ray trainable task.
+        """
+
+        return self.context_aware_run

@@ -1,8 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import argparse
 import importlib
 from os import path as osp
-from typing import List
 
 import pkg_resources
 from pkg_resources import get_distribution
@@ -58,38 +56,6 @@ def package2module(package: str):
         return module_name
     else:
         raise ValueError(f'can not infer the module name of {package}')
-
-
-# TODO
-def revert_args(args: argparse.Namespace) -> List[str]:
-    """Convert args dictionary to a string.
-    Args:
-        args (dict): A dictionary that contains parsed args.
-    Return:
-        A converted string.
-    Example:
-        >>> args = {
-            'arg1': [value1, value2],
-            'arg2': [value3],
-            'arg3': [value4]
-        }
-        >>> revert_args(args)
-        '--arg1 value1 value2 --arg2 value3 --arg3 value4'
-    """
-    result = []
-    args = vars(args)
-    for key in args:
-        revert_key = key.replace('_', '-')
-        result.append(f'--{revert_key}')
-        if isinstance(args[key], bool):
-            pass
-        elif isinstance(args[key], list):
-            result.extend([str(x) for x in args[key]])
-        else:
-            result.append(str(args[key]))
-    if result[0] == '--conifg':
-        result.pop(0)
-    return result
 
 
 def is_installed(package: str) -> bool:
