@@ -8,7 +8,7 @@ docker build . -t siatune:main -f docker/Dockerfile
 ## Build From Source
 
 ```bash
-# 1. Install pytorch
+# 1. Install PyTorch
 pip install torch torchvision -f https://download.pytorch.org/whl/torch_stable.html
 
 # 2. Install MIM and MMCV
