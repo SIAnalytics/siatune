@@ -111,3 +111,22 @@ class BystanderTrainBasedTask(BlackBoxTask):
         else:
             reporter.shutdown()
         return
+
+    def context_aware_run(self,
+                          searched_cfg,
+                          backend='nccl',
+                          **kwargs) -> None:
+        """Gather and refine the information received by users and Ray.tune to
+        execute the objective task.
+
+        Args:
+            searched_cfg (Config): The searched configs.
+            backend (str):
+                The backend for dist training. Defaults to 'nccl'.
+            kwargs (**kwargs): The kwargs.
+        """
+        # set non blocking mode on the nccl backend
+        # https://github.com/pytorch/pytorch/issues/50820
+        if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
+            os.environ['NCCL_BLOCKING_WAIT'] = '0'
+        return super().context_aware_run(searched_cfg, **kwargs)
