@@ -14,6 +14,17 @@ from ..builder import TASKS
 from ._bystander import reporter_factory
 from ._utils import get_installed_path, module_full_name
 
+def _get_args(raw_args: List[str], key: str) -> List[str]:
+    assert key.startswith('--')
+    ret: List[str] = []
+    if key not in raw_args:
+        return ret
+    for idx in range(raw_args.index(key) + 1, len(raw_args)):
+        cand = raw_args[idx]
+        if cand.startswith('--'):
+            break
+        ret.append(cand)
+    return ret
 
 @TASKS.register_module()
 class BystanderTrainBasedTask(BaseTask):
@@ -59,20 +70,8 @@ class BystanderTrainBasedTask(BaseTask):
                 raise ValueError("Can't find train script")
         return train_script
 
-    def _get_args(raw_args: list[str], key: str) -> List[str]:
-        assert key.startswith('--')
-        ret: List[str] = []
-        if key not in raw_args:
-            return ret
-        for idx in range(raw_args.index(key) + 1, len(raw_args)):
-            cand = raw_args[idx]
-            if cand.startswith('--'):
-                break
-            ret.append(cand)
-        return ret
-
-    def _get_work_dir(self, raw_args: list[str], config_idx: int = 0) -> str:
-        work_dir = self._get_args(raw_args, '--work-dir')
+    def _get_work_dir(self, raw_args: List[str], config_idx: int = 0) -> str:
+        work_dir = _get_args(raw_args, '--work-dir')
         if work_dir:
             return work_dir
         # TODO
@@ -102,7 +101,7 @@ class BystanderTrainBasedTask(BaseTask):
         port: int = kwargs.get('port', 29500)
         cmd: List[str]
 
-        launcher = self._get_args(raw_args, '--launcher')
+        launcher = _get_args(raw_args, '--launcher')
         assert launcher < 2
         launcher = launcher.pop() if launcher else 'none'
 
