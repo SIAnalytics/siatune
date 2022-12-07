@@ -12,7 +12,7 @@ from mmcv import Config
 from ..blackbox import BlackBoxTask
 from ..builder import TASKS
 from ._bystander import reporter_factory
-from .utils import get_installed_path, module_full_name, revert_args
+from ._utils import get_installed_path, module_full_name, revert_args
 
 
 @TASKS.register_module()
@@ -38,9 +38,8 @@ class BystanderTrainBasedTask(BlackBoxTask):
     def _get_train_script(self, pkg_name: str) -> str:
         pkg_full_name = module_full_name(pkg_name)
         if pkg_full_name == '':
-            raise ValueError(
-                f"Can't determine a unique package given abbreviation {pkg_name}"
-            )
+            raise ValueError("Can't determine a unique "
+                             f'package given abbreviation {pkg_name}')
         pkg_root = get_installed_path(pkg_full_name)
         train_script = osp.join(pkg_root, '.mim', 'tools', 'train.py')
         if not osp.exists(train_script):
@@ -98,14 +97,17 @@ class BystanderTrainBasedTask(BlackBoxTask):
         cmd.extend(revert_args(args))
 
         worker = subprocess.Popen(
-            cmd, env=dict(os.environ, MASTER_PORT=str(port)))
+            cmd,
+            stderr=subprocess.PIPE,
+            env=dict(os.environ, MASTER_PORT=str(port)))
         work_dir = self._get_work_dir(args)
         log_file = self._get_deffered_log(work_dir)
         reporter = reporter_factory(log_file, self._metric)
         reporter.start()
 
-        while worker.poll() is None:
-            # TODO
-            pass
-
-        reporter.shutdown()
+        _, err = worker.communicate()
+        if worker.returncode != 0:
+            raise Exception(err)
+        else:
+            reporter.shutdown()
+        return
