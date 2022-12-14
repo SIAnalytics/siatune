@@ -85,7 +85,9 @@ class ImmutableContainer(_Freezer):
         Returns:
             bool: True if the other object is equal.
         """
-        return self.data == other.data
+        if isinstance(other, ImmutableContainer):
+            return self.data == other.data
+        return self.data == other
 
     def __hash__(self) -> int:
         """Return hash value of `str(self.data)`. It needs to use FLAML.
