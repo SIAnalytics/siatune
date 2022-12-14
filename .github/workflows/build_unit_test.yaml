@@ -37,7 +37,6 @@ jobs:
           pip install openmim
           mim install mmcv-full
           mim install mmcls mmdet mmsegmentation
-          pip install gpytorch==0.3.6 nevergrad protobuf==3.20
           pip install -e ".[optional]"
     - name: Run unittests and generate coverage report
       run: |
