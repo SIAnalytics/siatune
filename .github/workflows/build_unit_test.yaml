@@ -49,7 +49,7 @@ jobs:
       - name: Install OpenMMLab packages
         run: |
           pip install openmim
-          mim install mmcv-full=${{ matrix.mmcv }}
+          mim install mmcv-full==${{ matrix.mmcv }}
           mim install mmcls mmdet mmsegmentation
       - name: Install SIATune
         run: |
