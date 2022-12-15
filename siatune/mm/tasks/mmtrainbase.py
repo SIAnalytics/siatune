@@ -58,8 +58,6 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         """Get ray trainable task.
 
         Args:
-            backend (str): The backend for distributed training.
-                Defaults to 'nccl'.
 
         Returns:
             TorchTrainer: The trainable task.
