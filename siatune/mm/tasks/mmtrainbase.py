@@ -57,8 +57,6 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
     def create_trainable(self) -> TorchTrainer:
         """Get ray trainable task.
 
-        Args:
-
         Returns:
             TorchTrainer: The trainable task.
         """
