@@ -29,9 +29,7 @@ class BaseTask(metaclass=ABCMeta):
             1. args (argparse.Namespace): The low level CLI arguments.
             2. searched_cfg (Dict):
                 The configuration searched by the algorithm.
-            3. checkpoint_dir (Optional[str]):
-                The directory of checkpoints that contains the states.
-        Inputs: searched_cfg (Dict), checkpoint_dir (Optional[str])
+        Inputs: searched_cfg (Dict)
         Outputs: None
     """
 
