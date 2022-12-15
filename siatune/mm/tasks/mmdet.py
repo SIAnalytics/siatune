@@ -3,14 +3,9 @@ import argparse
 import copy
 import os
 import time
+import warnings
 from os import path as osp
-from typing import Optional, Sequence
-
-import mmcv
-import torch
-import torch.distributed as dist
-from mmcv.runner import get_dist_info
-from mmcv.utils import Config, DictAction, get_git_hash
+from typing import Sequence
 
 from .builder import TASKS
 from .mmtrainbase import MMTrainBasedTask
@@ -18,16 +13,18 @@ from .mmtrainbase import MMTrainBasedTask
 
 @TASKS.register_module()
 class MMDetection(MMTrainBasedTask):
-    """MMDetection Wrapping class for ray tune."""
+    """MMDetection wrapper class for `ray.tune`.
 
-    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
-        """Define and parse the necessary arguments for the task.
+    It is modified from https://github.com/open-mmlab/mmdetection/blob/v2.25.2/tools/train.py
 
-        Args:
-            args (Sequence[str]): The args.
-        Returns:
-            argparse.Namespace: The parsed args.
-        """
+    Attributes:
+        args (Sequence[str]):
+    """
+
+    VERSION = 'v2.25.2'
+
+    def parse_args(task_args: Sequence[str]):
+        from mmcv import DictAction
 
         parser = argparse.ArgumentParser(description='Train a detector')
         parser.add_argument('config', help='train config file path')
@@ -43,6 +40,24 @@ class MMDetection(MMTrainBasedTask):
             '--no-validate',
             action='store_true',
             help='whether not to evaluate the checkpoint during training')
+        group_gpus = parser.add_mutually_exclusive_group()
+        group_gpus.add_argument(
+            '--gpus',
+            type=int,
+            help='(Deprecated, please use --gpu-id) number of gpus to use '
+            '(only applicable to non-distributed training)')
+        group_gpus.add_argument(
+            '--gpu-ids',
+            type=int,
+            nargs='+',
+            help='(Deprecated, please use --gpu-id) ids of gpus to use '
+            '(only applicable to non-distributed training)')
+        group_gpus.add_argument(
+            '--gpu-id',
+            type=int,
+            default=0,
+            help='id of gpu to use '
+            '(only applicable to non-distributed training)')
         parser.add_argument(
             '--seed', type=int, default=None, help='random seed')
         parser.add_argument(
@@ -57,93 +72,44 @@ class MMDetection(MMTrainBasedTask):
             '--options',
             nargs='+',
             action=DictAction,
-            help='override some settings in the used config, the '
-            'key-value pair in xxx=yyy format will be merged into config file'
-            ' (deprecate), change to --cfg-options instead.')
+            help='override some settings in the used config, the key-value pair '
+            'in xxx=yyy format will be merged into config file (deprecate), '
+            'change to --cfg-options instead.')
         parser.add_argument(
             '--cfg-options',
             nargs='+',
             action=DictAction,
-            help='override some settings in the used config, the '
-            'key-value pair in xxx=yyy format will be merged into config '
-            'file. If the value to be overwritten is a list, it should be '
-            'like key="[a,b]" or key=a,b It also allows nested list/tuple '
-            'values, e.g. key="[(a,b),(c,d)]" Note that the quotation marks '
-            'are necessary and that no white space is allowed.')
+            help='override some settings in the used config, the key-value pair '
+            'in xxx=yyy format will be merged into config file. If the value to '
+            'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+            'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+            'Note that the quotation marks are necessary and that no white space '
+            'is allowed.')
+        parser.add_argument(
+            '--launcher',
+            choices=['none', 'pytorch', 'slurm', 'mpi'],
+            default='none',
+            help='job launcher')
+        parser.add_argument('--local_rank', type=int, default=0)
         parser.add_argument(
             '--auto-scale-lr',
             action='store_true',
             help='enable automatically scaling LR.')
-        args = parser.parse_args(args)
+        args = parser.parse_args(task_args)
+        if 'LOCAL_RANK' not in os.environ:
+            os.environ['LOCAL_RANK'] = str(args.local_rank)
+
+        if args.options and args.cfg_options:
+            raise ValueError(
+                '--options and --cfg-options cannot be both '
+                'specified, --options is deprecated in favor of --cfg-options')
+        if args.options:
+            warnings.warn('--options is deprecated in favor of --cfg-options')
+            args.cfg_options = args.options
+
         return args
 
-    def build_model(self,
-                    cfg: Config,
-                    train_cfg: Optional[Config] = None,
-                    test_cfg: Optional[Config] = None) -> torch.nn.Module:
-        """Build the model from configs.
-
-        Args:
-            cfg (Config): The configs.
-            train_cfg (Optional[Config]):
-                The train opt. Defaults to None.
-            test_cfg (Optional[Config]):
-                The Test opt. Defaults to None.
-
-        Returns:
-            torch.nn.Module: The model.
-        """
-
-        from mmdet.models.builder import build_detector
-        return build_detector(cfg, train_cfg, test_cfg)
-
-    def build_dataset(
-            self,
-            cfg: Config,
-            default_args: Optional[Config] = None) -> torch.utils.data.Dataset:
-        """Build the dataset from configs.
-
-        Args:
-            cfg (Config): The configs.
-            default_args (Optional[Config]):
-                The default args. Defaults to None.
-
-        Returns:
-            torch.utils.data.Dataset: The dataset.
-        """
-
-        from mmdet.datasets.builder import build_dataset
-        return build_dataset(cfg, default_args)
-
-    def train_model(self,
-                    model: torch.nn.Module,
-                    dataset: torch.utils.data.Dataset,
-                    cfg: Config,
-                    distributed: bool = True,
-                    validate: bool = False,
-                    timestamp: Optional[str] = None,
-                    meta: Optional[dict] = None) -> None:
-        """Train the model.
-
-        Args:
-            model (torch.nn.Module): The model.
-            dataset (torch.utils.data.Dataset): The dataset.
-            cfg (Config): The configs.
-            distributed (bool):
-                Whether or not distributed. Defaults to True.
-            validate (bool):
-                Whether or not validate. Defaults to False.
-            timestamp (Optional[str]):
-                The timestamp. Defaults to None.
-            meta (Optional[dict]):
-                The meta. Defaults to None.
-        """
-
-        from mmdet.apis.train import train_detector
-        train_detector(model, dataset, cfg, distributed, validate, timestamp,
-                       meta)
-
-    def run(self, *, args: argparse.Namespace, **kwargs) -> None:
+    def run(self, args: argparse.Namespace):
         """Run the task.
 
         Args:
@@ -151,24 +117,52 @@ class MMDetection(MMTrainBasedTask):
                 The args that received from context manager.
         """
 
+        import mmcv
+        import torch
+        import torch.distributed as dist
+        from mmcv import Config
+        from mmcv.runner import get_dist_info, init_dist
+        from mmcv.utils import get_git_hash
         from mmdet import __version__
-        from mmdet.apis import init_random_seed, set_random_seed
+        from mmdet.apis import (init_random_seed, set_random_seed,
+                                train_detector)
+        from mmdet.datasets import build_dataset
+        from mmdet.models import build_detector
         from mmdet.utils import (collect_env, get_device, get_root_logger,
-                                 setup_multi_processes)
-
-        if 'LOCAL_RANK' not in os.environ:
-            os.environ['LOCAL_RANK'] = str(dist.get_rank())
+                                 replace_cfg_vals, setup_multi_processes,
+                                 update_data_root)
 
         cfg = Config.fromfile(args.config)
+
+        # replace the ${key} with the value of cfg.key
+        cfg = replace_cfg_vals(cfg)
+
+        # update data root according to MMDET_DATASETS
+        update_data_root(cfg)
+
         if args.cfg_options is not None:
             cfg.merge_from_dict(args.cfg_options)
+
+        if args.auto_scale_lr:
+            if 'auto_scale_lr' in cfg and \
+                    'enable' in cfg.auto_scale_lr and \
+                    'base_batch_size' in cfg.auto_scale_lr:
+                cfg.auto_scale_lr.enable = True
+            else:
+                warnings.warn('Can not find "auto_scale_lr" or '
+                              '"auto_scale_lr.enable" or '
+                              '"auto_scale_lr.base_batch_size" in your'
+                              ' configuration file. Please update all the '
+                              'configuration files to mmdet >= 2.24.1.')
+
+        # set multi-process settings
+        setup_multi_processes(cfg)
 
         # set cudnn_benchmark
         if cfg.get('cudnn_benchmark', False):
             torch.backends.cudnn.benchmark = True
 
-        # work_dir is determined in this priority:
-        # CLI > segment in file > filename
+        # work_dir is determined in this priority: CLI > segment in file > filename
         if args.work_dir is not None:
             # update configs according to CLI args if args.work_dir is not None
             cfg.work_dir = args.work_dir
@@ -176,16 +170,33 @@ class MMDetection(MMTrainBasedTask):
             # use config filename as default work_dir if cfg.work_dir is None
             cfg.work_dir = osp.join('./work_dirs',
                                     osp.splitext(osp.basename(args.config))[0])
+
         if args.resume_from is not None:
             cfg.resume_from = args.resume_from
-
         cfg.auto_resume = args.auto_resume
+        if args.gpus is not None:
+            cfg.gpu_ids = range(1)
+            warnings.warn('`--gpus` is deprecated because we only support '
+                          'single GPU mode in non-distributed training. '
+                          'Use `gpus=1` now.')
+        if args.gpu_ids is not None:
+            cfg.gpu_ids = args.gpu_ids[0:1]
+            warnings.warn('`--gpu-ids` is deprecated, please use `--gpu-id`. '
+                          'Because we only support single GPU mode in '
+                          'non-distributed training. Use the first GPU '
+                          'in `gpu_ids` now.')
+        if args.gpus is None and args.gpu_ids is None:
+            cfg.gpu_ids = [args.gpu_id]
 
         # init distributed env first, since logger depends on the dist info.
-        distributed = True
-        # gpu_ids is used to calculate iter when resuming checkpoint
-        _, world_size = get_dist_info()
-        cfg.gpu_ids = range(world_size)
+        if args.launcher == 'none':
+            distributed = False
+        else:
+            distributed = True
+            init_dist(args.launcher, **cfg.dist_params)
+            # re-set gpu_ids with distributed training mode
+            _, world_size = get_dist_info()
+            cfg.gpu_ids = range(world_size)
 
         # create work_dir
         mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
@@ -194,23 +205,19 @@ class MMDetection(MMTrainBasedTask):
         # init the logger before other steps
         timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
         log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
-        print(cfg)
         logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
-
-        # set multi-process settings
-        setup_multi_processes(cfg)
 
         # init the meta dict to record some important information such as
         # environment info and seed, which will be logged
         meta = dict()
         # log env info
         env_info_dict = collect_env()
-        env_info = '\n'.join([f'{k}: {v}' for k, v in env_info_dict.items()])
+        env_info = '\n'.join([(f'{k}: {v}') for k, v in env_info_dict.items()])
         dash_line = '-' * 60 + '\n'
-        logger.info('Environment info:\n' + dash_line + env_info +  # noqa W504
-                    '\n' + dash_line)
+        logger.info('Environment info:\n' + dash_line + env_info + '\n' +
+                    dash_line)
         meta['env_info'] = env_info
-
+        meta['config'] = cfg.pretty_text
         # log some basic info
         logger.info(f'Distributed training: {distributed}')
         logger.info(f'Config:\n{cfg.pretty_text}')
@@ -226,37 +233,32 @@ class MMDetection(MMTrainBasedTask):
         meta['seed'] = seed
         meta['exp_name'] = osp.basename(args.config)
 
-        model = self.build_model(
+        model = build_detector(
             cfg.model,
             train_cfg=cfg.get('train_cfg'),
             test_cfg=cfg.get('test_cfg'))
         model.init_weights()
 
-        # SyncBN is not support for DP
-        logger.info(model)
-
-        datasets = [self.build_dataset(cfg.data.train)]
+        datasets = [build_dataset(cfg.data.train)]
         if len(cfg.workflow) == 2:
+            assert 'val' in [mode for (mode, _) in cfg.workflow]
             val_dataset = copy.deepcopy(cfg.data.val)
-            val_dataset.pipeline = cfg.data.train.pipeline
-            datasets.append(self.build_dataset(val_dataset))
+            val_dataset.pipeline = cfg.data.train.get(
+                'pipeline', cfg.data.train.dataset.get('pipeline'))
+            datasets.append(build_dataset(val_dataset))
         if cfg.checkpoint_config is not None:
             # save mmdet version, config file content and class names in
             # checkpoints as meta data
             cfg.checkpoint_config.meta = dict(
-                mmdet_version=f'{__version__}+{get_git_hash()[:7]}',
-                config=cfg.pretty_text,
-                CLASSES=datasets[0].CLASSES,
-                PALETTE=datasets[0].PALETTE)
+                mmdet_version=__version__ + get_git_hash()[:7],
+                CLASSES=datasets[0].CLASSES)
         # add an attribute for visualization convenience
         model.CLASSES = datasets[0].CLASSES
-        # passing checkpoint meta for saving best checkpoint
-        meta.update(cfg.checkpoint_config.meta)
-        self.train_model(
+        train_detector(
             model,
             datasets,
             cfg,
-            distributed=True,
+            distributed=distributed,
             validate=(not args.no_validate),
             timestamp=timestamp,
             meta=meta)
