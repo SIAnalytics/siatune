@@ -4,8 +4,9 @@ from abc import ABCMeta, abstractmethod
 import mmcv
 import torch
 from ray.air.config import ScalingConfig
-from ray.train.torch import TorchConfig, TorchTrainer
+from ray.train.data_parallel_trainer import DataParallelTrainer
 
+from siatune.ray.config import CustomBackendConfig
 from .base import BaseTask
 from .builder import TASKS
 
@@ -54,18 +55,21 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         """
         pass
 
-    def create_trainable(self) -> TorchTrainer:
+    def create_trainable(self) -> DataParallelTrainer:
         """Get ray trainable task.
 
         Returns:
             TorchTrainer: The trainable task.
         """
-        return TorchTrainer(
+        assert self.num_workers == self.num_gpus_per_worker, (
+            '`num_workers` must be equal to `num_gpus_per_worker`.')
+
+        return DataParallelTrainer(
             self.context_aware_run,
+            backend_config=CustomBackendConfig(),
             scaling_config=ScalingConfig(
                 trainer_resources=dict(
                     CPU=self.num_cpus_per_worker,
                     GPU=self.num_gpus_per_worker),
                 num_workers=self.num_workers,
-                use_gpu=torch.cuda.is_available()),
-            torch_config=TorchConfig(backend='gloo'))
+                use_gpu=torch.cuda.is_available()))
