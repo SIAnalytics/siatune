@@ -273,7 +273,7 @@ def test_mm_train_based_task(mock_report):
             )))
 
     task = TestTask()
-    task.set_resource(1, 0, 1)
+    task.set_resource()
     task.context_aware_run(searched_cfg=dict(cfg=cfg))
     assert 'loss' in get_session()
 
