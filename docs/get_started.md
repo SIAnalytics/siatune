@@ -29,10 +29,8 @@ pip install -e '.[optional]'
 mim install mmdet
 ```
 
-### Prepare dataset
-```bash
-ln -s /some/path/COCO2017Det data/coco
-```
+### Prepare datasets
+Please refer to [this link](https://github.com/open-mmlab/mmdetection/blob/master/docs/en/1_exist_data_model.md#prepare-datasets).
 
 ### Start hyperparameter tuning with existed configuration file.
 ```bash
