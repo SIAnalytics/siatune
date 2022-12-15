@@ -41,7 +41,6 @@ def _set_nccl_network_interface():
 
 
 class _CustomTorchBackend(_TorchBackend):
-    share_cuda_visible_devices: bool = True
 
     def on_start(self, worker_group: WorkerGroup,
                  backend_config: BackendConfig):
