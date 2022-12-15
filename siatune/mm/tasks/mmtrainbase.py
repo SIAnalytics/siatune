@@ -59,7 +59,7 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
         """Get ray trainable task.
 
         Returns:
-            TorchTrainer: The trainable task.
+            DataParallelTrainer: The trainable task.
         """
         assert self.num_workers == self.num_gpus_per_worker, (
             '`num_workers` must be equal to `num_gpus_per_worker`.')
