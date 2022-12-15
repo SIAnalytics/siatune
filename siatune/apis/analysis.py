@@ -17,7 +17,7 @@ def log_analysis(results: ResultGrid,
     """Log the analysis of the experiment.
 
     Args:
-        results (ResultGrid): Result of `Tuner.fit()`.
+        results (ResultGrid): Experiment results of `Tuner.fit()`.
         tune_config (Config): The tune config.
         task_config (Optional[Config]): The task config. Defaults to None.
         log_dir (Optional[str]): The log dir. Defaults to None.
