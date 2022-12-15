@@ -5,13 +5,10 @@ _base_ = [
 ]
 
 space = {
+    'data.samples_per_gpu': {{_base_.batch_size}},
     'model': {{_base_.model}},
     'optimizer': {{_base_.optimizer}},
-    'data.samples_per_gpu': {{_base_.batch_size}},
 }
 
 task = dict(type='MMDetection')
-metric = 'val/AP'
-mode = 'max'
-raise_on_failed_trial = False
-num_samples = 256
+tune_cfg = dict(num_samples=8, metric='val/AP', mode='max')
