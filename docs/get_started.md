@@ -42,5 +42,5 @@ python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] --trainable-args [
 ```bash
 # MMDetection Example
 mim download mmdet --config faster_rcnn_r50_fpn_1x_coco --dest configs/mmdet/faster_rcnn
-python tools/tune.py configs/siatune/mmdet_asynchb_nevergrad_pso.py --trainable-args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+python tools/tune.py configs/mmdet/mmdet_asynchb_nevergrad_pso.py --trainable-args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
 ```
