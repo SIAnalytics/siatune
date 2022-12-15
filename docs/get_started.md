@@ -21,22 +21,23 @@ cd siatune
 pip install -e '.[optional]'
 ```
 
-# Hyperparamer tuning with OpenMMLab's model frameworks.
+# Hyperparameter tuning with OpenMMLab's model frameworks
 
-### Install OpenMMLab's framework.
+### Start hyperparameter tuning with existed configuration file
+```bash
+python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] \
+    --trainable-args ${TASK_CONFIG} [optional task arguments]
+```
+
+## MMDetection
+
+### Prepare datasets
+Please refer to [this link](https://github.com/open-mmlab/mmdetection/blob/master/docs/en/1_exist_data_model.md#prepare-datasets).
+
+### Run scripts
 ```bash
 # MMDetection Example
 mim install mmdet
-```
-
-### Start hyperparameter tuning with existed configuration file.
-```bash
-python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] --trainable-args [optional task arguments]
-```
-
-
-```bash
-# MMDetection Example
 mim download mmdet --config faster_rcnn_r50_fpn_1x_coco --dest configs/mmdet/faster_rcnn
-python tools/tune.py configs/siatune/mmdet_asynchb_nevergrad_pso.py --trainable-args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+python tools/tune.py configs/mmdet/mmdet_asynchb_nevergrad_pso.py --trainable-args configs/mmdet/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
 ```
