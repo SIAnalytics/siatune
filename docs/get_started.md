@@ -29,11 +29,15 @@ pip install -e '.[optional]'
 mim install mmdet
 ```
 
+### Prepare dataset
+```bash
+ln -s /some/path/COCO2017Det data/coco
+```
+
 ### Start hyperparameter tuning with existed configuration file.
 ```bash
 python tools/tune.py ${TUNE_CONFIG} [optional tune arguments] --trainable-args [optional task arguments]
 ```
-
 
 ```bash
 # MMDetection Example
