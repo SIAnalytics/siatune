@@ -11,8 +11,7 @@ import torch.distributed as dist
 from ray.train._internal.utils import get_address_and_port
 from ray.train._internal.worker_group import WorkerGroup
 from ray.train.backend import BackendConfig
-from ray.train.constants import DEFAULT_NCCL_SOCKET_IFNAME
-from ray.train.torch.config import _TorchBackend, _set_nccl_network_interface
+from ray.train.torch.config import _set_nccl_network_interface, _TorchBackend
 
 logger = logging.getLogger(__name__)
 
