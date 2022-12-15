@@ -23,7 +23,7 @@ class MMSegmentation(MMTrainBasedTask):
 
     VERSION = 'v0.25.0'
 
-    def parse_args(task_args: Sequence[str]):
+    def parse_args(self, task_args: Sequence[str]):
         from mmcv.utils import DictAction
 
         parser = argparse.ArgumentParser(description='Train a segmentor')

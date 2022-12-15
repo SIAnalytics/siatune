@@ -23,7 +23,7 @@ class MMDetection(MMTrainBasedTask):
 
     VERSION = 'v2.25.2'
 
-    def parse_args(task_args: Sequence[str]):
+    def parse_args(self, task_args: Sequence[str]):
         from mmcv import DictAction
 
         parser = argparse.ArgumentParser(description='Train a detector')
