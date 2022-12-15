@@ -1,6 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 # Modified from https://github.com/ray-project/ray/blob/ray-2.1.0/python/ray/train/torch/config.py  # noqa
-# for applying MM based repo training
 
 import logging
 import os
