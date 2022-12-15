@@ -1,7 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
-import mmcv
 import torch
 from ray.air.config import ScalingConfig
 from ray.train.data_parallel_trainer import DataParallelTrainer
@@ -15,52 +14,13 @@ from .builder import TASKS
 class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
     """Wrap the apis of open mm train-based projects."""
 
-    @abstractmethod
-    def build_model(self, cfg: mmcv.Config, **kwargs) -> torch.nn.Module:
-        """Build the model from configs.
-
-        Args:
-            cfg (Config): The configs.
-        Returns:
-            torch.nn.Module: The model.
-        """
-        pass
-
-    @abstractmethod
-    def build_dataset(self, cfg: mmcv.Config,
-                      **kwargs) -> torch.utils.data.Dataset:
-        """Build the dataset from configs.
-
-        Args:
-            cfg (Config): The configs.
-        Returns:
-            torch.utils.data.Dataset: The dataset.
-        """
-        pass
-
-    @abstractmethod
-    def train_model(
-        self,
-        model: torch.nn.Module,
-        dataset: torch.utils.data.Dataset,
-        cfg: mmcv.Config,
-        **kwargs,
-    ) -> None:
-        """Train the model.
-
-        Args:
-            model (torch.nn.Module): The model.
-            dataset (torch.utils.data.Dataset): The dataset.
-            cfg (Config): The configs.
-        """
-        pass
-
     def create_trainable(self) -> DataParallelTrainer:
-        """Get ray trainable task.
+        """Get a :class:`DataParallelTrainer` instance.
 
         Returns:
-            TorchTrainer: The trainable task.
+            DataParallelTrainer: Trainer to optimize hyperparameter.
         """
+
         assert self.num_workers == self.num_gpus_per_worker, (
             '`num_workers` must be equal to `num_gpus_per_worker`.')
 
