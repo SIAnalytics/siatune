@@ -32,32 +32,12 @@ def trainable():
     return _trainable
 
 
-def test_ax(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(type='AXSearch'),
-        num_samples=2,
-        config=config)
-
-
-def test_cfo(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(type='CFOSearch'),
-        num_samples=2,
-        config=config)
-
-
 def test_blend(trainable, config):
     tune.run(
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=build_searcher(type='BlendSearch'),
+        search_alg=build_searcher(dict(type='BlendSearch')),
         num_samples=2,
         config=config)
 
@@ -67,7 +47,17 @@ def test_bohb(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=build_searcher(type='TuneBOHB'),
+        search_alg=build_searcher(dict(type='TuneBOHB')),
+        num_samples=2,
+        config=config)
+
+
+def test_cfo(trainable, config):
+    tune.run(
+        trainable,
+        metric='mean_loss',
+        mode='min',
+        search_alg=build_searcher(dict(type='CFO')),
         num_samples=2,
         config=config)
 
@@ -77,7 +67,7 @@ def test_hyperopt(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=build_searcher(type='HyperOptSearch'),
+        search_alg=build_searcher(dict(type='HyperOptSearch')),
         num_samples=2,
         config=config)
 
@@ -87,7 +77,7 @@ def test_nevergrad(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=build_searcher(type='NevergradSearch', budget=1),
+        search_alg=build_searcher(dict(type='NevergradSearch', budget=1)),
         num_samples=2,
         config=config)
 
@@ -96,6 +86,6 @@ def test_nevergrad(trainable, config):
         metric='mean_loss',
         mode='min',
         search_alg=build_searcher(
-            type='NevergradSearch', optimizer='PSO', budget=1),
+            dict(type='NevergradSearch', optimizer='PSO', budget=1)),
         num_samples=2,
         config=config)
