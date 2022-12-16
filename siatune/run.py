@@ -4,7 +4,7 @@ from os import path as osp
 
 import mmcv
 import ray
-from mmcv import Config
+from mmcv import Config, DictAction
 
 from siatune.apis import log_analysis, tune
 from siatune.mm.tasks import build_task_processor
@@ -21,6 +21,16 @@ def parse_args() -> Namespace:
     parser.add_argument('config', help='tune config file path')
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. If the value to '
+        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+        'Note that the quotation marks are necessary and that no white space '
+        'is allowed.')
     parser.add_argument(
         '--address',
         default=None,
@@ -68,7 +78,11 @@ def main() -> None:
     """Main function."""
 
     args = parse_args()
+
     tune_config = Config.fromfile(args.config)
+
+    if args.cfg_options is not None:
+        tune_config.merge_from_dict(args.cfg_options)
 
     task_processor = build_task_processor(tune_config.task)
     task_processor.set_args(args.trainable_args)
