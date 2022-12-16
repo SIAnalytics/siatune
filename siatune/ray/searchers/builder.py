@@ -3,6 +3,7 @@ import inspect
 
 from mmcv.utils import Config, Registry
 from ray import tune
+from ray.tune.search import Searcher
 
 SEARCHERS = Registry('searchers')
 for func in set(tune.search.SEARCH_ALG_IMPORT.values()):
@@ -11,7 +12,7 @@ for func in set(tune.search.SEARCH_ALG_IMPORT.values()):
     SEARCHERS.register_module(module=func())
 
 
-def build_searcher(cfg: Config) -> tune.search.Searcher:
+def build_searcher(cfg: Config) -> Searcher:
     """Build the searcher from configs.
 
     Args:
