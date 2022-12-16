@@ -14,15 +14,23 @@ class Tuner:
     """Wrapper class of :class:`ray.tune.tuner.Tuner`.
 
     Args:
-        trainable (Callable):
-        work_dir (str):
-        param_space (dict, optional):
-        tune_cfg (dict, optional):
-            Refer to https://github.com/ray-project/ray/blob/ray-2.1.0/python/ray/tune/tune_config.py for details.  # noqa
-        searcher (dict, optional):
-        trial_scheduler (dict, optional):
-        stopper (dict, optional):
-        callbacks (list, optional):
+        trainable (Callable): The trainable to be tuned.
+        work_dir (str): The working directory to save checkpoints. The logs
+            will be saved in the subdirectory of `work_dir`.
+        param_space (dict, optional): Search space of the tuning task.
+        tune_cfg (dict, optional): Tuning algorithm specific configs
+            except for `search_alg` and `scheduler`.
+            Refer to :class:`ray.tune.tune_config.TuneConfig` for more info.
+        searcher (dict, optional): Search algorithm for optimization.
+            Default to random search.
+            Refer to :module:`ray.tune.search` for more options.
+        trial_scheduler (dict, optional): Scheduler for executing the trial.
+            Default to FIFO scheduler.
+            Refer to :module:`ray.tune.schedulers` for more options.
+        stopper (dict, optional): Stop conditions to consider.
+            Refer to :class:`ray.tune.stopper.Stopper` for more info.
+        callbacks (dict | list, optional): Callbacks to invoke.
+            Refer to :class:``ray.tune.callback.Callback` for more info.
     """
 
     def __init__(
