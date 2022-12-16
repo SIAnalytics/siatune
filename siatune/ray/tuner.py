@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import copy
 import os.path as osp
+from typing import Any, Callable, Optional, Union
 
 from ray.air.config import RunConfig
 from ray.tune.tune_config import TuneConfig
@@ -35,14 +36,14 @@ class Tuner:
 
     def __init__(
         self,
-        trainable,
-        work_dir,
-        param_space=None,
-        tune_cfg=None,
-        searcher=None,
-        trial_scheduler=None,
-        stopper=None,
-        callbacks=None,
+        trainable: Callable[[dict], Any],
+        work_dir: str,
+        param_space: Optional[dict] = None,
+        tune_cfg: Optional[dict] = None,
+        searcher: Optional[dict] = None,
+        trial_scheduler: Optional[dict] = None,
+        stopper: Optional[dict] = None,
+        callbacks: Optional[Union[dict, list]] = None,
     ):
         work_dir = osp.abspath(work_dir)
 
@@ -81,7 +82,7 @@ class Tuner:
         )
 
     @classmethod
-    def from_cfg(cls, cfg, trainable):
+    def from_cfg(cls, cfg: dict, trainable: Callable[[dict], Any]):
         cfg = copy.deepcopy(cfg)
         tuner = cls(
             trainable,
@@ -97,7 +98,7 @@ class Tuner:
         return tuner
 
     @classmethod
-    def resume(cls, path, **kwargs):
+    def resume(cls, path: str, **kwargs):
         return cls.restore(path, **kwargs)
 
     def fit(self):
