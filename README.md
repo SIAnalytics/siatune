@@ -28,11 +28,12 @@ SIATune is an open-source deep learning model hyperparameter tuning toolbox espe
 - **Schedule multiple experiments**
 
   Various scheduling techniques are supported to efficiently manage many experiments.
-  - [x] [AsyncHyperBandScheduler](https://arxiv.org/abs/1810.05934)
-  - [ ] [PopulationBasedTraining](https://www.deepmind.com/blog/population-based-training-of-neural-networks)
-  - [ ] [MedianStoppingRule](https://research.google.com/pubs/pub46180.html)
+  - [x] [Asynchronous HyperBand](https://arxiv.org/abs/1810.05934)
+  - [x] [HyperBand](https://arxiv.org/abs/1603.06560)
+  - [ ] [Median Stopping Rule](https://research.google.com/pubs/pub46180.html)
+  - [ ] [Population Based Training](https://www.deepmind.com/blog/population-based-training-of-neural-networks)
   - [ ] [Population Based Bandits](https://arxiv.org/abs/2002.02518)
-  - [ ] [HyperBandScheduler](https://arxiv.org/abs/1603.06560)
+  - [x] [Bayesian Optimization and HyperBand](https://arxiv.org/abs/1807.01774)
 
 
 - **Distributed tuning system based on Ray**
