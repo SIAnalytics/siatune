@@ -1,7 +1,9 @@
 import argparse
-import os
 from unittest.mock import patch
 
+import mmcls  # noqa: F401
+import mmdet  # noqa: F401
+import mmseg  # noqa: F401
 import pytest
 import torch
 from mmcv.utils import Config
@@ -162,36 +164,33 @@ def test_discrete_test_function(mock_report):
         assert isinstance(get_session().get('result'), float)
 
 
-@patch.object(MMSegmentation, 'train_model')
-@patch.object(MMSegmentation, 'build_model')
-@patch.object(MMSegmentation, 'build_dataset')
-def test_mmseg(*not_used):
-    os.environ['LOCAL_RANK'] = '0'
-
-    task = MMSegmentation()
-    task.set_args(['tests/data/config.py'])
-    task.run(args=task.args)
-
-
-@patch.object(MMDetection, 'train_model')
-@patch.object(MMDetection, 'build_model')
-@patch.object(MMDetection, 'build_dataset')
-def test_mmdet(*not_used):
-    os.environ['LOCAL_RANK'] = '0'
-
-    task = MMDetection()
-    task.set_args(['tests/data/config.py'])
-    task.run(args=task.args)
-
-
-@patch.object(MMClassification, 'train_model')
-@patch.object(MMClassification, 'build_model')
-@patch.object(MMClassification, 'build_dataset')
+@patch('mmcls.apis.train_model')
+@patch('mmcls.datasets.build_dataset')
+@patch('mmcls.models.build_classifier')
 def test_mmcls(*not_used):
-    os.environ['LOCAL_RANK'] = '0'
-
     task = MMClassification()
-    task.set_args(['tests/data/config.py'])
+    task_args = ['tests/data/config.py']
+    task.set_args(task_args)
+    task.run(args=task.args)
+
+
+@patch('mmdet.apis.train_detector')
+@patch('mmdet.datasets.build_dataset')
+@patch('mmdet.models.build_detector')
+def test_mmdet(*not_used):
+    task = MMDetection()
+    task_args = ['tests/data/config.py']
+    task.set_args(task_args)
+    task.run(args=task.args)
+
+
+@patch('mmseg.apis.train_segmentor')
+@patch('mmseg.datasets.build_dataset')
+@patch('mmseg.models.build_segmentor')
+def test_mmseg(*not_used):
+    task = MMSegmentation()
+    task_args = ['tests/data/config.py']
+    task.set_args(task_args)
     task.run(args=task.args)
 
 

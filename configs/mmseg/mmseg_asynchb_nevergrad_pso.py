@@ -4,10 +4,13 @@ _base_ = [
     '../_base_/space/optimizer.py', '../_base_/space/batch_size.py'
 ]
 
-space = dict(
-    data=dict(samples_per_gpu={{_base_.batch_size}}),
-    model={{_base_.model}},
-    optimizer={{_base_.optimizer}})
+space = {
+    'data.samples_per_gpu': {{_base_.batch_size}},
+    'model': {{_base_.model}},
+    'model.decode_head.num_classes': 21,
+    'model.auxiliary_head.num_classes': 21,
+    'optimizer': {{_base_.optimizer}},
+}
 
 task = dict(type='MMSegmentation')
 tune_cfg = dict(num_samples=8, metric='val/mIoU', mode='max')
