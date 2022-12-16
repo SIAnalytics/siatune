@@ -1,5 +1,4 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import inspect
 
 from mmcv.utils import Config, Registry
 from ray import tune
@@ -7,8 +6,6 @@ from ray.tune.search import Searcher
 
 SEARCHERS = Registry('searchers')
 for func in set(tune.search.SEARCH_ALG_IMPORT.values()):
-    if not inspect.isfunction(func):
-        continue
     SEARCHERS.register_module(module=func())
 
 
