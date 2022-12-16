@@ -28,8 +28,6 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
             self.context_aware_run,
             backend_config=CustomBackendConfig(),
             scaling_config=ScalingConfig(
-                trainer_resources=dict(
-                    CPU=self.num_cpus_per_worker,
-                    GPU=self.num_gpus_per_worker),
+                trainer_resources=dict(CPU=self.num_cpus_per_worker),
                 num_workers=self.num_workers,
                 use_gpu=torch.cuda.is_available()))
