@@ -14,7 +14,7 @@ SIATune is an open-source deep learning model hyperparameter tuning toolbox espe
   - [x] [MMClassification](https://github.com/open-mmlab/mmclassification)
   - [x] [MMDetection](https://github.com/open-mmlab/mmdetection)
   - [x] [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)
-  - [ ] [MMEditing](https://github.com/open-mmlab/mmediting)
+  - [x] [MMEditing](https://github.com/open-mmlab/mmediting)
 
 - **Support hyperparameter search algorithms**
 
