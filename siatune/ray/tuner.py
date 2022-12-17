@@ -31,7 +31,7 @@ class Tuner:
         stopper (dict, optional): Stop conditions to consider.
             Refer to :class:`ray.tune.stopper.Stopper` for more info.
         callbacks (dict | list, optional): Callbacks to invoke.
-            Refer to :class:``ray.tune.callback.Callback` for more info.
+            Refer to :class:`ray.tune.callback.Callback` for more info.
         resume (str, optional): The experiment path to resume.
             Default to None.
     """
