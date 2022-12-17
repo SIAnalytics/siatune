@@ -35,6 +35,7 @@ class Tuner:
         trial_scheduler=None,
         stopper=None,
         callbacks=None,
+        resume=None,
     ):
         work_dir = osp.abspath(work_dir)
 
@@ -56,6 +57,8 @@ class Tuner:
             if isinstance(callbacks, dict):
                 callbacks = [callbacks]
             callbacks = [build_callback(callback) for callback in callbacks]
+
+        self.resume = resume
 
         self.tuner = RayTuner(
             trainable,
@@ -84,13 +87,13 @@ class Tuner:
             trial_scheduler=cfg.get('trial_scheduler', None),
             stopper=cfg.get('stopper', None),
             callbacks=cfg.get('callbacks', None),
+            resume=cfg.get('resume', None),
         )
 
         return tuner
 
-    @classmethod
-    def resume(cls, path, **kwargs):
-        return cls.restore(path, **kwargs)
-
     def fit(self):
+        if self.resume is not None:
+            return self.tuner.restore(self.resume)
+
         return self.tuner.fit()

@@ -22,6 +22,14 @@ def parse_args() -> Namespace:
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
     parser.add_argument(
+        '--resume',
+        nargs='?',
+        type=str,
+        const='auto',
+        help='If specify checkpoint path, resume from it, while if not '
+        'specify, try to auto resume from the latest checkpoint '
+        'in the work directory.')
+    parser.add_argument(
         '--address',
         default=None,
         help='the address of the ray cluster to connect to',
@@ -88,6 +96,9 @@ def main() -> None:
     # work_dir in task is overridden with work_dir in tune
     if hasattr(task_processor.args, 'work_dir'):
         task_processor.args.work_dir = tune_config.work_dir
+
+    if args.resume is not None:
+        tune_config.resume = args.resume
 
     ray.init(
         address=args.address, num_cpus=args.num_cpus, num_gpus=args.num_gpus)
