@@ -22,13 +22,7 @@ def parse_args() -> Namespace:
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
     parser.add_argument(
-        '--resume',
-        nargs='?',
-        type=str,
-        const='auto',
-        help='If specify checkpoint path, resume from it, while if not '
-        'specify, try to auto resume from the latest checkpoint '
-        'in the work directory.')
+        '--resume', default=None, help='the experiment path to resume')
     parser.add_argument(
         '--address',
         default=None,

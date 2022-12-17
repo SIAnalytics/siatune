@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import copy
 import os.path as osp
+from typing import Optional
 
 from ray.air.config import RunConfig
 from ray.tune.tune_config import TuneConfig
@@ -23,6 +24,8 @@ class Tuner:
         trial_scheduler (dict, optional):
         stopper (dict, optional):
         callbacks (list, optional):
+        resume (str, optional): The experiment path to resume.
+            Defaults to None.
     """
 
     def __init__(
@@ -35,7 +38,7 @@ class Tuner:
         trial_scheduler=None,
         stopper=None,
         callbacks=None,
-        resume=None,
+        resume: Optional[str] = None,
     ):
         work_dir = osp.abspath(work_dir)
 
