@@ -6,19 +6,20 @@ from .cont_test_func import ContinuousTestFunction
 from .disc_test_func import DiscreteTestFunction
 from .mmcls import MMClassification
 from .mmdet import MMDetection
+from .mmedit import MMEditing
 from .mmseg import MMSegmentation
 from .mmtrainbase import MMTrainBasedTask
 
 __all__ = [
-    'MMClassification',
-    'DiscreteTestFunction',
-    'ContinuousTestFunction',
     'TASKS',
     'build_task_processor',
     'BaseTask',
     'BlackBoxTask',
+    'ContinuousTestFunction',
+    'DiscreteTestFunction',
     'MMTrainBasedTask',
+    'MMClassification',
     'MMDetection',
-    'MMSegmentation',
+    'MMEditing',
     'MMSegmentation',
 ]
