@@ -94,6 +94,6 @@ class Tuner:
 
     def fit(self):
         if self.resume is not None:
-            return self.tuner.restore(self.resume)
+            self.tuner = RayTuner.restore(self.resume)
 
         return self.tuner.fit()
