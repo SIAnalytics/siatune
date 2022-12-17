@@ -2,9 +2,11 @@ from unittest.mock import patch
 
 import mmcls  # noqa: F401
 import mmdet  # noqa: F401
+import mmedit  # noqa: F401
 import mmseg  # noqa: F401
 
-from siatune.mm.tasks import MMClassification, MMDetection, MMSegmentation
+from siatune.mm.tasks import (MMClassification, MMDetection, MMEditing,
+                              MMSegmentation)
 
 
 @patch('mmcls.apis.train_model')
@@ -22,6 +24,16 @@ def test_mmcls(*not_used):
 @patch('mmdet.models.build_detector')
 def test_mmdet(*not_used):
     task = MMDetection()
+    task_args = ['tests/data/config.py']
+    task.set_args(task_args)
+    task.run(args=task.args)
+
+
+@patch('mmedit.apis.train_model')
+@patch('mmedit.datasets.build_dataset')
+@patch('mmedit.models.build_model')
+def test_mmedit(*not_used):
+    task = MMEditing()
     task_args = ['tests/data/config.py']
     task.set_args(task_args)
     task.run(args=task.args)
