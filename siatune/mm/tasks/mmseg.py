@@ -18,7 +18,14 @@ class MMSegmentation(MMTrainBasedTask):
     It is modified from https://github.com/open-mmlab/mmsegmentation/blob/v0.25.0/tools/train.py
 
     Attributes:
-        args (Sequence[str]):
+        args (argparse.Namespace): The arguments for `tools/train.py`
+            script file. It is parsed by :method:`parse_args`.
+        num_workers (int): The number of workers to launch.
+        num_cpus_per_worker (int): The number of CPUs per worker.
+            Default to 1.
+        num_gpus_per_worker (int): The number of GPUs per worker.
+            Since it must be equal `num_workers` attribute, it is
+            not used in MMSegmentation.
     """
 
     VERSION = 'v0.25.0'
