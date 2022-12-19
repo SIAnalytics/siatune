@@ -2,7 +2,8 @@
 from ray.air import session
 from torch import distributed as dist
 
-from siatune.mm.core import HOOKS, BaseRunner, LoggerHook, get_dist_info
+from siatune.mm.core import (HOOKS, MMENGINE_BASED, BaseRunner, LoggerHook,
+                             get_dist_info)
 
 
 @HOOKS.register_module()
@@ -26,8 +27,19 @@ class RayTuneLoggerHook(LoggerHook):
             by_epoch (bool): Whether to log by epoch.
             filtering_key (str): The key to filter.
         """
-        super(RayTuneLoggerHook, self).__init__(interval, ignore_last,
-                                                reset_flag, by_epoch)
+        if MMENGINE_BASED:
+            kwargs = dict(
+                interval=interval,
+                ignore_last=ignore_last,
+                log_metric_by_epoch=by_epoch)
+        else:
+            kwargs = dict(
+                interval=interval,
+                ignore_last=ignore_last,
+                reset_flag=reset_flag,
+                by_epoch=by_epoch)
+
+        super(RayTuneLoggerHook, self).__init__(**kwargs)
         self.filtering_key = filtering_key
 
     def after_train_iter(self, runner: BaseRunner) -> None:

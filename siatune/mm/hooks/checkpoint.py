@@ -67,6 +67,16 @@ class RayCheckpointHook(_CheckpointHook):
         """
         pass
 
+    def before_train(self, runner) -> None:
+        """This hook omits the setting process because it gets information from
+        the ray session.
+
+        Args:
+            runner (:obj:`mmcv.runner.BaseRunner`):
+                The runner.
+        """
+        pass
+
     @master_only
     def _save_checkpoint(self, runner: BaseRunner) -> None:
         """Save checkpoints periodically.

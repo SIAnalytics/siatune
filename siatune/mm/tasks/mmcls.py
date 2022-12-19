@@ -15,7 +15,8 @@ from .mmtrainbase import MMTrainBasedTask
 class MMClassification(MMTrainBasedTask):
     """MMClassification wrapper class for `ray.tune`.
 
-    It is modified from https://github.com/open-mmlab/mmclassification/blob/v0.23.2/tools/train.py
+    MMCV-based is modified from https://github.com/open-mmlab/mmclassification/blob/v0.23.2/tools/train.py
+    MMEngine-based is modified from https://github.com/open-mmlab/mmclassification/blob/v1.0.0rc4/tools/train.py
 
     Attributes:
         args (argparse.Namespace): The arguments for `tools/train.py`
@@ -28,10 +29,10 @@ class MMClassification(MMTrainBasedTask):
             not used in MMClassification.
     """
 
-    VERSION = 'v0.23.2'
+    MMCV_BASED_VERSION = 'v0.23.2'
+    MMENGINE_BASED_VERSION = 'v1.0.0rc4'
 
     def parse_args(self, task_args: Sequence[str]):
-
         from siatune.mm.core import MMENGINE_BASED
         if MMENGINE_BASED:
             return self.parse_args_mmengine(task_args)
@@ -167,6 +168,113 @@ class MMClassification(MMTrainBasedTask):
         return args
 
     def run(self, args: argparse.Namespace):
+        from siatune.mm.core import MMENGINE_BASED
+        if MMENGINE_BASED:
+            return self.run_mmengine(args)
+        else:
+            return self.run_mmcv(args)
+
+    def run_mmengine(self, args: argparse.Namespace):
+        """Run the task.
+
+        Args:
+            args (argparse.Namespace):
+                The args that received from context manager.
+        """
+        from copy import deepcopy
+
+        from mmcls.utils import register_all_modules
+        from mmengine.config import Config, ConfigDict
+        from mmengine.runner import Runner
+        from mmengine.utils import digit_version
+        from mmengine.utils.dl_utils import TORCH_VERSION
+
+        def merge_args(cfg, args):
+            """Merge CLI arguments to config."""
+            if args.no_validate:
+                cfg.val_cfg = None
+                cfg.val_dataloader = None
+                cfg.val_evaluator = None
+
+            cfg.launcher = args.launcher
+
+            # work_dir is determined in this priority: CLI > segment in file > filename
+            if args.work_dir is not None:
+                # update configs according to CLI args if args.work_dir is not None
+                cfg.work_dir = args.work_dir
+            elif cfg.get('work_dir', None) is None:
+                # use config filename as default work_dir if cfg.work_dir is None
+                cfg.work_dir = osp.join(
+                    './work_dirs',
+                    osp.splitext(osp.basename(args.config))[0])
+
+            # enable automatic-mixed-precision training
+            if args.amp is True:
+                optim_wrapper = cfg.optim_wrapper.get('type', 'OptimWrapper')
+                assert optim_wrapper in ['OptimWrapper', 'AmpOptimWrapper'], \
+                    '`--amp` is not supported custom optimizer wrapper type ' \
+                    f'`{optim_wrapper}.'
+                cfg.optim_wrapper.type = 'AmpOptimWrapper'
+                cfg.optim_wrapper.setdefault('loss_scale', 'dynamic')
+
+            # resume training
+            if args.resume == 'auto':
+                cfg.resume = True
+                cfg.load_from = None
+            elif args.resume is not None:
+                cfg.resume = True
+                cfg.load_from = args.resume
+
+            # enable auto scale learning rate
+            if args.auto_scale_lr:
+                cfg.auto_scale_lr.enable = True
+
+            # set dataloader args
+            default_dataloader_cfg = ConfigDict(
+                pin_memory=True,
+                persistent_workers=True,
+                collate_fn=dict(type='default_collate'),
+            )
+            if digit_version(TORCH_VERSION) < digit_version('1.8.0'):
+                default_dataloader_cfg.persistent_workers = False
+
+            def set_default_dataloader_cfg(cfg, field):
+                if cfg.get(field, None) is None:
+                    return
+                dataloader_cfg = deepcopy(default_dataloader_cfg)
+                dataloader_cfg.update(cfg[field])
+                cfg[field] = dataloader_cfg
+                if args.no_pin_memory:
+                    cfg[field]['pin_memory'] = False
+                if args.no_persistent_workers:
+                    cfg[field]['persistent_workers'] = False
+
+            set_default_dataloader_cfg(cfg, 'train_dataloader')
+            set_default_dataloader_cfg(cfg, 'val_dataloader')
+            set_default_dataloader_cfg(cfg, 'test_dataloader')
+
+            if args.cfg_options is not None:
+                cfg.merge_from_dict(args.cfg_options)
+
+            return cfg
+
+        # register all modules in mmcls into the registries
+        # do not init the default scope here because it will be init in the runner
+        register_all_modules(init_default_scope=False)
+
+        # load config
+        cfg = Config.fromfile(args.config)
+
+        # merge cli arguments to config
+        cfg = merge_args(cfg, args)
+
+        # build the runner from config
+        runner = Runner.from_cfg(cfg)
+
+        # start training
+        runner.train()
+
+    def run_mmcv(self, args: argparse.Namespace):
         """Run the task.
 
         Args:
