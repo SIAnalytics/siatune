@@ -17,11 +17,11 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 git ninja-build 
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install MMCV
-ARG PYTORCH
-ARG CUDA
+# Install MMCV with MIM
 ARG MMCV_VERSION
-RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full==${MMCV_VERSION} -f https://download.openmmlab.com/mmcv/dist/cu${CUDA//./}/torch${PYTORCH}/index.html"]
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir openmim \
+ && mim install mmcv-full==${MMCV_VERSION}
 
 # Install SIATune
 COPY . /siatune
