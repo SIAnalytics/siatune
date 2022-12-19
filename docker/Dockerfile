@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 git ninja-build 
 # Install MMCV with MIM
 ARG MMCV_VERSION
 RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir openmim
+ && pip install --no-cache-dir openmim \
  && mim install mmcv-full==$MMCV_VERSION
 
 # Install SIATune
