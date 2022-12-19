@@ -2,7 +2,7 @@
 import logging
 from typing import Optional
 
-from mmcv.utils import get_logger
+from siatune.mm.core import get_logger
 
 
 def get_root_logger(log_file: Optional[str] = None,

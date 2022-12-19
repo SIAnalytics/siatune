@@ -1,8 +1,9 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from mmcv.utils import Config, Registry
 from ray.tune.logger import (CSVLoggerCallback, JsonLoggerCallback,
                              LegacyLoggerCallback, LoggerCallback,
                              TBXLoggerCallback)
+
+from siatune.mm.core import Config, Registry
 
 CALLBACKS = Registry('callbacks')
 CALLBACKS.register_module(module=LegacyLoggerCallback)

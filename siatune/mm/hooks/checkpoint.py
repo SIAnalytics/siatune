@@ -6,12 +6,12 @@ from typing import Optional
 import mmcv
 import ray.tune as tune
 import torch
-from mmcv.parallel import is_module_wrapper
-from mmcv.runner import HOOKS, BaseRunner
-from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
-from mmcv.runner.dist_utils import master_only
-from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
 from torch.optim import Optimizer
+
+from siatune.mm.core import HOOKS, BaseRunner
+from siatune.mm.core import CheckpointHook as _CheckpointHook
+from siatune.mm.core import (get_state_dict, is_module_wrapper, master_only,
+                             weights_to_cpu)
 
 
 @HOOKS.register_module()

@@ -4,9 +4,9 @@ from os import path as osp
 from pprint import pformat
 from typing import Optional
 
-from mmcv.utils import Config, get_logger
 from ray.tune import ResultGrid
 
+from siatune.mm.core import Config, get_logger
 from siatune.utils import ImmutableContainer, dump_cfg
 
 

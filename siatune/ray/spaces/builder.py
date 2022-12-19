@@ -1,7 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Mapping
 
-from mmcv.utils import Registry
+from siatune.mm.core import Registry
 
 SPACES = Registry('spaces')
 

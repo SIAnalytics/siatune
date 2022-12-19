@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from mmcv.utils import Config
+from siatune.mm.core import Config
 
 
 def dump_cfg(cfg: Config, save_path: str) -> bool:

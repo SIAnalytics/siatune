@@ -2,11 +2,10 @@
 from argparse import REMAINDER, ArgumentParser, Namespace
 from os import path as osp
 
-import mmcv
 import ray
-from mmcv import Config, DictAction
 
 from siatune.apis import log_analysis, tune
+from siatune.mm.core import Config, DictAction, mkdir_or_exist
 from siatune.mm.tasks import build_task_processor
 
 
@@ -100,7 +99,7 @@ def main() -> None:
         tune_config.work_dir = args.work_dir
     elif tune_config.get('work_dir', None) is None:
         tune_config.work_dir = osp.join('./work_dirs', file_name)
-    mmcv.mkdir_or_exist(tune_config.work_dir)
+    mkdir_or_exist(tune_config.work_dir)
     # work_dir in task is overridden with work_dir in tune
     if hasattr(task_processor.args, 'work_dir'):
         task_processor.args.work_dir = tune_config.work_dir
@@ -117,7 +116,7 @@ def main() -> None:
         task_config = Config.fromfile(task_config)
 
     analysis_dir = osp.join(tune_config.work_dir, 'analysis')
-    mmcv.mkdir_or_exist(analysis_dir)
+    mkdir_or_exist(analysis_dir)
     log_analysis(
         tune(task_processor, tune_config, exp_name),
         tune_config,
