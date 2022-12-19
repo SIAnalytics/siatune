@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import copy
 import os.path as osp
+from typing import Any, Callable, Optional, Union
 
 from ray.air.config import RunConfig
 from ray.tune.tune_config import TuneConfig
@@ -14,27 +15,38 @@ class Tuner:
     """Wrapper class of :class:`ray.tune.tuner.Tuner`.
 
     Args:
-        trainable (Callable):
-        work_dir (str):
-        param_space (dict, optional):
-        tune_cfg (dict, optional):
-            Refer to https://github.com/ray-project/ray/blob/ray-2.1.0/python/ray/tune/tune_config.py for details.  # noqa
-        searcher (dict, optional):
-        trial_scheduler (dict, optional):
-        stopper (dict, optional):
-        callbacks (list, optional):
+        trainable (Callable): The trainable to be tuned.
+        work_dir (str): The working directory to save checkpoints. The logs
+            will be saved in the subdirectory of `work_dir`.
+        param_space (dict, optional): Search space of the tuning task.
+        tune_cfg (dict, optional): Tuning algorithm specific configs
+            except for `search_alg` and `scheduler`.
+            Refer to :class:`ray.tune.tune_config.TuneConfig` for more info.
+        searcher (dict, optional): Search algorithm for optimization.
+            Default to random search.
+            Refer to :module:`ray.tune.search` for more options.
+        trial_scheduler (dict, optional): Scheduler for executing the trial.
+            Default to FIFO scheduler.
+            Refer to :module:`ray.tune.schedulers` for more options.
+        stopper (dict, optional): Stop conditions to consider.
+            Refer to :class:`ray.tune.stopper.Stopper` for more info.
+        callbacks (dict | list, optional): Callbacks to invoke.
+            Refer to :class:`ray.tune.callback.Callback` for more info.
+        resume (str, optional): The experiment path to resume.
+            Default to None.
     """
 
     def __init__(
         self,
-        trainable,
-        work_dir,
-        param_space=None,
-        tune_cfg=None,
-        searcher=None,
-        trial_scheduler=None,
-        stopper=None,
-        callbacks=None,
+        trainable: Callable[[dict], Any],
+        work_dir: str,
+        param_space: Optional[dict] = None,
+        tune_cfg: Optional[dict] = None,
+        searcher: Optional[dict] = None,
+        trial_scheduler: Optional[dict] = None,
+        stopper: Optional[dict] = None,
+        callbacks: Optional[Union[dict, list]] = None,
+        resume: Optional[str] = None,
     ):
         work_dir = osp.abspath(work_dir)
 
@@ -57,6 +69,8 @@ class Tuner:
                 callbacks = [callbacks]
             callbacks = [build_callback(callback) for callback in callbacks]
 
+        self.resume = resume
+
         self.tuner = RayTuner(
             trainable,
             param_space=dict(train_loop_config=param_space),
@@ -73,7 +87,7 @@ class Tuner:
         )
 
     @classmethod
-    def from_cfg(cls, cfg, trainable):
+    def from_cfg(cls, cfg: dict, trainable: Callable[[dict], Any]):
         cfg = copy.deepcopy(cfg)
         tuner = cls(
             trainable,
@@ -84,13 +98,13 @@ class Tuner:
             trial_scheduler=cfg.get('trial_scheduler', None),
             stopper=cfg.get('stopper', None),
             callbacks=cfg.get('callbacks', None),
+            resume=cfg.get('resume', None),
         )
 
         return tuner
 
-    @classmethod
-    def resume(cls, path, **kwargs):
-        return cls.restore(path, **kwargs)
-
     def fit(self):
+        if self.resume is not None:
+            self.tuner = RayTuner.restore(self.resume)
+
         return self.tuner.fit()
