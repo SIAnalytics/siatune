@@ -1,9 +1,9 @@
-from siatune.ray.schedulers import SCHEDULERS, build_scheduler
+from siatune.ray.schedulers import TRIAL_SCHEDULERS, build_scheduler
 
 
 def test_build_schedulers():
 
-    @SCHEDULERS.register_module()
+    @TRIAL_SCHEDULERS.register_module()
     class TestScheduler:
         pass
 

@@ -21,7 +21,7 @@ except ImportError:
     optimizer_registry = dict()
 
 
-@SEARCHERS.register_module()
+@SEARCHERS.register_module(force=True)
 class NevergradSearch(_NevergradSearch):
     """Search with Nevergrad."""
 
@@ -104,8 +104,8 @@ class NevergradSearch(_NevergradSearch):
                 if len(self._nevergrad_opt.instrumentation.args) != 1:
                     raise ValueError(
                         'Instrumented optimizers should use kwargs only')
-        if self._parameters is not None and \
-           self._nevergrad_opt.dimension != len(self._parameters):
+        if self._parameters is not None and (self._nevergrad_opt.dimension !=
+                                             len(self._parameters)):
             raise ValueError('len(parameters_names) must match optimizer '
                              'dimension for non-instrumented optimizers')
 

@@ -1,9 +1,7 @@
 import pytest
 from ray import tune
 
-from siatune.ray.searchers import (SEARCHERS, BlendSearch, CFOSearch,
-                                   HyperOptSearch, NevergradSearch,
-                                   build_searcher)
+from siatune.ray.searchers import SEARCHERS, build_searcher
 
 
 def test_build_searcher():
@@ -39,7 +37,17 @@ def test_blend(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=BlendSearch(),
+        search_alg=build_searcher(dict(type='BlendSearch')),
+        num_samples=2,
+        config=config)
+
+
+def test_bohb(trainable, config):
+    tune.run(
+        trainable,
+        metric='mean_loss',
+        mode='min',
+        search_alg=build_searcher(dict(type='TuneBOHB')),
         num_samples=2,
         config=config)
 
@@ -49,7 +57,7 @@ def test_cfo(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=CFOSearch(),
+        search_alg=build_searcher(dict(type='CFO')),
         num_samples=2,
         config=config)
 
@@ -59,7 +67,7 @@ def test_hyperopt(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=HyperOptSearch(),
+        search_alg=build_searcher(dict(type='HyperOptSearch')),
         num_samples=2,
         config=config)
 
@@ -69,6 +77,15 @@ def test_nevergrad(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=NevergradSearch(optimizer='PSO', budget=2),
+        search_alg=build_searcher(dict(type='NevergradSearch', budget=1)),
+        num_samples=2,
+        config=config)
+
+    tune.run(
+        trainable,
+        metric='mean_loss',
+        mode='min',
+        search_alg=build_searcher(
+            dict(type='NevergradSearch', optimizer='PSO', budget=1)),
         num_samples=2,
         config=config)

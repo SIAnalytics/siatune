@@ -8,7 +8,7 @@ from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
 from ray.tune.search.sample import Domain
 
-from siatune.ray.schedulers import SCHEDULERS
+from siatune.ray.schedulers import TRIAL_SCHEDULERS
 from siatune.ray.spaces import build_space
 from siatune.utils import ImmutableContainer
 
@@ -50,7 +50,7 @@ def explore(
     return new_config
 
 
-@SCHEDULERS.register_module(force=True)
+@TRIAL_SCHEDULERS.register_module(force=True)
 class PopulationBasedTraining(_PopulationBasedTraining):
 
     def __init__(self, *args, **kwargs) -> None:

@@ -1,5 +1,7 @@
 bayesian-optimization==1.2.0
+ConfigSpace
 flaml==1.0.14
+hpbandster
 hyperopt==0.2.5
 mlflow==1.23.1
 nevergrad==0.4.3.post7

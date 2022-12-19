@@ -1,4 +1,1 @@
-searcher = dict(
-    type='NevergradSearch',
-    budget=256,
-)
+searcher = dict(type='NevergradSearch', budget=256)
