@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Sequence
 
-import ray
+from ray.tune import Trainable
 
 from siatune.mm.context import ContextManager
 from siatune.utils import ImmutableContainer
@@ -29,9 +29,7 @@ class BaseTask(metaclass=ABCMeta):
             1. args (argparse.Namespace): The low level CLI arguments.
             2. searched_cfg (Dict):
                 The configuration searched by the algorithm.
-            3. checkpoint_dir (Optional[str]):
-                The directory of checkpoints that contains the states.
-        Inputs: searched_cfg (Dict), checkpoint_dir (Optional[str])
+        Inputs: searched_cfg (Dict)
         Outputs: None
     """
 
@@ -106,16 +104,14 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self,
-                          searched_cfg: Dict,
-                          checkpoint_dir: Optional[str] = None,
-                          **kwargs) -> Any:
+    def context_aware_run(self, searched_cfg: Dict) -> Any:
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:
             searched_cfg (Dict): The searched configuration.
             kwargs (**kwargs): The kwargs.
+
         Returns:
             Any: The result of the objective task.
         """
@@ -124,9 +120,7 @@ class BaseTask(metaclass=ABCMeta):
         context = dict(
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
-            checkpoint_dir=checkpoint_dir,
         )
-        context.update(kwargs)
         return context_manager(self.run)(**context)
 
     @abstractmethod
@@ -140,7 +134,7 @@ class BaseTask(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def create_trainable(self, *args, **kwargs) -> ray.tune.Trainable:
+    def create_trainable(self, *args, **kwargs) -> Trainable:
         """Get ray trainable task.
 
         Args:

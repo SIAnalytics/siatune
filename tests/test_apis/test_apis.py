@@ -1,9 +1,10 @@
 import os
+import random
 import tempfile
 from unittest.mock import MagicMock
 
 import mmcv
-from ray.tune.trainable import Trainable
+import ray
 
 from siatune.apis import log_analysis, tune
 
@@ -37,14 +38,11 @@ def test_log_analysis():
 
 def test_tune():
 
-    class TestTrainable(Trainable):
-
-        def step(self):
-            result = {'name': self.trial_name, 'trial_id': self.trial_id}
-            return result
+    def trainable(config):
+        ray.tune.report({'metric': random.random()})
 
     mock_task_processor = MagicMock()
-    mock_task_processor.create_trainable.return_value = TestTrainable
+    mock_task_processor.create_trainable.return_value = trainable
     with tempfile.TemporaryDirectory() as tmpdir:
         tune_config = mmcv.Config(
             dict(

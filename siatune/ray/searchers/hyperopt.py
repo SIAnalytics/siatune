@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from ray.tune.suggest.hyperopt import HyperOptSearch as _HyperOptSearch
+from ray.tune.search.hyperopt import HyperOptSearch as _HyperOptSearch
 
 from .builder import SEARCHERS
 

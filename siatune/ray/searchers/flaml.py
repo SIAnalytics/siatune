@@ -1,6 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from ray.tune.suggest.flaml import CFO as _CFO
-from ray.tune.suggest.flaml import BlendSearch as _BlendSearch
+from ray.tune.search.flaml import CFO as _CFO
+from ray.tune.search.flaml import BlendSearch as _BlendSearch
 
 from .builder import SEARCHERS
 

@@ -22,6 +22,8 @@ def parse_args() -> Namespace:
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
     parser.add_argument(
+        '--resume', default=None, help='the experiment path to resume')
+    parser.add_argument(
         '--cfg-options',
         nargs='+',
         action=DictAction,
@@ -102,6 +104,9 @@ def main() -> None:
     # work_dir in task is overridden with work_dir in tune
     if hasattr(task_processor.args, 'work_dir'):
         task_processor.args.work_dir = tune_config.work_dir
+
+    if args.resume is not None:
+        tune_config.resume = args.resume
 
     ray.init(
         address=args.address, num_cpus=args.num_cpus, num_gpus=args.num_gpus)

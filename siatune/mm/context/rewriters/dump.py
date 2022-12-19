@@ -3,7 +3,7 @@ import tempfile
 from os import path as osp
 from typing import Dict
 
-import ray
+from ray.air import session
 
 from siatune.utils import dump_cfg
 from .base import BaseRewriter
@@ -46,7 +46,7 @@ class Dump(BaseRewriter):
             Dict: The context after rewriting.
         """
         cfg = context.pop(self.key)
-        trial_id = ray.tune.get_trial_id()
+        trial_id = session.get_trial_id()
         tmp_path = self.get_temporary_path(f'{trial_id}.py')
         setattr(context.get('args'), self.arg_name, tmp_path)
         dump_cfg(cfg, tmp_path)
