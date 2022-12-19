@@ -18,8 +18,6 @@ RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 git ninja-build 
     && rm -rf /var/lib/apt/lists/*
 
 # Install MMCV with MIM
-ARG PYTORCH
-ARG CUDA
 ARG MMCV_VERSION
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir openmim
