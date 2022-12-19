@@ -23,7 +23,7 @@ ARG CUDA
 ARG MMCV_VERSION
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir openmim
- && mim mmcv-full==MMCV_VERSION
+ && mim install mmcv-full==MMCV_VERSION
 
 # Install SIATune
 COPY . /siatune
