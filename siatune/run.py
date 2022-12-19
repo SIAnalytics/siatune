@@ -7,7 +7,7 @@ import ray
 from mmcv import Config, DictAction
 
 from siatune.apis import log_analysis, tune
-from siatune.core.tasks import build_task_processor
+from siatune.codebase import build_task_processor
 
 
 def parse_args() -> Namespace:

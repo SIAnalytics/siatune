@@ -3,7 +3,7 @@
 import ray
 from mmcv.utils import Config
 
-from siatune.core.tasks import BaseTask
+from siatune.codebase import BaseTask
 from siatune.hyper_optim import Tuner
 
 

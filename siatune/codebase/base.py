@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from ray.tune import Trainable
 
-from siatune.core.context import ContextManager
+from siatune.core import ContextManager
 from siatune.utils import ImmutableContainer
 
 

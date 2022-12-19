@@ -5,7 +5,7 @@ import torch
 from ray.air.config import ScalingConfig
 from ray.train.data_parallel_trainer import DataParallelTrainer
 
-from siatune.hyper_optim.config import CustomBackendConfig
+from siatune.hyper_optim import CustomBackendConfig
 from .base import BaseTask
 from .builder import TASKS
 
