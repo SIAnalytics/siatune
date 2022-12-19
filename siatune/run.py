@@ -4,7 +4,7 @@ from os import path as osp
 
 import mmcv
 import ray
-from mmcv import Config
+from mmcv import Config, DictAction
 
 from siatune.apis import log_analysis, tune
 from siatune.mm.tasks import build_task_processor
@@ -18,9 +18,21 @@ def parse_args() -> Namespace:
     """
 
     parser = ArgumentParser(description='tune')
-    parser.add_argument('tune_config', help='tune config file path')
+    parser.add_argument('config', help='tune config file path')
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
+    parser.add_argument(
+        '--resume', default=None, help='the experiment path to resume')
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. If the value to '
+        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+        'Note that the quotation marks are necessary and that no white space '
+        'is allowed.')
     parser.add_argument(
         '--address',
         default=None,
@@ -68,7 +80,11 @@ def main() -> None:
     """Main function."""
 
     args = parse_args()
-    tune_config = Config.fromfile(args.tune_config)
+
+    tune_config = Config.fromfile(args.config)
+
+    if args.cfg_options is not None:
+        tune_config.merge_from_dict(args.cfg_options)
 
     task_processor = build_task_processor(tune_config.task)
     task_processor.set_args(args.trainable_args)
@@ -76,7 +92,7 @@ def main() -> None:
         num_cpus_per_worker=args.num_cpus_per_worker,
         num_gpus_per_worker=args.num_gpus_per_worker,
         num_workers=args.num_workers)
-    file_name = osp.splitext(osp.basename(args.tune_config))[0]
+    file_name = osp.splitext(osp.basename(args.config))[0]
     exp_name = args.exp_name or tune_config.get('exp_name', file_name)
 
     # work_dir is determined in this priority: CLI > segment in file > filename
@@ -88,6 +104,9 @@ def main() -> None:
     # work_dir in task is overridden with work_dir in tune
     if hasattr(task_processor.args, 'work_dir'):
         task_processor.args.work_dir = tune_config.work_dir
+
+    if args.resume is not None:
+        tune_config.resume = args.resume
 
     ray.init(
         address=args.address, num_cpus=args.num_cpus, num_gpus=args.num_gpus)

@@ -32,6 +32,8 @@ class Tuner:
             Refer to :class:`ray.tune.stopper.Stopper` for more info.
         callbacks (dict | list, optional): Callbacks to invoke.
             Refer to :class:`ray.tune.callback.Callback` for more info.
+        resume (str, optional): The experiment path to resume.
+            Default to None.
     """
 
     def __init__(
@@ -44,6 +46,7 @@ class Tuner:
         trial_scheduler: Optional[dict] = None,
         stopper: Optional[dict] = None,
         callbacks: Optional[Union[dict, list]] = None,
+        resume: Optional[str] = None,
     ):
         work_dir = osp.abspath(work_dir)
 
@@ -65,6 +68,8 @@ class Tuner:
             if isinstance(callbacks, dict):
                 callbacks = [callbacks]
             callbacks = [build_callback(callback) for callback in callbacks]
+
+        self.resume = resume
 
         self.tuner = RayTuner(
             trainable,
@@ -93,13 +98,13 @@ class Tuner:
             trial_scheduler=cfg.get('trial_scheduler', None),
             stopper=cfg.get('stopper', None),
             callbacks=cfg.get('callbacks', None),
+            resume=cfg.get('resume', None),
         )
 
         return tuner
 
-    @classmethod
-    def resume(cls, path: str, **kwargs):
-        return cls.restore(path, **kwargs)
-
     def fit(self):
+        if self.resume is not None:
+            self.tuner = RayTuner.restore(self.resume)
+
         return self.tuner.fit()
