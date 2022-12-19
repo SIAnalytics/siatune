@@ -48,7 +48,7 @@ jobs:
         run: |
           pip install openmim
           mim install mmcv-full==${{ matrix.mmcv }}
-          mim install mmcls mmdet mmsegmentation
+          mim install mmcls mmdet mmedit mmsegmentation
       - name: Install SIATune
         run: |
           pip install -e ".[optional]"
