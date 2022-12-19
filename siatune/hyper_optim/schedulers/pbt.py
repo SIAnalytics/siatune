@@ -8,8 +8,8 @@ from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
 from ray.tune.search.sample import Domain
 
-from siatune.ray.schedulers import TRIAL_SCHEDULERS
-from siatune.ray.spaces import build_space
+from siatune.hyper_optim.schedulers import TRIAL_SCHEDULERS
+from siatune.hyper_optim.spaces import build_space
 from siatune.utils import ImmutableContainer
 
 

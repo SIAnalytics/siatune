@@ -5,8 +5,8 @@ import mmdet  # noqa: F401
 import mmedit  # noqa: F401
 import mmseg  # noqa: F401
 
-from siatune.mm.tasks import (MMClassification, MMDetection, MMEditing,
-                              MMSegmentation)
+from siatune.core.tasks import (MMClassification, MMDetection, MMEditing,
+                                MMSegmentation)
 
 
 @patch('mmcls.apis.train_model')

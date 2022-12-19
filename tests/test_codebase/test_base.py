@@ -5,7 +5,7 @@ import ray
 from ray import tune
 from ray.tune.result_grid import ResultGrid
 
-from siatune.mm.tasks import TASKS, BaseTask, build_task_processor
+from siatune.core.tasks import TASKS, BaseTask, build_task_processor
 
 
 @pytest.fixture

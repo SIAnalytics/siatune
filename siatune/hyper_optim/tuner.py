@@ -7,8 +7,8 @@ from ray.air.config import RunConfig
 from ray.tune.tune_config import TuneConfig
 from ray.tune.tuner import Tuner as RayTuner
 
-from siatune.ray import (build_callback, build_scheduler, build_searcher,
-                         build_space, build_stopper)
+from siatune.hyper_optim import (build_callback, build_scheduler,
+                                 build_searcher, build_space, build_stopper)
 
 
 class Tuner:

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from mmcv.utils import Config
 
-from siatune.mm.tasks import ContinuousTestFunction, DiscreteTestFunction
+from siatune.core.tasks import ContinuousTestFunction, DiscreteTestFunction
 from siatune.utils.config import dump_cfg
 
 session = dict()

@@ -1,7 +1,8 @@
 import pytest
 from ray import tune
 
-from siatune.ray.spaces import Choice, GridSearch, SampleFrom, build_space
+from siatune.hyper_optim.spaces import (Choice, GridSearch, SampleFrom,
+                                        build_space)
 from siatune.utils import ImmutableContainer
 
 

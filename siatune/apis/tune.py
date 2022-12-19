@@ -3,8 +3,8 @@
 import ray
 from mmcv.utils import Config
 
-from siatune.mm.tasks import BaseTask
-from siatune.ray import Tuner
+from siatune.core.tasks import BaseTask
+from siatune.hyper_optim import Tuner
 
 
 def tune(task_processor: BaseTask, tune_config: Config,
