@@ -4,7 +4,7 @@ from mmcv.utils import Config, Registry
 from ray import tune
 from ray.tune.search import Searcher
 
-SEARCHERS = Registry('searchers')
+SEARCHERS = Registry('searcher')
 
 # Dynamically import search_alg
 # Refer to https://github.com/ray-project/ray/blob/master/python/ray/tune/search/__init__.py  # noqa
