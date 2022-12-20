@@ -5,8 +5,10 @@ from ray import tune
 from ray.tune.search import Searcher
 
 SEARCHERS = Registry('searchers')
-for func in set(tune.search.SEARCH_ALG_IMPORT.values()):
-    SEARCHERS.register_module(module=func())
+# Remove duplicate :class:`_DummyErrorRaiser`
+searchers = set([func() for func in tune.search.SEARCH_ALG_IMPORT.values()])
+for cls in searchers:
+    SEARCHERS.register_module(module=cls)
 
 
 def build_searcher(cfg: Config) -> Searcher:
