@@ -1,7 +1,7 @@
 from ray import tune
 
-from siatune.hyper_optim.stoppers import (STOPPERS, DictionaryStopper,
-                                          EarlyDroppingStopper, build_stopper)
+from siatune.tune.stoppers import (STOPPERS, DictionaryStopper,
+                                   EarlyDroppingStopper, build_stopper)
 
 
 def test_build_stopper():
