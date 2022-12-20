@@ -1,2 +1,2 @@
-pyarrow
+ray[data]==2.1.0
 ray[tune]==2.1.0
