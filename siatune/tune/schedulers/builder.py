@@ -6,10 +6,13 @@ from ray import tune
 from ray.tune.schedulers import TrialScheduler
 
 TRIAL_SCHEDULERS = Registry('trial scheduler')
-for v in set(tune.schedulers.SCHEDULER_IMPORT.values()):
-    if not inspect.isclass(v):
+
+# Dynamically import scheduler
+# Refer to https://github.com/ray-project/ray/blob/master/python/ray/tune/schedulers/__init__.py  # noqa
+for cls in set(tune.schedulers.SCHEDULER_IMPORT.values()):
+    if not inspect.isclass(cls):
         continue
-    TRIAL_SCHEDULERS.register_module(module=v)
+    TRIAL_SCHEDULERS.register_module(module=cls)
 
 
 def build_scheduler(cfg: Config) -> TrialScheduler:

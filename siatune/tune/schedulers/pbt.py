@@ -8,9 +8,9 @@ from ray.tune.schedulers.pbt import \
     PopulationBasedTraining as _PopulationBasedTraining
 from ray.tune.search.sample import Domain
 
-from siatune.ray.schedulers import TRIAL_SCHEDULERS
-from siatune.ray.spaces import build_space
+from siatune.tune.spaces import build_space
 from siatune.utils import ImmutableContainer
+from .builder import TRIAL_SCHEDULERS
 
 
 def explore(

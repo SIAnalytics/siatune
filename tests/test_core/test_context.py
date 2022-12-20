@@ -1,6 +1,7 @@
 import pytest
 
-from siatune.mm.context import REWRITERS, ContextManager
+from siatune.core import ContextManager
+from siatune.core.rewriters import REWRITERS
 
 
 def test_contextmanager():

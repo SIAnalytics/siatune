@@ -4,9 +4,12 @@ from mmcv.utils import Config, Registry
 from ray import tune
 from ray.tune.search import Searcher
 
-SEARCHERS = Registry('searchers')
+SEARCHERS = Registry('searcher')
 # Remove duplicate :class:`_DummyErrorRaiser`
 searchers = set([func() for func in tune.search.SEARCH_ALG_IMPORT.values()])
+
+# Dynamically import search_alg
+# Refer to https://github.com/ray-project/ray/blob/master/python/ray/tune/search/__init__.py  # noqa
 for cls in searchers:
     SEARCHERS.register_module(module=cls)
 

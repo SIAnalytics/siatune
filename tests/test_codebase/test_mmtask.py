@@ -5,7 +5,7 @@ import mmdet  # noqa: F401
 import mmedit  # noqa: F401
 import mmseg  # noqa: F401
 
-from siatune.mm.tasks import (MMClassification, MMDetection, MMEditing,
+from siatune.codebase import (MMClassification, MMDetection, MMEditing,
                               MMSegmentation)
 
 
