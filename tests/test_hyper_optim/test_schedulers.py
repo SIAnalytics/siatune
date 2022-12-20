@@ -1,5 +1,6 @@
 import pytest
 from ray import tune
+from ray.tune.error import TuneError
 
 from siatune.tune.schedulers import TRIAL_SCHEDULERS, build_scheduler
 from siatune.tune.searchers import build_searcher
@@ -59,11 +60,13 @@ def test_hb(trainable, config):
 
 
 def test_bohb(trainable, config):
-    with pytest.raises(AssertionError):
+    with pytest.raises(TuneError):
+        # AttributeError
         tune.run(
             trainable,
             metric='mean_loss',
             mode='min',
+            search_alg=None,
             scheduler=build_scheduler(
                 dict(type='HyperBandForBOHB', time_attr='training_iteration')),
             num_samples=2,
@@ -73,7 +76,7 @@ def test_bohb(trainable, config):
         trainable,
         metric='mean_loss',
         mode='min',
-        search_alg=build_searcher(type='TuneBOHB'),
+        search_alg=build_searcher(dict(type='TuneBOHB')),
         scheduler=build_scheduler(
             dict(type='HyperBandForBOHB', time_attr='training_iteration')),
         num_samples=2,
