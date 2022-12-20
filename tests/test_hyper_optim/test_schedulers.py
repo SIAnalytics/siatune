@@ -1,4 +1,4 @@
-from siatune.ray.schedulers import TRIAL_SCHEDULERS, build_scheduler
+from siatune.tune.schedulers import TRIAL_SCHEDULERS, build_scheduler
 
 
 def test_build_schedulers():

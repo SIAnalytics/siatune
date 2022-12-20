@@ -6,7 +6,7 @@ import torch
 import torch.distributed as dist
 from ray import tune
 
-from siatune.mm.hooks import RayCheckpointHook, RayTuneLoggerHook
+from siatune.core.hooks import RayCheckpointHook, RayTuneLoggerHook
 
 
 def test_raycheckpointhook():

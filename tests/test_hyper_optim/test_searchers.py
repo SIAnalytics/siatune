@@ -1,7 +1,7 @@
 import pytest
 from ray import tune
 
-from siatune.ray.searchers import SEARCHERS, build_searcher
+from siatune.tune.searchers import SEARCHERS, build_searcher
 
 
 def test_build_searcher():
