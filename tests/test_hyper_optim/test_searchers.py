@@ -89,3 +89,13 @@ def test_nevergrad(trainable, config):
             dict(type='NevergradSearch', optimizer='PSO', budget=1)),
         num_samples=2,
         config=config)
+
+
+def test_optuna(trainable, config):
+    tune.run(
+        trainable,
+        metric='mean_loss',
+        mode='min',
+        search_alg=build_searcher(dict(type='OptunaSearch')),
+        num_samples=2,
+        config=config)

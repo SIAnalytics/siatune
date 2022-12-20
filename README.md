@@ -19,9 +19,10 @@ SIATune is an open-source deep learning model hyperparameter tuning toolbox espe
 - **Support hyperparameter search algorithms**
 
   We provide hyperparameter search algorithms such as below;
-  - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
-  - [x] [HyperOpt](https://github.com/hyperopt/hyperopt)
   - [x] [FLAML](https://github.com/microsoft/FLAML)
+  - [x] [HyperOpt](https://github.com/hyperopt/hyperopt)
+  - [x] [Nevergrad](https://github.com/facebookresearch/nevergrad)
+  - [x] [Optuna](https://github.com/optuna/optuna)
   - [ ] [Adaptive Experimentation (AX)](https://ax.dev/)
   - [ ] [Scikit-optimize](https://github.com/scikit-optimize/scikit-optimize)
 
