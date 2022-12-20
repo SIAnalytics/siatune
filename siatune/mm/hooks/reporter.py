@@ -1,54 +1,44 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+from pathlib import Path
+from typing import Dict, Optional, Union
+
 from ray.air import session
 from torch import distributed as dist
 
 from siatune.mm.core import (HOOKS, MMENGINE_BASED, BaseRunner, LoggerHook,
                              get_dist_info)
 
+if MMENGINE_BASED:
+    from mmengine.hooks.logger_hook import SUFFIX_TYPE
 
-@HOOKS.register_module()
-class RayTuneLoggerHook(LoggerHook):
-    """MMCV Logger hook for Ray Tune."""
+    @HOOKS.register_module()
+    class RayTuneLoggerHook(LoggerHook):
+        """MMCV Logger hook for Ray Tune."""
 
-    def __init__(
-        self,
-        interval: int = 1,
-        ignore_last: bool = True,
-        reset_flag: bool = False,
-        by_epoch: bool = False,
-        filtering_key: str = 'val',
-    ) -> None:
-        """Initialize the hook.
+        def __init__(self,
+                     interval: int = 10,
+                     ignore_last: bool = True,
+                     interval_exp_name: int = 1000,
+                     out_dir: Optional[Union[str, Path]] = None,
+                     out_suffix: SUFFIX_TYPE = ('.json', '.log', '.py',
+                                                'yaml'),
+                     keep_local: bool = True,
+                     file_client_args: Optional[dict] = None,
+                     log_metric_by_epoch: bool = True,
+                     backend_args: Optional[dict] = None,
+                     filtering_key: str = 'val'):
 
-        Args:
-            interval (int): The interval to log.
-            ignore_last (bool): Whether to ignore the last iteration.
-            reset_flag (bool): Whether to reset the iteration.
-            by_epoch (bool): Whether to log by epoch.
-            filtering_key (str): The key to filter.
-        """
-        if MMENGINE_BASED:
-            kwargs = dict(
-                interval=interval,
-                ignore_last=ignore_last,
-                log_metric_by_epoch=by_epoch)
-        else:
-            kwargs = dict(
-                interval=interval,
-                ignore_last=ignore_last,
-                reset_flag=reset_flag,
-                by_epoch=by_epoch)
+            super().__init__(interval, ignore_last, interval_exp_name, out_dir,
+                             out_suffix, keep_local, file_client_args,
+                             log_metric_by_epoch, backend_args)
+            self.filtering_key = filtering_key
 
-        super(RayTuneLoggerHook, self).__init__(**kwargs)
-        self.filtering_key = filtering_key
+        def after_train_iter(self, runner: BaseRunner, **kwargs) -> None:
+            """Log after train itr.
 
-    def after_train_iter(self, runner: BaseRunner, **kwargs) -> None:
-        """Log after train itr.
-
-        Args:
-            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
-        """
-        if MMENGINE_BASED:
+            Args:
+                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+            """
             batch_idx = kwargs['batch_idx']
             if self.every_n_train_iters(
                     runner, self.interval_exp_name) or (self.end_of_epoch(
@@ -68,65 +58,140 @@ class RayTuneLoggerHook(LoggerHook):
                     runner, batch_idx, 'train')
             else:
                 return
-            runner.logger.info(log_str)
+            # runner.logger.info(log_str)
 
             # TODO: Here we sohuld feed tags to ray reporter
 
-            raise RuntimeError
+            rank, world_size = get_dist_info()
+            if world_size > 1:
+                if rank == 0:
+                    broadcasted = [tag]
+                else:
+                    broadcasted = [None]
+                dist.broadcast_object_list(broadcasted)
+                tag = broadcasted.pop()
+            if not any(
+                    filter(lambda elem: self.filtering_key in elem,
+                           tag.keys())):
+                return
+            tag['global_step'] = runner.iter + 1
+            session.report(tag)
 
-            return super().after_train_iter(runner, **kwargs)
+        def after_val_epoch(
+                self,
+                runner,
+                metrics: Optional[Dict[str, float]] = None) -> None:
+            """All subclasses should override this method, if they need any
+            operations after each validation epoch.
 
-        if self.by_epoch and self.every_n_inner_iters(runner, self.interval):
-            runner.log_buffer.average(self.interval)
-        elif not self.by_epoch and self.every_n_iters(runner, self.interval):
-            runner.log_buffer.average(self.interval)
-        elif self.end_of_epoch(runner) and not self.ignore_last:
-            # not precise but more stable
-            runner.log_buffer.average(self.interval)
+            Args:
+                runner (Runner): The runner of the validation process.
+                metrics (Dict[str, float], optional): Evaluation results of all
+                    metrics on validation dataset. The keys are the names of the
+                    metrics, and the values are corresponding results.
+            """
+            tag, log_str = runner.log_processor.get_log_after_epoch(
+                runner, len(runner.val_dataloader), 'val')
+            tag = {k: v for k, v in tag.items() if 'time' not in k}
 
-        self.log(runner)
-        if self.reset_flag:
-            runner.log_buffer.clear_output()
+            rank, world_size = get_dist_info()
+            if world_size > 1:
+                if rank == 0:
+                    broadcasted = [tag]
+                else:
+                    broadcasted = [None]
+                dist.broadcast_object_list(broadcasted)
+                tag = broadcasted.pop()
 
-    def after_train_epoch(self, runner: BaseRunner) -> None:
-        """Log after train epoch.
+            session.report(metrics=tag)
 
-        Args:
-            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
-        """
-        self.log(runner)
-        if self.reset_flag:
-            runner.log_buffer.clear_output()
+else:
 
-    def after_val_epoch(self, runner: BaseRunner) -> None:
-        """Log after val epoch.
+    @HOOKS.register_module()
+    class RayTuneLoggerHook(LoggerHook):
+        """MMCV Logger hook for Ray Tune."""
 
-        Args:
-            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
-        """
-        runner.log_buffer.average()
-        self.log(runner)
-        if self.reset_flag:
-            runner.log_buffer.clear_output()
+        def __init__(
+            self,
+            interval: int = 1,
+            ignore_last: bool = True,
+            reset_flag: bool = False,
+            by_epoch: bool = False,
+            filtering_key: str = 'val',
+        ) -> None:
+            """Initialize the hook.
 
-    def log(self, runner: BaseRunner) -> None:
-        """Log the information.
+            Args:
+                interval (int): The interval to log.
+                ignore_last (bool): Whether to ignore the last iteration.
+                reset_flag (bool): Whether to reset the iteration.
+                by_epoch (bool): Whether to log by epoch.
+                filtering_key (str): The key to filter.
+            """
+            super(RayTuneLoggerHook, self).__init__(interval, ignore_last,
+                                                    reset_flag, by_epoch)
+            self.filtering_key = filtering_key
 
-        Args:
-            runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
-        """
+        def after_train_iter(self, runner: BaseRunner) -> None:
+            """Log after train itr.
 
-        tags = self.get_loggable_tags(runner)
-        rank, world_size = get_dist_info()
-        if world_size > 1:
-            if rank == 0:
-                broadcasted = [tags]
-            else:
-                broadcasted = [None]
-            dist.broadcast_object_list(broadcasted)
-            tags = broadcasted.pop()
-        if not any(
-                filter(lambda elem: self.filtering_key in elem, tags.keys())):
-            return
-        tags['global_step'] = self.get_iter(runner)
-        session.report(tags)
+            Args:
+                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+            """
+            if self.by_epoch and self.every_n_inner_iters(
+                    runner, self.interval):
+                runner.log_buffer.average(self.interval)
+            elif not self.by_epoch and self.every_n_iters(
+                    runner, self.interval):
+                runner.log_buffer.average(self.interval)
+            elif self.end_of_epoch(runner) and not self.ignore_last:
+                # not precise but more stable
+                runner.log_buffer.average(self.interval)
+
+            self.log(runner)
+            if self.reset_flag:
+                runner.log_buffer.clear_output()
+
+        def after_train_epoch(self, runner: BaseRunner) -> None:
+            """Log after train epoch.
+
+            Args:
+                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+            """
+            self.log(runner)
+            if self.reset_flag:
+                runner.log_buffer.clear_output()
+
+        def after_val_epoch(self, runner: BaseRunner) -> None:
+            """Log after val epoch.
+
+            Args:
+                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+            """
+            runner.log_buffer.average()
+            self.log(runner)
+            if self.reset_flag:
+                runner.log_buffer.clear_output()
+
+        def log(self, runner: BaseRunner) -> None:
+            """Log the information.
+
+            Args:
+                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+            """
+
+            tags = self.get_loggable_tags(runner)
+            rank, world_size = get_dist_info()
+            if world_size > 1:
+                if rank == 0:
+                    broadcasted = [tags]
+                else:
+                    broadcasted = [None]
+                dist.broadcast_object_list(broadcasted)
+                tags = broadcasted.pop()
+            if not any(
+                    filter(lambda elem: self.filtering_key in elem,
+                           tags.keys())):
+                return
+            tags['global_step'] = self.get_iter(runner)
+            session.report(tags)
