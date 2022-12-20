@@ -70,5 +70,11 @@ def test_sample_from():
     sample_from = SampleFrom('lambda spec: spec.config.base ** 2')
     tune.run(is_eq, config=dict(base=10, test=sample_from.space))
 
-    sample_from = SampleFrom(lambda spec: spec.config.base**2)
+    # sample_from = SampleFrom(lambda spec: spec.config.base**2)
+    # tune.run(is_eq, config=dict(base=10, test=sample_from.space))
+
+    # with custom module
+    sample_from = SampleFrom(
+        'lambda spec: numpy.pow(spec.config.base, 2)',
+        imports=['math', 'numpy'])
     tune.run(is_eq, config=dict(base=10, test=sample_from.space))

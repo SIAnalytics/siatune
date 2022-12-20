@@ -1,5 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from typing import Callable, Union
+import re
+from typing import Callable, Optional, Union
 
 import ray.tune as tune
 from ray.tune.search.sample import Domain
@@ -19,11 +20,17 @@ class SampleFrom(BaseSpace):
 
     sample: Callable = tune.sample_from
 
-    def __init__(self, func: Union[str, Callable]) -> None:
+    def __init__(self,
+                 func: Union[str, Callable],
+                 imports: Optional[list] = None) -> None:
         if isinstance(func, str):
             assert func.startswith('lambda')
-            func = eval(func)
-        self.func = func
+        imports = imports or []
+
+        head, *expr = re.split(r':', func)
+        self.func = eval(head + ': exec("' + ';'.join(f'import {m}'
+                                                      for m in imports) +
+                         '") or ' + ':'.join(expr))
 
     @property
     def space(self) -> Domain:
