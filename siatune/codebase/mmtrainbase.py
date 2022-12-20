@@ -12,7 +12,7 @@ from .builder import TASKS
 
 @TASKS.register_module()
 class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
-    """Wrap the apis of open mm train-based projects."""
+    """Wrap the train api of OpenMMLab."""
 
     def create_trainable(self) -> DataParallelTrainer:
         """Get a :class:`DataParallelTrainer` instance.
