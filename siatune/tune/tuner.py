@@ -75,7 +75,10 @@ class Tuner:
             trainable,
             param_space=dict(train_loop_config=param_space),
             tune_config=TuneConfig(
-                search_alg=searcher, scheduler=trial_scheduler, **tune_cfg),
+                search_alg=searcher,
+                scheduler=trial_scheduler,
+                chdir_to_trial_dir=False,
+                **tune_cfg),
             run_config=RunConfig(
                 local_dir=work_dir,
                 stop=stopper,
