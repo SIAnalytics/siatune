@@ -6,6 +6,7 @@ from typing import Optional, Union
 
 import mmcv
 from ray.air.config import RunConfig
+from ray.tune import ResultGrid
 from ray.tune.tune_config import TuneConfig
 from ray.tune.tuner import Tuner as RayTuner
 
@@ -60,8 +61,8 @@ class Tuner:
         task = build_task_processor(task)
         trainable = task.create_trainable()
 
-        work_dir = osp.abspath(work_dir)
-        mmcv.mkdir_or_exist(work_dir)
+        self.work_dir = osp.abspath(work_dir)
+        mmcv.mkdir_or_exist(self.work_dir)
 
         if param_space is not None:
             param_space = build_space(param_space)
@@ -85,10 +86,16 @@ class Tuner:
         self.resume = resume
 
         if experiment_name is None:
-            experiment_name = time.strftime('%Y%m%d_%H%M%S',
-                                            time.localtime(time.time()))
+            experiment_name = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+        self.experiment_name = experiment_name
 
         self.cfg = cfg
+
+        # dump `cfg` to `work_dir`
+        filename = self.cfg.filename or f'{experiment_name}.py'
+        if self.cfg.filename is not None:
+            filename = osp.basename(self.cfg.filename)
+        self.cfg.dump(osp.join(self.work_dir, experiment_name, filename))
 
         self.tuner = RayTuner(
             trainable,
@@ -96,8 +103,8 @@ class Tuner:
             tune_config=TuneConfig(
                 search_alg=searcher, scheduler=trial_scheduler, **tune_cfg),
             run_config=RunConfig(
-                name=experiment_name,
-                local_dir=work_dir,
+                name=self.experiment_name,
+                local_dir=self.work_dir,
                 stop=stopper,
                 callbacks=callbacks,
                 failure_config=None,  # todo
@@ -107,7 +114,7 @@ class Tuner:
         )
 
     @classmethod
-    def from_cfg(cls, cfg: dict):
+    def from_cfg(cls, cfg: dict) -> 'Tuner':
         cfg = copy.deepcopy(cfg)
         tuner = cls(
             task=cfg['task'],
@@ -125,7 +132,12 @@ class Tuner:
 
         return tuner
 
-    def tune(self):
+    def tune(self) -> ResultGrid:
+        """Launch tuning.
+
+        Returns:
+            ResultGrid: The :class:`ResultGrid` instance after tuning.
+        """
         if self.resume is not None:
             self.tuner = RayTuner.restore(self.resume)
 
