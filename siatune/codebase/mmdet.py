@@ -8,11 +8,11 @@ from os import path as osp
 from typing import Sequence
 
 from .builder import TASKS
-from .mmtrainbase import MMTrainBasedTask
+from .mm import MMBaseTask
 
 
 @TASKS.register_module()
-class MMDetection(MMTrainBasedTask):
+class MMDetection(MMBaseTask):
     """MMDetection wrapper class for `ray.tune`.
 
     It is modified from https://github.com/open-mmlab/mmdetection/blob/v2.25.2/tools/train.py

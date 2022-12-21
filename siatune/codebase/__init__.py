@@ -8,7 +8,7 @@ from .mmcls import MMClassification
 from .mmdet import MMDetection
 from .mmedit import MMEditing
 from .mmseg import MMSegmentation
-from .mmtrainbase import MMTrainBasedTask
+from .mm import MMBaseTask
 
 __all__ = [
     'TASKS',
@@ -17,7 +17,7 @@ __all__ = [
     'BlackBoxTask',
     'ContinuousTestFunction',
     'DiscreteTestFunction',
-    'MMTrainBasedTask',
+    'MMBaseTask',
     'MMClassification',
     'MMDetection',
     'MMEditing',

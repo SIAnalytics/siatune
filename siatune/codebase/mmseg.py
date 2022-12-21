@@ -8,11 +8,11 @@ from os import path as osp
 from typing import Sequence
 
 from .builder import TASKS
-from .mmtrainbase import MMTrainBasedTask
+from .mm import MMBaseTask
 
 
 @TASKS.register_module()
-class MMSegmentation(MMTrainBasedTask):
+class MMSegmentation(MMBaseTask):
     """MMSegmentation wrapper class for `ray.tune`.
 
     It is modified from https://github.com/open-mmlab/mmsegmentation/blob/v0.25.0/tools/train.py

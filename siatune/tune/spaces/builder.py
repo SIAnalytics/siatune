@@ -3,7 +3,7 @@ from typing import Mapping
 
 from mmcv.utils import Registry
 
-SPACES = Registry('spaces')
+SPACES = Registry('space')
 
 
 def build_space(cfg: dict) -> dict:

@@ -8,11 +8,11 @@ from os import path as osp
 from typing import Sequence
 
 from .builder import TASKS
-from .mmtrainbase import MMTrainBasedTask
+from .mm import MMBaseTask
 
 
 @TASKS.register_module()
-class MMClassification(MMTrainBasedTask):
+class MMClassification(MMBaseTask):
     """MMClassification wrapper class for `ray.tune`.
 
     It is modified from https://github.com/open-mmlab/mmclassification/blob/v0.23.2/tools/train.py

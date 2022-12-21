@@ -5,13 +5,13 @@ import torch
 from ray.air.config import ScalingConfig
 from ray.train.data_parallel_trainer import DataParallelTrainer
 
-from siatune.tune import CustomBackendConfig
+from siatune.tune import MMBackendConfig
 from .base import BaseTask
 from .builder import TASKS
 
 
 @TASKS.register_module()
-class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
+class MMBaseTask(BaseTask, metaclass=ABCMeta):
     """Wrap the apis of open mm train-based projects."""
 
     def create_trainable(self) -> DataParallelTrainer:
@@ -23,7 +23,7 @@ class MMTrainBasedTask(BaseTask, metaclass=ABCMeta):
 
         return DataParallelTrainer(
             self.context_aware_run,
-            backend_config=CustomBackendConfig(),
+            backend_config=MMBackendConfig(),
             scaling_config=ScalingConfig(
                 trainer_resources=dict(CPU=self.num_cpus_per_worker),
                 num_workers=self.num_workers,

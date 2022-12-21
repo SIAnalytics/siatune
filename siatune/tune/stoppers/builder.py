@@ -4,7 +4,7 @@ import inspect
 from mmcv.utils import Config, Registry
 from ray import tune
 
-STOPPERS = Registry('stoppers')
+STOPPERS = Registry('stopper')
 for stopper in dir(tune.stopper):
     if not stopper.endswith('Stopper'):
         continue

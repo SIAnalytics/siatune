@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CustomBackendConfig(BackendConfig):
+class MMBackendConfig(BackendConfig):
     """Configuration for torch process group setup."""
 
     @property
