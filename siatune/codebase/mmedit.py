@@ -7,11 +7,11 @@ from os import path as osp
 from typing import Sequence
 
 from .builder import TASKS
-from .mmtrainbase import MMTrainBasedTask
+from .mm import MMBaseTask
 
 
 @TASKS.register_module()
-class MMEditing(MMTrainBasedTask):
+class MMEditing(MMBaseTask):
     """MMEditing wrapper class for `ray.tune`.
 
     It is modified from https://github.com/open-mmlab/mmediting/blob/v0.15.0/tools/train.py
