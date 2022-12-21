@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import copy
 import os.path as osp
+import time
 from typing import Optional, Union
 
 import mmcv
@@ -36,6 +37,9 @@ class Tuner:
             Refer to :class:`ray.tune.callback.Callback` for more info.
         resume (str, optional): The experiment path to resume.
             Default to None.
+        experiment_name (str, optional): Name of current experiment. If not
+            specified, timestamp will be used as `experiment_name`.
+            Default to None.
         cfg (dict, optional) Full config. Default to None.
     """
 
@@ -50,6 +54,7 @@ class Tuner:
         stopper: Optional[dict] = None,
         callbacks: Optional[Union[dict, list]] = None,
         resume: Optional[str] = None,
+        experiment_name: Optional[str] = None,
         cfg: Optional[dict] = None,
     ):
         task = build_task_processor(task)
@@ -79,6 +84,10 @@ class Tuner:
 
         self.resume = resume
 
+        if experiment_name is None:
+            experiment_name = time.strftime('%Y%m%d_%H%M%S',
+                                            time.localtime(time.time()))
+
         self.cfg = cfg
 
         self.tuner = RayTuner(
@@ -87,6 +96,7 @@ class Tuner:
             tune_config=TuneConfig(
                 search_alg=searcher, scheduler=trial_scheduler, **tune_cfg),
             run_config=RunConfig(
+                name=experiment_name,
                 local_dir=work_dir,
                 stop=stopper,
                 callbacks=callbacks,
@@ -109,6 +119,7 @@ class Tuner:
             stopper=cfg.get('stopper', None),
             callbacks=cfg.get('callbacks', None),
             resume=cfg.get('resume', None),
+            experiment_name=cfg.get('experiment_name', None),
             cfg=cfg,
         )
 
