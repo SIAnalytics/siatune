@@ -4,11 +4,11 @@ from .blackbox import BlackBoxTask
 from .builder import TASKS, build_task_processor
 from .cont_test_func import ContinuousTestFunction
 from .disc_test_func import DiscreteTestFunction
+from .mm import MMBaseTask
 from .mmcls import MMClassification
 from .mmdet import MMDetection
 from .mmedit import MMEditing
 from .mmseg import MMSegmentation
-from .mm import MMBaseTask
 
 __all__ = [
     'TASKS',
