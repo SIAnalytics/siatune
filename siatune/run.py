@@ -3,7 +3,6 @@ import argparse
 from argparse import REMAINDER
 from os import path as osp
 
-import mmcv
 import ray
 from mmcv import Config, DictAction
 
@@ -113,6 +112,5 @@ def main():
     tuner = Tuner.from_cfg(cfg)
     results = tuner.tune()
 
-    analysis_dir = osp.join(cfg.work_dir, 'analysis')
-    mmcv.mkdir_or_exist(analysis_dir)
-    log_analysis(results, cfg, log_dir=analysis_dir)
+    log_analysis(
+        results, log_dir=osp.join(tuner.work_dir, tuner.experiment_name))
