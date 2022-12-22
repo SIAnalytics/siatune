@@ -33,4 +33,4 @@ def log_analysis(results: ResultGrid, log_dir: Optional[str] = None) -> None:
     logger.info(f'Best Hyperparam: \n'
                 f'{pformat(ImmutableContainer.decouple(result.config))}')
 
-    shutil.copy(result.log_dir, log_dir)
+    shutil.copytree(result.log_dir, log_dir)
