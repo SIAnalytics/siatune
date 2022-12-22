@@ -1,5 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import argparse
+import os
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Sequence
@@ -44,6 +45,7 @@ class BaseTask(metaclass=ABCMeta):
         self._args: Optional[argparse.Namespace] = None
         self._raw_args: List[str] = []
         self._rewriters: List[dict] = rewriters
+        self._tune_launch_path = os.getcwd()
 
     def set_args(self, args: Sequence[str]) -> None:
         """Parse and set the argss.
@@ -73,6 +75,10 @@ class BaseTask(metaclass=ABCMeta):
             num_gpus_per_worker=num_gpus_per_worker,
             num_workers=num_workers,
         )
+
+    @property
+    def tune_launch_path(self):
+        return self._tune_launch_path
 
     @property
     def num_cpus_per_worker(self) -> int:

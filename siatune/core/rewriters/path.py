@@ -12,11 +12,11 @@ from .builder import REWRITERS
 @REWRITERS.register_module()
 class RevertWorkSpace(BaseRewriter):
 
-    def __init__(self, env_key='TUNE_LAUNCH_PATH'):
-        self.env_key = env_key
+    def __init__(self, key='tune_launch_path'):
+        self.key = key
 
     def __call__(self, context: dict) -> dict:
-        os.chdir(os.environ.get(self.env_key))
+        os.chdir(context.pop(self.key))
         return context
 
 

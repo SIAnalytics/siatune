@@ -162,7 +162,10 @@ class BystanderTrainBasedTask(BaseTask):
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
         return super().context_aware_run(
-            searched_cfg, raw_args=self._raw_args, **kwargs)
+            searched_cfg,
+            raw_args=self._raw_args,
+            tune_launch_path=self.tune_launch_path,
+            **kwargs)
 
     def create_trainable(self) -> Callable:
         """Get ray trainable task.
