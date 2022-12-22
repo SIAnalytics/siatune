@@ -15,6 +15,7 @@ class _BaseBystander(multiprocessing.Process):
     def __init__(self,
                  change_callbacks: List[Callable] = [],
                  stop_callbaks: List[Callable] = []):
+        super().__init__()
         self._cached_stamp: float = 0
         self._exit = multiprocessing.Event()
         assert change_callbacks or stop_callbaks

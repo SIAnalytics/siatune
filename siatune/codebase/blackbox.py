@@ -3,6 +3,8 @@ import argparse
 from abc import ABCMeta
 from typing import Callable, Sequence
 
+from ray import tune
+
 from .base import BaseTask
 from .builder import TASKS
 
@@ -34,4 +36,8 @@ class BlackBoxTask(BaseTask, metaclass=ABCMeta):
             Callable: The Ray trainable task.
         """
 
-        return self.context_aware_run
+        return tune.with_resources(
+            self.context_aware_run,
+            dict(
+                CPU=self.num_workers * self.num_cpus_per_worker,
+                GPU=self.num_workers * self.num_gpus_per_worker))

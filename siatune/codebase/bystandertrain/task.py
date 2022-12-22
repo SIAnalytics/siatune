@@ -7,11 +7,12 @@ import sys
 import time
 from glob import glob
 from os import path as osp
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 from mim.utils import (get_installed_path, highlighted_error, is_installed,
                        module_full_name)
 from mmcv import Config
+from ray import tune
 
 from siatune.utils import ref_raw_args
 from ..base import BaseTask
@@ -22,10 +23,7 @@ from ._bystander import reporter_factory
 @TASKS.register_module()
 class BystanderTrainBasedTask(BaseTask):
 
-    def __init__(self,
-                 pkg_name: str,
-                 metric: str,
-                 rewriters: List[dict] = []) -> None:
+    def __init__(self, pkg_name: str, metric: str, **kwargs) -> None:
         """Initialize the task.
 
         Args:
@@ -36,9 +34,7 @@ class BystanderTrainBasedTask(BaseTask):
         """
         self._train_script: str = self._get_train_script(pkg_name)
         self._metric: str = metric
-        self._args: Optional[argparse.Namespace] = None
-        self._raw_args: List[str] = []
-        self._rewriters: List[dict] = rewriters
+        super().__init__(**kwargs)
 
     def parse_args(self, *args, **kwargs) -> argparse.Namespace:
         """Parse and set the argss.
@@ -174,4 +170,8 @@ class BystanderTrainBasedTask(BaseTask):
             Callable: The Ray trainable task.
         """
 
-        return self.context_aware_run
+        return tune.with_resources(
+            self.context_aware_run,
+            dict(
+                CPU=self.num_workers * self.num_cpus_per_worker,
+                GPU=self.num_workers * self.num_gpus_per_worker))

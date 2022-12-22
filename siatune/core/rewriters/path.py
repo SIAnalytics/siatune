@@ -71,7 +71,7 @@ class RawArgAppendTrialIDtoPath(BaseRewriter):
         raw_args = context.get('raw_args')
         trial_id: str = session.get_trial_id()
         value, idx = ref_raw_args(raw_args, f'--{self.arg_name}')
-        assert idx < 2
+        assert len(idx) < 2
         if idx:
             raw_args[idx.pop()] = osp.join(value.pop(), trial_id)
         else:
