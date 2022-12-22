@@ -9,24 +9,27 @@ from typing import Callable, List
 from ray import tune
 
 
-class _BaseBystander(multiprocessing.Process):
+class _BaseBystander:
     refresh_delay_secs: float = 1
 
     def __init__(self,
                  change_callbacks: List[Callable] = [],
                  stop_callbaks: List[Callable] = []):
-        super().__init__()
         self._cached_stamp: float = 0
         self._exit = multiprocessing.Event()
         assert change_callbacks or stop_callbaks
         self._change_callbacks = change_callbacks
         self._stop_callbacks = stop_callbaks
+        self._proc = multiprocessing.Process(target=self.run)
 
     def _detect(self) -> bool:
         raise NotImplementedError
 
     def shutdown(self):
         self._exit.set()
+
+    def start(self):
+        self._proc.start()
 
     def run(self):
         while not self._exit.is_set():
@@ -37,6 +40,10 @@ class _BaseBystander(multiprocessing.Process):
                 f(self)
         for f in self._stop_callback:
             f(self)
+
+    def __del__(self):
+        self.shutdown()
+        self._proc.join()
 
 
 class FileBystander(_BaseBystander):
