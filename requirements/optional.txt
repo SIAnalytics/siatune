@@ -1,8 +1,10 @@
 bayesian-optimization==1.2.0
-flaml==0.9.7
+ConfigSpace
+flaml==1.0.14
+hpbandster
 hyperopt==0.2.5
-mlflow==1.21.0
+mlflow==1.23.1
 nevergrad==0.4.3.post7
 optuna==2.10.0
+scikit-learn
 scikit-optimize==0.9.0
-sklearn

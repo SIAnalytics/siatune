@@ -14,14 +14,14 @@ RUN rm /etc/apt/sources.list.d/cuda.list
 RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 
 RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 git ninja-build libglib2.0-0 libsm6 libxrender-dev libxext6 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# Install MMCV
-ARG PYTORCH
-ARG CUDA
+# Install MMCV with MIM
 ARG MMCV_VERSION
-RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full==${MMCV_VERSION} -f https://download.openmmlab.com/mmcv/dist/cu${CUDA//./}/torch${PYTORCH}/index.html"]
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir openmim \
+ && mim install mmcv-full==${MMCV_VERSION}
 
 # Install SIATune
 COPY . /siatune

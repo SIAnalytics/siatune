@@ -1,5 +1,2 @@
-mmcv-full>=1.4.7
-pandas
-protobuf<=3.20
-ray[default]==1.9.1
-tabulate
+ray[data]==2.2.0
+ray[tune]==2.2.0

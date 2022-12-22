@@ -5,15 +5,12 @@ _base_ = [
 ]
 
 space = {
-    'model': {{_base_.model}},
-    'optimizer': {{_base_.optimizer}},
     'data.samples_per_gpu': {{_base_.batch_size}},
+    'model': {{_base_.model}},
     'model.decode_head.num_classes': 21,
     'model.auxiliary_head.num_classes': 21,
+    'optimizer': {{_base_.optimizer}},
 }
 
 task = dict(type='MMSegmentation')
-metric = 'val/mIoU'
-mode = 'max'
-raise_on_failed_trial = False
-num_samples = 256
+tune_cfg = dict(num_samples=8, metric='val/mIoU', mode='max')
