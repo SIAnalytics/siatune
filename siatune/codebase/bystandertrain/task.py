@@ -1,22 +1,22 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import argparse
+import multiprocessing
 import os
 import subprocess
+import sys
 import time
 from glob import glob
 from os import path as osp
 from typing import Callable, List, Optional
 
+from mim.utils import (get_installed_path, highlighted_error, is_installed,
+                       module_full_name)
 from mmcv import Config
 
+from siatune.utils import ref_raw_args
 from ..base import BaseTask
 from ..builder import TASKS
 from ._bystander import reporter_factory
-
-from mim.utils import module_full_name, highlighted_error, get_installed_path
-import multiprocessing
-from siatune.utils import ref_raw_args
-
 
 
 @TASKS.register_module()
@@ -51,7 +51,8 @@ class BystanderTrainBasedTask(BaseTask):
     def _get_train_script(self, pkg_name: str) -> str:
         pkg_full_name = module_full_name(pkg_name)
         if pkg_full_name == '':
-            msg = f"Can't determine a unique package given abbreviation {pkg_name}"
+            msg = "Can't determine a unique "
+            f'package given abbreviation {pkg_name}'
             raise ValueError(highlighted_error(msg))
         if not is_installed(pkg_full_name):
             msg = (f'The codebase {pkg_name} is not installed')
@@ -85,7 +86,7 @@ class BystanderTrainBasedTask(BaseTask):
         t_bound = time.time() + timeout
         files: List[str]
         while True:
-            files = glob(osp.join(work_dir, '*'+log_ext))
+            files = glob(osp.join(work_dir, '*' + log_ext))
             if files:
                 break
             elif time.time() > t_bound:
@@ -95,8 +96,9 @@ class BystanderTrainBasedTask(BaseTask):
         return files.pop()
 
     # TODO: attach ckpt linking bystander
-    def _attach_bystander(self, raw_args:List[str], metric:str) -> List[multiprocessing.Process]:
-        bystanders: List[multiprocessing.Process]
+    def _attach_bystander(self, raw_args: List[str],
+                          metric: str) -> List[multiprocessing.Process]:
+        bystanders: List[multiprocessing.Process] = []
         work_dir = self._get_work_dir(raw_args)
         log_file = self._get_deffered_log(work_dir)
         reporter = reporter_factory(log_file, metric)
@@ -113,11 +115,11 @@ class BystanderTrainBasedTask(BaseTask):
         launcher = launcher.pop() if launcher else 'none'
 
         if launcher == 'none':
-            cmd = ['python', self._train_script]
+            cmd = [sys.executable, self._train_script]
         elif launcher == 'pytorch':
-            
+
             cmd = [
-                'python',
+                sys.executable,
                 '-m',
                 'torch.distributed.launch',
                 f'--nproc_per_node={self.num_workers}',
@@ -159,7 +161,6 @@ class BystanderTrainBasedTask(BaseTask):
         # https://github.com/pytorch/pytorch/issues/50820
         if backend == 'nccl' and os.getenv('NCCL_BLOCKING_WAIT') is None:
             os.environ['NCCL_BLOCKING_WAIT'] = '0'
-
         return super().context_aware_run(
             searched_cfg, raw_args=self._raw_args, **kwargs)
 

@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import List, Tuple
 
+
 def ref_raw_args(raw_args: List[str], key: str) -> Tuple:
     assert key.startswith('--')
     ret: List[str] = []

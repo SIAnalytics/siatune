@@ -105,7 +105,7 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self, searched_cfg: Dict) -> Any:
+    def context_aware_run(self, searched_cfg: Dict, **kwargs) -> Any:
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
@@ -121,7 +121,7 @@ class BaseTask(metaclass=ABCMeta):
         context = dict(
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
-        )
+            **kwargs)
         return context_manager(self.run)(**context)
 
     @abstractmethod

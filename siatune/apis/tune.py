@@ -1,5 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 
+import os
+
 import ray
 from mmcv.utils import Config
 
@@ -20,6 +22,8 @@ def tune(task_processor: BaseTask, tune_config: Config,
     Returns:
         ray.tune.ExperimentAnalysis: The analysis of the experiment.
     """
+    os.environ.update(TUNE_LAUNCH_PATH=os.getcwd())
+
     trainable_cfg = tune_config.get('trainable', dict())
     trainable = task_processor.create_trainable(**trainable_cfg)
 

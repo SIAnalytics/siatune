@@ -1,4 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+import os
 from os import path as osp
 
 from ray.air import session
@@ -6,6 +7,17 @@ from ray.air import session
 from siatune.utils import ref_raw_args
 from .base import BaseRewriter
 from .builder import REWRITERS
+
+
+@REWRITERS.register_module()
+class RevertWorkSpace(BaseRewriter):
+
+    def __init__(self, env_key='TUNE_LAUNCH_PATH'):
+        self.env_key = env_key
+
+    def __call__(self, context: dict) -> dict:
+        os.chdir(os.environ.get(self.env_key))
+        return context
 
 
 @REWRITERS.register_module()

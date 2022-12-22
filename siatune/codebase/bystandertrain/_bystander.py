@@ -3,8 +3,8 @@ import multiprocessing
 import os
 import re
 import time
-from typing import Callable, List, Tuple
 from glob import glob
+from typing import Callable, List
 
 from ray import tune
 
@@ -87,10 +87,9 @@ def reporter_factory(file_name: str, metric: str):
     return Reporter(metric, file_name, [ch_callback], [st_callback])
 
 
-
 class CkptBystander(_BaseBystander):
 
-    ckpt_suffix: str = ".pth"
+    ckpt_suffix: str = '.pth'
 
     def __init__(self, dir_name: str, *args, **kwargs):
         self.dir_name = dir_name
@@ -102,11 +101,12 @@ class CkptBystander(_BaseBystander):
         return len(files)
 
     def _detect(self) -> False:
-        stamp = _count_ckpt(self._count_ckpt(self.dir_name))
+        stamp = self._count_ckpt(self.dir_name)
         if not stamp != self._cached_stamp:
             self._cached_stamp = stamp
             return True
         return False
+
 
 # TODO: CKPT bystander
 # def ckpt_link_factory(dir_name: str):
