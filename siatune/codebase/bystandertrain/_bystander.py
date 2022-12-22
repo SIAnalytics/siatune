@@ -3,7 +3,8 @@ import multiprocessing
 import os
 import re
 import time
-from typing import Callable, List
+from typing import Callable, List, Tuple
+from glob import glob
 
 from ray import tune
 
@@ -45,7 +46,7 @@ class FileBystander(_BaseBystander):
         super().__init__(*args, **kwargs)
 
     def _detect(self) -> False:
-        stamp = os.stat(self._file_name).st_mtime
+        stamp = os.stat(self._file_name).st_size
         if not stamp != self._cached_stamp:
             self._cached_stamp = stamp
             return True
@@ -84,3 +85,28 @@ def reporter_factory(file_name: str, metric: str):
         tune.report(done=True)
 
     return Reporter(metric, file_name, [ch_callback], [st_callback])
+
+
+
+class CkptBystander(_BaseBystander):
+
+    ckpt_suffix: str = ".pth"
+
+    def __init__(self, dir_name: str, *args, **kwargs):
+        self.dir_name = dir_name
+        assert os.path.isdir(self.dir_name)
+        super().__init__(*args, **kwargs)
+
+    def _count_ckpt(self, dir_name) -> int:
+        files = glob(os.path.join(dir_name, '*' + self.ckpt_suffix))
+        return len(files)
+
+    def _detect(self) -> False:
+        stamp = _count_ckpt(self._count_ckpt(self.dir_name))
+        if not stamp != self._cached_stamp:
+            self._cached_stamp = stamp
+            return True
+        return False
+
+# TODO: CKPT bystander
+# def ckpt_link_factory(dir_name: str):

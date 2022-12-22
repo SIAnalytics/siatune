@@ -12,19 +12,12 @@ from mmcv import Config
 from ..base import BaseTask
 from ..builder import TASKS
 from ._bystander import reporter_factory
-from ._utils import get_installed_path, module_full_name
 
-def _get_args(raw_args: List[str], key: str) -> List[str]:
-    assert key.startswith('--')
-    ret: List[str] = []
-    if key not in raw_args:
-        return ret
-    for idx in range(raw_args.index(key) + 1, len(raw_args)):
-        cand = raw_args[idx]
-        if cand.startswith('--'):
-            break
-        ret.append(cand)
-    return ret
+from mim.utils import module_full_name, highlighted_error, get_installed_path
+import multiprocessing
+from siatune.utils import ref_raw_args
+
+
 
 @TASKS.register_module()
 class BystanderTrainBasedTask(BaseTask):
@@ -58,22 +51,26 @@ class BystanderTrainBasedTask(BaseTask):
     def _get_train_script(self, pkg_name: str) -> str:
         pkg_full_name = module_full_name(pkg_name)
         if pkg_full_name == '':
-            raise ValueError("Can't determine a unique "
-                             f'package given abbreviation {pkg_name}')
+            msg = f"Can't determine a unique package given abbreviation {pkg_name}"
+            raise ValueError(highlighted_error(msg))
+        if not is_installed(pkg_full_name):
+            msg = (f'The codebase {pkg_name} is not installed')
+            raise RuntimeError(highlighted_error(msg))
         pkg_root = get_installed_path(pkg_full_name)
+        # tools will be put in package/.mim in PR #68
         train_script = osp.join(pkg_root, '.mim', 'tools', 'train.py')
         if not osp.exists(train_script):
             _alternative = osp.join(pkg_root, 'tools', 'train.py')
             if osp.exists(_alternative):
                 train_script = _alternative
             else:
-                raise ValueError("Can't find train script")
+                raise RuntimeError("Can't find train script")
         return train_script
 
     def _get_work_dir(self, raw_args: List[str], config_idx: int = 0) -> str:
-        work_dir = _get_args(raw_args, '--work-dir')
+        work_dir, _ = ref_raw_args(raw_args, '--work-dir')
         if work_dir:
-            return work_dir
+            return work_dir.pop()
         # TODO
         cfg = Config.fromfile(raw_args[config_idx])
         work_dir = cfg.get('work_dir', '')
@@ -88,7 +85,7 @@ class BystanderTrainBasedTask(BaseTask):
         t_bound = time.time() + timeout
         files: List[str]
         while True:
-            files = glob(osp.join(work_dir, '*.', log_ext))
+            files = glob(osp.join(work_dir, '*'+log_ext))
             if files:
                 break
             elif time.time() > t_bound:
@@ -97,17 +94,28 @@ class BystanderTrainBasedTask(BaseTask):
             raise ValueError
         return files.pop()
 
-    def run(self, *, raw_args: List[str], **kwargs) -> None:
-        port: int = kwargs.get('port', 29500)
-        cmd: List[str]
+    # TODO: attach ckpt linking bystander
+    def _attach_bystander(self, raw_args:List[str], metric:str) -> List[multiprocessing.Process]:
+        bystanders: List[multiprocessing.Process]
+        work_dir = self._get_work_dir(raw_args)
+        log_file = self._get_deffered_log(work_dir)
+        reporter = reporter_factory(log_file, metric)
+        reporter.start()
+        bystanders.append(reporter)
+        return bystanders
 
-        launcher = _get_args(raw_args, '--launcher')
-        assert launcher < 2
+    def run(self, *, raw_args: List[str], **kwargs) -> None:
+        cmd: List[str]
+        port: int = kwargs.get('port', 29500)
+
+        launcher, _ = ref_raw_args(raw_args, '--launcher')
+        assert len(launcher) < 2
         launcher = launcher.pop() if launcher else 'none'
 
         if launcher == 'none':
             cmd = ['python', self._train_script]
         elif launcher == 'pytorch':
+            
             cmd = [
                 'python',
                 '-m',
@@ -124,16 +132,14 @@ class BystanderTrainBasedTask(BaseTask):
             cmd,
             stderr=subprocess.PIPE,
             env=dict(os.environ, MASTER_PORT=str(port)))
-        work_dir = self._get_work_dir(raw_args)
-        log_file = self._get_deffered_log(work_dir)
-        reporter = reporter_factory(log_file, self._metric)
-        reporter.start()
+
+        bystanders = self._attach_bystander(raw_args, self._metric)
 
         _, err = worker.communicate()
         if worker.returncode != 0:
             raise Exception(err)
-        else:
-            reporter.shutdown()
+        for bystander in bystanders:
+            bystander.shutdown()
         return
 
     def context_aware_run(self,

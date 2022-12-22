@@ -3,6 +3,7 @@ from os import path as osp
 
 from ray.air import session
 
+from siatune.utils import ref_raw_args
 from .base import BaseRewriter
 from .builder import REWRITERS
 
@@ -38,7 +39,7 @@ class AppendTrialIDtoPath(BaseRewriter):
 @REWRITERS.register_module()
 class RawArgAppendTrialIDtoPath(BaseRewriter):
 
-    def __init__(self, arg_name: str = '--work-dir') -> None:
+    def __init__(self, arg_name: str = 'work-dir') -> None:
         """Initialize the rewriter.
 
         Args:
@@ -55,14 +56,13 @@ class RawArgAppendTrialIDtoPath(BaseRewriter):
         Returns:
             dict: The context after rewriting.
         """
-        raw_args = context['raw_args']
-        trial_id: str = ray.tune.get_trial_id()
-        if self.arg_name in raw_args:
-            idx = raw_args.index(self.arg_name) + 1
-            assert idx < len(raw_args)
-            parent = raw_args[idx]
-            assert not parent.startswith('--')
-            raw_args[idx] = osp.join(parent, trial_id)
+        raw_args = context.get('raw_args')
+        trial_id: str = session.get_trial_id()
+        value, idx = ref_raw_args(raw_args, f'--{self.arg_name}')
+        assert idx < 2
+        if idx:
+            raw_args[idx.pop()] = osp.join(value.pop(), trial_id)
         else:
-            raw_args.extend([self.arg_name, trial_id])
+            raw_args.extend([f'--{self.arg_name}', trial_id])
+        context.update(dict(raw_args=raw_args))
         return context
