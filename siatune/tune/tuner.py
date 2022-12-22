@@ -10,7 +10,7 @@ from ray.tune import ResultGrid
 from ray.tune.tune_config import TuneConfig
 from ray.tune.tuner import Tuner as RayTuner
 
-from siatune.codebase import build_task_processor
+from siatune.codebase import build_task
 from siatune.tune import (build_callback, build_scheduler, build_searcher,
                           build_space, build_stopper)
 
@@ -58,7 +58,7 @@ class Tuner:
         experiment_name: Optional[str] = None,
         cfg: Optional[dict] = None,
     ):
-        task = build_task_processor(task)
+        task = build_task(task)
         trainable = task.create_trainable()
 
         self.work_dir = osp.abspath(work_dir)

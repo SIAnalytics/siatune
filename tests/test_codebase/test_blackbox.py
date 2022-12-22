@@ -15,7 +15,7 @@ def report_to_session(**kwargs):
 
 @patch('ray.tune.report', side_effect=report_to_session)
 def test_continuous_test_function(*mocks):
-    func = ContinuousTestFunction()
+    func = ContinuousTestFunction(args=[], num_workers=1)
     predefined_cont_funcs = [
         'delayedsphere',
         'sphere',
@@ -68,7 +68,7 @@ def test_continuous_test_function(*mocks):
 
 @patch('ray.tune.report', side_effect=report_to_session)
 def test_discrete_test_function(*mocks):
-    func = DiscreteTestFunction()
+    func = DiscreteTestFunction(args=[], num_workers=1)
 
     predefined_discrete_funcs = ['onemax', 'leadingones', 'jump']
     for func_name in predefined_discrete_funcs:
