@@ -23,7 +23,8 @@ def log_analysis(results: ResultGrid, log_dir: Optional[str] = None) -> None:
     log_dir = osp.join(log_dir or os.getcwd(), 'best_trial')
     mmcv.mkdir_or_exist(log_dir)
 
-    logger = get_logger('siatune', log_file=osp.join(log_dir, 'result.log'))
+    logger = get_logger(
+        'siatune', log_file=osp.join(log_dir, 'best_trial.log'))
     result = results.get_best_result()
 
     logger.info(f'Best Logdir: {result.log_dir}')
