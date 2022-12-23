@@ -9,8 +9,8 @@ import argparse
 
 import numpy as np
 import ray
+from mmengine.config import Config
 
-from siatune.mm.core import Config
 from .blackbox import BlackBoxTask
 from .builder import TASKS
 

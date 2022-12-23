@@ -2,7 +2,7 @@
 import logging
 from typing import Optional
 
-from siatune.mm.core import get_logger
+from mmengine.logging import MMLogger
 
 
 def get_root_logger(log_file: Optional[str] = None,
@@ -22,6 +22,6 @@ def get_root_logger(log_file: Optional[str] = None,
         logging.Logger: The root logger.
     """
 
-    logger = get_logger(name='siatune', log_file=log_file, log_level=log_level)
+    logger = MMLogger(name='siatune', log_file=log_file, log_level=log_level)
 
     return logger

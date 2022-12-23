@@ -1,9 +1,9 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 
+from mmengine.config import Config
+from mmengine.registry import Registry
 from ray import tune
 from ray.tune.search import Searcher
-
-from siatune.mm.core import Config, Registry
 
 SEARCHERS = Registry('searchers')
 for func in set(tune.search.SEARCH_ALG_IMPORT.values()):

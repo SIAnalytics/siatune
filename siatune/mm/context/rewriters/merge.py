@@ -1,5 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from siatune.mm.core import DELETE_KEY, Config, ConfigDict
+from mmengine.config.config import DELETE_KEY, Config, ConfigDict
+
 from .base import BaseRewriter
 from .builder import REWRITERS
 

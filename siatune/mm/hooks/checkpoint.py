@@ -1,21 +1,22 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import os
-import tempfile
 import time
 from typing import Optional
 
 import mmcv
 import ray.tune as tune
 import torch
-from ray.air import Checkpoint, session
+from mmengine.dist import master_only
+from mmengine.hooks import CheckpointHook as _CheckpointHook
+from mmengine.model import is_model_wrapper
+from mmengine.registry import HOOKS
+from mmengine.runner import Runner
+from mmengine.runner.checkpoint import get_state_dict, weights_to_cpu
 from torch.optim import Optimizer
 
-from siatune.mm.core import HOOKS, MMENGINE_BASED, BaseRunner
-from siatune.mm.core import CheckpointHook as _CheckpointHook
-from siatune.mm.core import (get_state_dict, is_module_wrapper, master_only,
-                             weights_to_cpu)
+from siatune.mm.core import IS_DEPRECATED_MMCV
 
-if MMENGINE_BASED:
+if not IS_DEPRECATED_MMCV:
 
     @HOOKS.register_module()
     class RayCheckpointHook(_CheckpointHook):
@@ -31,7 +32,7 @@ if MMENGINE_BASED:
             """
             pass
 
-        def _save_checkpoint(self, runner: BaseRunner) -> None:
+        def _save_checkpoint(self, runner: Runner) -> None:
             """Save checkpoints periodically.
 
             Args:
@@ -41,7 +42,6 @@ if MMENGINE_BASED:
             import logging
 
             import mmengine
-            from mmengine.dist import is_main_process
             from mmengine.logging import print_log
             from mmengine.optim import OptimWrapper
             from mmengine.utils import get_git_hash
@@ -67,7 +67,7 @@ if MMENGINE_BASED:
                 meta.update(
                     dataset_meta=runner.train_dataloader.dataset.metainfo)
 
-            if is_module_wrapper(runner.model):
+            if is_model_wrapper(runner.model):
                 model = runner.model.module
             else:
                 model = runner.model
@@ -119,6 +119,9 @@ if MMENGINE_BASED:
                 torch.save(checkpoint, path)
 
 else:
+    from mmcv.parallel import is_module_wrapper
+    from mmcv.runner import HOOKS
+    from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
 
     @HOOKS.register_module()
     class RayCheckpointHook(_CheckpointHook):
@@ -163,12 +166,12 @@ else:
 
         """Save checkpoints periodically."""
 
-        def before_run(self, runner: BaseRunner):
+        def before_run(self, runner: Runner):
             """This hook omits the setting process because it gets information
             from the ray session.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`):
+                runner (:obj:`mmenginer.runner.Runner`):
                     The runner.
             """
             pass
@@ -178,17 +181,17 @@ else:
             from the ray session.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`):
+                runner (:obj:`mmengine.runner.Runner`):
                     The runner.
             """
             pass
 
         @master_only
-        def _save_checkpoint(self, runner: BaseRunner) -> None:
+        def _save_checkpoint(self, runner: Runner) -> None:
             """Save checkpoints periodically.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`):
+                runner (:obj:`mmengine.runner.Runner`):
                     The runner to save checkpoints.
             """
             model = runner.model

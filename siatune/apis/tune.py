@@ -1,8 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 
 import ray
+from mmengine.config import Config
 
-from siatune.mm.core import Config
 from siatune.mm.tasks import BaseTask
 from siatune.ray import Tuner
 

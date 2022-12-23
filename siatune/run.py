@@ -3,9 +3,10 @@ from argparse import REMAINDER, ArgumentParser, Namespace
 from os import path as osp
 
 import ray
+from mmengine.config.config import Config, DictAction
+from mmengine.utils.path import mkdir_or_exist
 
 from siatune.apis import log_analysis, tune
-from siatune.mm.core import Config, DictAction, mkdir_or_exist
 from siatune.mm.tasks import build_task_processor
 
 

@@ -1,7 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict
 
-from siatune.mm.core import Registry
+from mmengine.registry import Registry
+
 from .base import BaseTask
 
 TASKS = Registry('tasks')

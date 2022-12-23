@@ -1,7 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict, Optional
 
-from siatune.mm.core import Config
+from mmengine.config import Config
+
 from .base import BaseRewriter
 from .builder import REWRITERS
 

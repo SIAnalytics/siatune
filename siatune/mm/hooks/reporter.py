@@ -2,13 +2,16 @@
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+from mmengine.dist import get_dist_info
+from mmengine.hooks import LoggerHook
+from mmengine.registry import HOOKS
+from mmengine.runner import Runner
 from ray.air import session
 from torch import distributed as dist
 
-from siatune.mm.core import (HOOKS, MMENGINE_BASED, BaseRunner, LoggerHook,
-                             get_dist_info)
+from siatune.mm.core import IS_DEPRECATED_MMCV
 
-if MMENGINE_BASED:
+if not IS_DEPRECATED_MMCV:
     from mmengine.hooks.logger_hook import SUFFIX_TYPE
 
     @HOOKS.register_module()
@@ -33,11 +36,11 @@ if MMENGINE_BASED:
                              log_metric_by_epoch, backend_args)
             self.filtering_key = filtering_key
 
-        def after_train_iter(self, runner: BaseRunner, **kwargs) -> None:
+        def after_train_iter(self, runner: Runner, **kwargs) -> None:
             """Log after train itr.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+                runner (:obj:`mmengine.runner.Runner`): The runner to log.
             """
             batch_idx = kwargs['batch_idx']
             if self.every_n_train_iters(
@@ -106,6 +109,8 @@ if MMENGINE_BASED:
             session.report(metrics=tag)
 
 else:
+    from mmcv.runner import HOOKS
+    from mmcv.runner.hooks.logger import LoggerHook
 
     @HOOKS.register_module()
     class RayTuneLoggerHook(LoggerHook):
@@ -132,11 +137,11 @@ else:
                                                     reset_flag, by_epoch)
             self.filtering_key = filtering_key
 
-        def after_train_iter(self, runner: BaseRunner) -> None:
+        def after_train_iter(self, runner: Runner) -> None:
             """Log after train itr.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+                runner (:obj:`mmengine.runner.Runner`): The runner to log.
             """
             if self.by_epoch and self.every_n_inner_iters(
                     runner, self.interval):
@@ -152,32 +157,32 @@ else:
             if self.reset_flag:
                 runner.log_buffer.clear_output()
 
-        def after_train_epoch(self, runner: BaseRunner) -> None:
+        def after_train_epoch(self, runner: Runner) -> None:
             """Log after train epoch.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+                runner (:obj:`mmengine.runner.Runner`): The runner to log.
             """
             self.log(runner)
             if self.reset_flag:
                 runner.log_buffer.clear_output()
 
-        def after_val_epoch(self, runner: BaseRunner) -> None:
+        def after_val_epoch(self, runner: Runner) -> None:
             """Log after val epoch.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+                runner (:obj:`mmengine.runner.Runner`): The runner to log.
             """
             runner.log_buffer.average()
             self.log(runner)
             if self.reset_flag:
                 runner.log_buffer.clear_output()
 
-        def log(self, runner: BaseRunner) -> None:
+        def log(self, runner: Runner) -> None:
             """Log the information.
 
             Args:
-                runner (:obj:`mmcv.runner.BaseRunner`): The runner to log.
+                runner (:obj:`mmengine.runner.Runner`): The runner to log.
             """
 
             tags = self.get_loggable_tags(runner)
