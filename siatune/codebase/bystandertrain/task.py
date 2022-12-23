@@ -1,14 +1,15 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import argparse
-import multiprocessing
 import os
 import subprocess
 import sys
+import threading
 import time
 from glob import glob
 from os import path as osp
 from typing import Callable, List
 
+import psutil
 from mim.utils import (get_installed_path, highlighted_error, is_installed,
                        module_full_name)
 from mmcv import Config
@@ -92,12 +93,12 @@ class BystanderTrainBasedTask(BaseTask):
         return files.pop()
 
     # TODO: attach ckpt linking bystander
-    def _attach_bystander(self, raw_args: List[str],
-                          metric: str) -> List[multiprocessing.Process]:
-        bystanders: List[multiprocessing.Process] = []
+    def _attach_bystander(self, raw_args: List[str], metric: str,
+                          pid: int) -> List[threading.Thread]:
+        bystanders: List[threading.Thread] = []
         work_dir = self._get_work_dir(raw_args)
         log_file = self._get_deffered_log(work_dir)
-        reporter = reporter_factory(log_file, metric)
+        reporter = reporter_factory(log_file, metric, pid)
         reporter.start()
         bystanders.append(reporter)
         return bystanders
@@ -125,12 +126,12 @@ class BystanderTrainBasedTask(BaseTask):
             NotImplementedError
         cmd.extend(raw_args)
 
-        worker = subprocess.Popen(
+        worker = psutil.Popen(
             cmd,
             stderr=subprocess.PIPE,
             env=dict(os.environ, MASTER_PORT=str(port)))
 
-        bystanders = self._attach_bystander(raw_args, self._metric)
+        bystanders = self._attach_bystander(raw_args, self._metric, worker.pid)
 
         _, err = worker.communicate()
         if worker.returncode != 0:

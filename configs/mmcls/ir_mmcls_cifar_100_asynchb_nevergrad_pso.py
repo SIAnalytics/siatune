@@ -14,4 +14,5 @@ space = {
 
 metric = 'accuracy_top-1'
 task = dict(type='BystanderTrainBasedTask', pkg_name='mmcls', metric=metric)
-tune_cfg = dict(num_samples=8, metric='accuracy_top-1', mode='max')
+tune_cfg = dict(
+    num_samples=8, metric='accuracy_top-1', mode='max', reuse_actors=False)
