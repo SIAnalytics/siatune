@@ -8,7 +8,7 @@ from siatune.codebase import TASKS
 from siatune.tune import Tuner
 
 
-@TASKS.register_module()
+@TASKS.register_module(force=True)
 class TestTask:
 
     def create_trainable(self):
