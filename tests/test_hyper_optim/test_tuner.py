@@ -8,8 +8,8 @@ from siatune.codebase import TASKS
 from siatune.tune import Tuner
 
 
-@TASKS.register_module(force=True)
-class TestTask:
+@TASKS.register_module()
+class TuneTask:
 
     def create_trainable(self):
         return lambda cfg: session.report(dict(test=random.random()))
@@ -20,7 +20,7 @@ def test_tuner():
     with tempfile.TemporaryDirectory() as tmpdir:
         tune_cfg = Config(
             dict(
-                task=dict(type='TestTask'),
+                task=dict(type='TuneTask'),
                 work_dir=tmpdir,
                 tune_config=dict(metric='test', mode='min', num_samples=1)))
         tuner = Tuner.from_cfg(tune_cfg)

@@ -50,7 +50,7 @@ def test_base_task(init_ray):
 
 def test_build_task():
 
-    @TASKS.register_module(force=True)
+    @TASKS.register_module()
     class TestTask(BaseTask):
 
         def parse_args(self, args):
