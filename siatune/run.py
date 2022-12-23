@@ -7,7 +7,7 @@ from mmengine.config.config import Config, DictAction
 from mmengine.utils.path import mkdir_or_exist
 
 from siatune.apis import log_analysis, tune
-from siatune.mm.tasks import build_task_processor
+from siatune.codebase import build_task_processor
 
 
 def parse_args() -> Namespace:

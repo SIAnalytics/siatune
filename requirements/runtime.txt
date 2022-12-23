@@ -1,5 +1,2 @@
-pandas
-protobuf<=3.20
-pyarrow
-ray[default]==2.1.0
-tabulate
+ray[data]==2.2.0
+ray[tune]==2.2.0
