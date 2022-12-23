@@ -1,41 +1,36 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import time
+import os
+import shutil
 from os import path as osp
 from pprint import pformat
 from typing import Optional
 
-from mmcv.utils import Config, get_logger
+import mmcv
+from mmcv.utils import get_logger
 from ray.tune import ResultGrid
 
-from siatune.utils import ImmutableContainer, dump_cfg
+from siatune.utils import ImmutableContainer
 
 
-def log_analysis(results: ResultGrid,
-                 tune_config: Config,
-                 task_config: Optional[Config] = None,
-                 log_dir: Optional[str] = None) -> None:
+def log_analysis(results: ResultGrid, log_dir: Optional[str] = None) -> None:
     """Log the analysis of the experiment.
 
     Args:
-        results (ResultGrid): Experiment results of `Tuner.fit()`.
-        tune_config (Config): The tune config.
-        task_config (Optional[Config]): The task config. Defaults to None.
-        log_dir (Optional[str]): The log dir. Defaults to None.
+        results (ResultGrid): Experiment results of `Tuner.tune()`.
+        log_dir (str, optional): The log dir. Defaults to None.
     """
-    log_dir = log_dir or tune_config.work_dir
 
-    dump_cfg(tune_config, osp.join(log_dir, 'tune_config.py'))
+    log_dir = osp.join(log_dir or os.getcwd(), 'best_trial')
+    mmcv.mkdir_or_exist(log_dir)
 
-    if task_config is not None:
-        dump_cfg(task_config, osp.join(log_dir, 'task_config.py'))
-
-    timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     logger = get_logger(
-        'siatune', log_file=osp.join(log_dir, f'{timestamp}.log'))
-
+        'siatune', log_file=osp.join(log_dir, 'best_trial.log'))
     result = results.get_best_result()
+
+    logger.info(f'Best Logdir: {result.log_dir}')
     logger.info(f'Best Result: \n'
                 f'{pformat(ImmutableContainer.decouple(result))}')
     logger.info(f'Best Hyperparam: \n'
                 f'{pformat(ImmutableContainer.decouple(result.config))}')
-    logger.info(f'Best Logdir: {result.log_dir}')
+
+    shutil.copytree(result.log_dir, osp.join(log_dir, 'log'))

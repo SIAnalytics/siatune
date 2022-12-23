@@ -23,8 +23,10 @@ class MMEditing(MMBaseTask):
         num_cpus_per_worker (int): The number of CPUs per worker.
             Default to 1.
         num_gpus_per_worker (int): The number of GPUs per worker.
-            Since it must be equal `num_workers` attribute, it is
-            not used in MMEditing.
+            Since it must be equal to `num_workers` attribute, it
+            is not used in MMEditing.
+        rewriters (list[dict] | dict, optional): Context redefinition
+            pipeline. Default to None.
     """
 
     VERSION = 'v0.15.0'
