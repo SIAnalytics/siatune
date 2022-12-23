@@ -113,7 +113,6 @@ class BystanderTrainBasedTask(BaseTask):
         if launcher == 'none':
             cmd = [sys.executable, self._train_script]
         elif launcher == 'pytorch':
-
             cmd = [
                 sys.executable,
                 '-m',
