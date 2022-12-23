@@ -22,6 +22,6 @@ def get_root_logger(log_file: Optional[str] = None,
         logging.Logger: The root logger.
     """
 
-    logger = MMLogger(name='siatune', log_file=log_file, log_level=log_level)
+    logger = MMLogger(name='SIATune', log_file=log_file, log_level=log_level)
 
     return logger
