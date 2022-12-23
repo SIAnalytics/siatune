@@ -95,6 +95,7 @@ class Tuner:
         filename = self.cfg.filename or f'{experiment_name}.py'
         if self.cfg.filename is not None:
             filename = osp.basename(self.cfg.filename)
+        mmcv.mkdir_or_exist(osp.join(self.work_dir, experiment_name))
         self.cfg.dump(osp.join(self.work_dir, experiment_name, filename))
 
         self.tuner = RayTuner(
