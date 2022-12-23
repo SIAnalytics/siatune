@@ -102,7 +102,11 @@ class Tuner:
             trainable,
             param_space=dict(train_loop_config=param_space),
             tune_config=TuneConfig(
-                search_alg=searcher, scheduler=trial_scheduler, **tune_cfg),
+                search_alg=searcher,
+                scheduler=trial_scheduler,
+                trial_name_creator=lambda trial: trial.trial_id,
+                trial_dirname_creator=lambda trial: trial.experiment_tag,
+                **tune_cfg),
             run_config=RunConfig(
                 name=self.experiment_name,
                 local_dir=self.work_dir,
