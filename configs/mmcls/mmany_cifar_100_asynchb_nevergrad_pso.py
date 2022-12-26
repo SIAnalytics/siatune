@@ -1,8 +1,7 @@
 _base_ = [
-    '../_base_/context/irresponsible_train.py',
-    '../_base_/searcher/nevergrad_pso.py', '../_base_/scheduler/asynchb.py',
-    '../_base_/space/mmcls_model.py', '../_base_/space/optimizer.py',
-    '../_base_/space/batch_size.py'
+    '../_base_/context/train_rargs.py', '../_base_/searcher/nevergrad_pso.py',
+    '../_base_/scheduler/asynchb.py', '../_base_/space/mmcls_model.py',
+    '../_base_/space/optimizer.py', '../_base_/space/batch_size.py'
 ]
 
 space = {
