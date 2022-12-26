@@ -53,9 +53,9 @@ if not IS_DEPRECATED_MMCV:
                     runner, batch_idx, 'train')
             elif (self.end_of_epoch(runner.train_dataloader, batch_idx)
                   and not self.ignore_last):
-                # `runner.max_iters` may not be divisible by `self.interval`. if
-                # `self.ignore_last==True`, the log of remaining iterations will
-                # be recorded (Epoch [4][1000/1007], the logs of 998-1007
+                # `runner.max_iters` may not be divisible by `self.interval`.
+                # if `self.ignore_last==True`, the log of remaining iterations
+                # will be recorded (Epoch [4][1000/1007], the logs of 998-1007
                 # iterations will be recorded).
                 tag, log_str = runner.log_processor.get_log_after_iter(
                     runner, batch_idx, 'train')
@@ -90,8 +90,8 @@ if not IS_DEPRECATED_MMCV:
             Args:
                 runner (Runner): The runner of the validation process.
                 metrics (Dict[str, float], optional): Evaluation results of all
-                    metrics on validation dataset. The keys are the names of the
-                    metrics, and the values are corresponding results.
+                    metrics on validation dataset. The keys are the names of
+                    the metrics, and the values are corresponding results.
             """
             tag, log_str = runner.log_processor.get_log_after_epoch(
                 runner, len(runner.val_dataloader), 'val')

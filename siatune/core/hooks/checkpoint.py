@@ -90,8 +90,9 @@ if not IS_DEPRECATED_MMCV:
             # save param scheduler state dict
             if self.save_param_scheduler and runner.param_schedulers is None:
                 print_log(
-                    '`save_param_scheduler` is True but `runner.param_schedulers` '
-                    'is None, so skip saving parameter schedulers',
+                    '`save_param_scheduler` is True but '
+                    '`runner.param_schedulers` is None, so skip saving '
+                    'parameter schedulers',
                     logger='current',
                     level=logging.WARNING)
                 self.save_param_scheduler = False
@@ -138,23 +139,23 @@ else:
             """Initialize the CheckpointHook.
 
             Args:
-                interval (int): The saving period. If ``by_epoch=True``, interval
-                    indicates epochs, otherwise it indicates iterations.
-                    Default: -1, which means "never".
+                interval (int): The saving period. If ``by_epoch=True``,
+                    interval indicates epochs, otherwise it indicates
+                    iterations. Defaults to -1, which means "never".
                 by_epoch (bool): Saving checkpoints by epoch or by iteration.
-                    Default: True.
-                save_optimizer (bool): Whether to save optimizer state_dict in the
-                    checkpoint. It is usually used for resuming experiments.
-                    Default: True.
-                max_keep_ckpts (int, optional): The maximum checkpoints to keep.
-                    In some cases we want only the latest few checkpoints and would
-                    like to delete old ones to save the disk space.
-                    Default: -1, which means unlimited.
-                save_last (bool, optional):
-                    Whether to force the last checkpoint to be
-                    saved regardless of interval. Default: True.
+                    Defaults to True.
+                save_optimizer (bool): Whether to save optimizer state_dict in
+                    the checkpoint. It is usually used for resuming
+                    experiments. Defaults to True.
+                max_keep_ckpts (int, optional): The maximum checkpoints to
+                    keep. In some cases we want only the latest few checkpoints
+                    and would like to delete old ones to save the disk space.
+                    Defaults to -1, which means unlimited.
+                save_last (bool, optional): Whether to force the last
+                    checkpoint to be saved regardless of interval.
+                    Defaults to True.
                 sync_buffer (bool, optional): Whether to synchronize buffers in
-                    different gpus. Default: False.
+                    different gpus. Defaults to False.
             """
             self.interval = interval
             self.by_epoch = by_epoch
