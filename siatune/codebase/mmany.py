@@ -1,21 +1,24 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from .blackbox import BaseTask
-from mim.utils import (get_installed_path, highlighted_error, is_installed,
-                        module_full_name)
-from os import path as osp
-from typing import Sequence, Callable
 import argparse
-from siatune.utils import ref_raw_args
 from importlib.machinery import SourceFileLoader
+from os import path as osp
 from types import ModuleType
+from typing import Callable, Sequence
+
 import ray
+from mim.utils import (get_installed_path, highlighted_error, is_installed,
+                       module_full_name)
 from ray import tune
+
+from siatune.utils import ref_raw_args
+from .blackbox import BaseTask
 from .builder import TASKS
 
 
 @TASKS.register_module()
 class MMAny(BaseTask):
-    def __init__(self, pkg_name:str, **kwargs):
+
+    def __init__(self, pkg_name: str, **kwargs):
         self._entrypoint: ModuleType = self._get_entrypoint(pkg_name)
         super().__init__(self, **kwargs)
 
@@ -39,11 +42,10 @@ class MMAny(BaseTask):
                 raise RuntimeError("Can't find train script")
         return SourceFileLoader('train', train_script).load_module()
 
-
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         return argparse.Namespace()
 
-    def run(self, *, raw_args:Sequence[str]) -> None:
+    def run(self, *, raw_args: Sequence[str]) -> None:
         import sys as _sys
         _sys.argv[1:] = raw_args
 
@@ -57,7 +59,11 @@ class MMAny(BaseTask):
             assert self.num_gpus_per_worker == 1
             self._dist_run(self._entrypoint, self.num_workers)
 
-    def _dist_run(self, entrypoint: ModuleType, world_size:int, addr: str="127.0.0.1", port: int=29500) -> None:
+    def _dist_run(self,
+                  entrypoint: ModuleType,
+                  world_size: int,
+                  addr: str = '127.0.0.1',
+                  port: int = 29500) -> None:
 
         def job(rank: int):
             import os as _os
@@ -69,22 +75,24 @@ class MMAny(BaseTask):
 
             entrypoint.main()
             return
-        
-        remote_job = ray.remote(job, num_cpus=self.num_cpus_per_worker,
+
+        remote_job = ray.remote(
+            job,
+            num_cpus=self.num_cpus_per_worker,
             num_gpus=self.num_gpus_per_worker)
 
         ray.get([remote_job.remote(rank) for rank in range(world_size)])
         return
-    
+
     def create_trainable(self) -> Callable:
-         """Get ray trainable task.
+        """Get ray trainable task.
 
-         Returns:
-             Callable: The Ray trainable task.
-         """
+        Returns:
+            Callable: The Ray trainable task.
+        """
 
-         return tune.with_resources(
-             self.context_aware_run,
-             dict(
-                 CPU=self.num_workers * self.num_cpus_per_worker,
-                 GPU=self.num_workers * self.num_gpus_per_worker))
+        return tune.with_resources(
+            self.context_aware_run,
+            dict(
+                CPU=self.num_workers * self.num_cpus_per_worker,
+                GPU=self.num_workers * self.num_gpus_per_worker))
