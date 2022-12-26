@@ -9,7 +9,7 @@ from mmengine.runner import Runner
 from ray.air import session
 from torch import distributed as dist
 
-from siatune.mm.core import IS_DEPRECATED_MMCV
+from siatune.version import IS_DEPRECATED_MMCV
 
 if not IS_DEPRECATED_MMCV:
     from mmengine.hooks.logger_hook import SUFFIX_TYPE

@@ -14,7 +14,7 @@ from mmengine.runner import Runner
 from mmengine.runner.checkpoint import get_state_dict, weights_to_cpu
 from torch.optim import Optimizer
 
-from siatune.mm.core import IS_DEPRECATED_MMCV
+from siatune.version import IS_DEPRECATED_MMCV
 
 if not IS_DEPRECATED_MMCV:
 

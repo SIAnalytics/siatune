@@ -9,14 +9,16 @@ from typing import Sequence
 
 from mmengine.config.config import DictAction
 
-from siatune.mm.core.utils import IS_DEPRECATED_MMCV
+from siatune.version import IS_DEPRECATED_MMCV
 from .builder import TASKS
 from .mm import MMBaseTask
 
 if IS_DEPRECATED_MMCV:
+
     @TASKS.register_module()
     class MMClassification(MMBaseTask):
         """MMClassification wrapper class for `ray.tune`.
+
         It is modified from https://github.com/open-mmlab/mmclassification/blob/v0.23.2/tools/train.py
         Attributes:
             args (argparse.Namespace): The arguments for `tools/train.py`
@@ -83,7 +85,8 @@ if IS_DEPRECATED_MMCV:
                 '--cfg-options',
                 nargs='+',
                 action=DictAction,
-                help='override some settings in the used config, the key-value pair '
+                help=
+                'override some settings in the used config, the key-value pair '
                 'in xxx=yyy format will be merged into config file. If the value to '
                 'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
                 'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
@@ -103,6 +106,7 @@ if IS_DEPRECATED_MMCV:
 
         def run(self, args: argparse.Namespace):
             """Run the task.
+
             Args:
                 args (argparse.Namespace):
                     The args that received from context manager.
@@ -111,11 +115,12 @@ if IS_DEPRECATED_MMCV:
             import torch
             import torch.distributed as dist
             from mmcls import __version__
-            from mmcls.apis import init_random_seed, set_random_seed, train_model
+            from mmcls.apis import (init_random_seed, set_random_seed,
+                                    train_model)
             from mmcls.datasets import build_dataset
             from mmcls.models import build_classifier
             from mmcls.utils import (auto_select_device, collect_env,
-                                    get_root_logger, setup_multi_processes)
+                                     get_root_logger, setup_multi_processes)
             from mmcv import Config
             from mmcv.runner import get_dist_info, init_dist
 
@@ -136,21 +141,23 @@ if IS_DEPRECATED_MMCV:
                 cfg.work_dir = args.work_dir
             elif cfg.get('work_dir', None) is None:
                 # use config filename as default work_dir if cfg.work_dir is None
-                cfg.work_dir = osp.join('./work_dirs',
-                                        osp.splitext(osp.basename(args.config))[0])
+                cfg.work_dir = osp.join(
+                    './work_dirs',
+                    osp.splitext(osp.basename(args.config))[0])
             if args.resume_from is not None:
                 cfg.resume_from = args.resume_from
             if args.gpus is not None:
                 cfg.gpu_ids = range(1)
                 warnings.warn('`--gpus` is deprecated because we only support '
-                            'single GPU mode in non-distributed training. '
-                            'Use `gpus=1` now.')
+                              'single GPU mode in non-distributed training. '
+                              'Use `gpus=1` now.')
             if args.gpu_ids is not None:
                 cfg.gpu_ids = args.gpu_ids[0:1]
-                warnings.warn('`--gpu-ids` is deprecated, please use `--gpu-id`. '
-                            'Because we only support single GPU mode in '
-                            'non-distributed training. Use the first GPU '
-                            'in `gpu_ids` now.')
+                warnings.warn(
+                    '`--gpu-ids` is deprecated, please use `--gpu-id`. '
+                    'Because we only support single GPU mode in '
+                    'non-distributed training. Use the first GPU '
+                    'in `gpu_ids` now.')
             if args.gpus is None and args.gpu_ids is None:
                 cfg.gpu_ids = [args.gpu_id]
 
@@ -174,14 +181,16 @@ if IS_DEPRECATED_MMCV:
             # init the logger before other steps
             timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
             log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
-            logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
+            logger = get_root_logger(
+                log_file=log_file, log_level=cfg.log_level)
 
             # init the meta dict to record some important information such as
             # environment info and seed, which will be logged
             meta = dict()
             # log env info
             env_info_dict = collect_env()
-            env_info = '\n'.join([(f'{k}: {v}') for k, v in env_info_dict.items()])
+            env_info = '\n'.join([(f'{k}: {v}')
+                                  for k, v in env_info_dict.items()])
             dash_line = '-' * 60 + '\n'
             logger.info('Environment info:\n' + dash_line + env_info + '\n' +
                         dash_line)
@@ -229,9 +238,11 @@ if IS_DEPRECATED_MMCV:
                 device=cfg.device,
                 meta=meta)
 else:
+
     @TASKS.register_module()
     class MMClassification(MMBaseTask):
         """MMClassification wrapper class for `ray.tune`.
+
         MMCV-based is modified from https://github.com/open-mmlab/mmclassification/blob/v0.23.2/tools/train.py
         MMEngine-based is modified from https://github.com/open-mmlab/mmclassification/blob/v1.0.0rc4/tools/train.py
         Attributes:
@@ -276,17 +287,20 @@ else:
             parser.add_argument(
                 '--no-pin-memory',
                 action='store_true',
-                help='whether to disable the pin_memory option in dataloaders.')
+                help='whether to disable the pin_memory option in dataloaders.'
+            )
             parser.add_argument(
                 '--no-persistent-workers',
                 action='store_true',
                 help=
-                'whether to disable the persistent_workers option in dataloaders.')
+                'whether to disable the persistent_workers option in dataloaders.'
+            )
             parser.add_argument(
                 '--cfg-options',
                 nargs='+',
                 action=DictAction,
-                help='override some settings in the used config, the key-value pair '
+                help=
+                'override some settings in the used config, the key-value pair '
                 'in xxx=yyy format will be merged into config file. If the value to '
                 'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
                 'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
@@ -306,6 +320,7 @@ else:
 
         def run(self, args: argparse.Namespace):
             """Run the task.
+
             Args:
                 args (argparse.Namespace):
                     The args that received from context manager.
@@ -339,7 +354,8 @@ else:
 
                 # enable automatic-mixed-precision training
                 if args.amp is True:
-                    optim_wrapper = cfg.optim_wrapper.get('type', 'OptimWrapper')
+                    optim_wrapper = cfg.optim_wrapper.get(
+                        'type', 'OptimWrapper')
                     assert optim_wrapper in ['OptimWrapper', 'AmpOptimWrapper'], \
                         '`--amp` is not supported custom optimizer wrapper type ' \
                         f'`{optim_wrapper}.'

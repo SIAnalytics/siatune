@@ -31,8 +31,7 @@ def log_analysis(results: ResultGrid,
         dump_cfg(task_config, osp.join(log_dir, 'task_config.py'))
 
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-    logger = get_root_logger(
-        'siatune', log_file=osp.join(log_dir, f'{timestamp}.log'))
+    logger = get_root_logger(log_file=osp.join(log_dir, f'{timestamp}.log'))
 
     result = results.get_best_result()
     logger.info(f'Best Result: \n'
