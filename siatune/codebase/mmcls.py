@@ -7,7 +7,9 @@ import warnings
 from os import path as osp
 from typing import Sequence
 
-from mmengine.config.config import DictAction
+from mmengine.config import Config, ConfigDict, DictAction
+from mmengine.utils import digit_version
+from mmengine.utils.dl_utils import TORCH_VERSION
 
 from siatune.version import IS_DEPRECATED_MMCV
 from .builder import TASKS
@@ -37,8 +39,6 @@ if IS_DEPRECATED_MMCV:
         VERSION = 'v0.23.2'
 
         def parse_args(self, task_args: Sequence[str]):
-            from mmcv import DictAction
-
             parser = argparse.ArgumentParser(description='Train a model')
             parser.add_argument('config', help='train config file path')
             parser.add_argument(
@@ -259,7 +259,7 @@ else:
                 not used in MMClassification.
         """
 
-        MMENGINE_BASED_VERSION = 'v1.0.0rc4'
+        VERSION = 'v1.0.0rc4'
 
         def parse_args(self, task_args: Sequence[str]):
             parser = argparse.ArgumentParser(description='Train a classifier')
@@ -331,10 +331,7 @@ else:
             from copy import deepcopy
 
             from mmcls.utils import register_all_modules
-            from mmengine.config import Config, ConfigDict
             from mmengine.runner import Runner
-            from mmengine.utils import digit_version
-            from mmengine.utils.dl_utils import TORCH_VERSION
 
             def merge_args(cfg, args):
                 """Merge CLI arguments to config."""
