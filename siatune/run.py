@@ -1,23 +1,17 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from argparse import REMAINDER, ArgumentParser, Namespace
+import argparse
+from argparse import REMAINDER
 from os import path as osp
 
 import ray
 from mmengine.config.config import Config, DictAction
-from mmengine.utils.path import mkdir_or_exist
 
-from siatune.apis import log_analysis, tune
-from siatune.codebase import build_task_processor
+from siatune.apis import log_analysis
+from siatune.tune import Tuner
 
 
-def parse_args() -> Namespace:
-    """Parse arguments.
-
-    Returns:
-        Namespace: The parsed arguments.
-    """
-
-    parser = ArgumentParser(description='tune')
+def parse_args():
+    parser = argparse.ArgumentParser(description='Tune a model')
     parser.add_argument('config', help='tune config file path')
     parser.add_argument(
         '--work-dir', default=None, help='the dir to save logs and models')
@@ -76,50 +70,47 @@ def parse_args() -> Namespace:
     return args
 
 
-def main() -> None:
-    """Main function."""
-
+def main():
     args = parse_args()
 
-    tune_config = Config.fromfile(args.config)
-
+    # load config
+    cfg = Config.fromfile(args.config)
     if args.cfg_options is not None:
-        tune_config.merge_from_dict(args.cfg_options)
-
-    task_processor = build_task_processor(tune_config.task)
-    task_processor.set_args(args.trainable_args)
-    task_processor.set_resource(
-        num_cpus_per_worker=args.num_cpus_per_worker,
-        num_gpus_per_worker=args.num_gpus_per_worker,
-        num_workers=args.num_workers)
-    file_name = osp.splitext(osp.basename(args.config))[0]
-    exp_name = args.exp_name or tune_config.get('exp_name', file_name)
+        cfg.merge_from_dict(args.cfg_options)
 
     # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
-        tune_config.work_dir = args.work_dir
-    elif tune_config.get('work_dir', None) is None:
-        tune_config.work_dir = osp.join('./work_dirs', file_name)
-    mkdir_or_exist(tune_config.work_dir)
-    # work_dir in task is overridden with work_dir in tune
-    if hasattr(task_processor.args, 'work_dir'):
-        task_processor.args.work_dir = tune_config.work_dir
+        # update configs according to CLI args if args.work_dir is not None
+        cfg.work_dir = args.work_dir
+    elif cfg.get('work_dir', None) is None:
+        # use config filename as default work_dir if cfg.work_dir is None
+        cfg.work_dir = osp.join('./work_dirs',
+                                osp.splitext(osp.basename(args.config))[0])
 
+    # resume is determined in this priority: CLI > segment in file
     if args.resume is not None:
-        tune_config.resume = args.resume
+        cfg.resume = args.resume
 
-    ray.init(
-        address=args.address, num_cpus=args.num_cpus, num_gpus=args.num_gpus)
+    # task arguments are determined in this priority: CLI > segment in file
+    if args.trainable_args is not None:
+        cfg.task.args = args.trainable_args
+
+    # set resource
+    cfg.task.num_workers = args.num_workers
+    cfg.task.num_cpus_per_worker = args.num_cpus_per_worker
+    cfg.task.num_gpus_per_worker = args.num_gpus_per_worker
+
+    # init ray
+    if not ray.is_initialized():
+        ray.init(
+            address=args.address,
+            num_cpus=args.num_cpus,
+            num_gpus=args.num_gpus)
     assert ray.is_initialized()
 
-    task_config = getattr(task_processor.args, 'config', None)
-    if task_config is not None:
-        task_config = Config.fromfile(task_config)
+    # start tuning
+    tuner = Tuner.from_cfg(cfg)
+    results = tuner.tune()
 
-    analysis_dir = osp.join(tune_config.work_dir, 'analysis')
-    mkdir_or_exist(analysis_dir)
     log_analysis(
-        tune(task_processor, tune_config, exp_name),
-        tune_config,
-        task_config=task_config,
-        log_dir=analysis_dir)
+        results, log_dir=osp.join(tuner.work_dir, tuner.experiment_name))

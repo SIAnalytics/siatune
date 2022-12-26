@@ -8,7 +8,7 @@ from .base import BaseTask
 TASKS = Registry('task')
 
 
-def build_task_processor(task: Dict) -> BaseTask:
+def build_task(task: Dict) -> BaseTask:
     """Build the task processor.
 
     Args:
