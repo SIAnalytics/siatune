@@ -1,11 +1,33 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 __version__ = '0.2.0'
+from typing import Tuple
+
 import mmcv
-from mmengine.utils import digit_version
 
 IS_DEPRECATED_MMCV = False
 
-if (digit_version(mmcv.__version__) < digit_version('2.0.0rc0')):
+
+def parse_version_info(version_str: str) -> Tuple:
+    """Parse version string.
+
+    Args:
+        version_str (str): The version string.
+    Returns:
+        Tuple: The version tuple.
+    """
+
+    version_info = []
+    for x in version_str.split('.'):
+        if x.isdigit():
+            version_info.append(int(x))
+        elif x.find('rc') != -1:
+            patch_version = x.split('rc')
+            version_info.append(int(patch_version[0]))
+            version_info.append(f'rc{patch_version[1]}')
+    return tuple(version_info)
+
+
+if (parse_version_info(mmcv.__version__) < parse_version_info('2.0.0rc0')):
     IS_DEPRECATED_MMCV = True
 
-version_info = digit_version(__version__)
+version_info = parse_version_info(__version__)
