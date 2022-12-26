@@ -1,5 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import argparse
+import os
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import Callable, Optional, Sequence, Union
@@ -46,10 +47,12 @@ class BaseTask(metaclass=ABCMeta):
 
     def __init__(self,
                  args: Sequence[str],
-                 num_workers: int,
+                 num_workers: int = 1,
                  num_cpus_per_worker: int = 1,
                  num_gpus_per_worker: int = 1,
                  rewriters: Optional[Union[list, dict]] = None):
+        self.raw_args = args
+        self.tune_launch_path = os.getcwd()
         self.args = self.parse_args(args)
 
         self.num_workers = num_workers
@@ -85,6 +88,8 @@ class BaseTask(metaclass=ABCMeta):
 
         context_manager = ContextManager(self.rewriters)
         context = dict(
+            tune_launch_path=self.tune_launch_path,
+            raw_args=deepcopy(self.raw_args),
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
         )

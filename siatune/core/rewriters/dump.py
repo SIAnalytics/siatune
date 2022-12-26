@@ -51,3 +51,33 @@ class Dump(BaseRewriter):
         setattr(context.get('args'), self.arg_name, tmp_path)
         dump_cfg(cfg, tmp_path)
         return context
+
+
+@REWRITERS.register_module()
+class RawArgDump(BaseRewriter):
+
+    def __init__(self, key: str, raw_arg_idx: int = 0):
+        """Inintialize the Dump class.
+
+        Args:
+            key (str): The key in the context.
+            arg_name (str): The key in the argparse namespace.
+        """
+        self.key = key
+        self.raw_arg_idx = raw_arg_idx
+
+    def __call__(self, context: Dict) -> Dict:
+        """Dump the configs in the context.
+
+        Args:
+            context (Dict): The context to be rewritten.
+
+        Returns:
+            Dict: The context after rewriting.
+        """
+        cfg: Dict = context.pop(self.key)
+        trial_id: str = session.get_trial_id()
+        tmp_path = Dump.get_temporary_path(f'{trial_id}.py')
+        context.get('raw_args')[self.raw_arg_idx] = tmp_path
+        dump_cfg(cfg, tmp_path)
+        return context

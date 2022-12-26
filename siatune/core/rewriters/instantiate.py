@@ -40,3 +40,30 @@ class InstantiateCfg(BaseRewriter):
             dict()) if self.arg_name is None else Config.fromfile(
                 getattr(context.get('args'), self.arg_name))
         return context
+
+
+@REWRITERS.register_module()
+class RawArgInstantiateCfg(BaseRewriter):
+
+    def __init__(self, key: str, raw_arg_idx: int = 0) -> None:
+        """Initialize the rewriter.
+
+        Args:
+            key (str): The key where the instantiated cfg is stored.
+        """
+        self.key = key
+        self.raw_arg_idx = raw_arg_idx
+
+    def __call__(self, context: Dict) -> Dict:
+        """Receive the config path from argparse namespace in the context and
+        build the mmcv config file.
+
+        Args:
+            context (Dict): The context to be rewritten.
+
+        Returns:
+            Dict: The context after rewriting.
+        """
+        context[self.key] = Config.fromfile(
+            context.get('raw_args')[self.raw_arg_idx])
+        return context
