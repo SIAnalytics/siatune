@@ -20,7 +20,6 @@ class MMAny(BaseTask):
 
     def __init__(self, pkg_name: str, **kwargs):
         self._train_script: str = self._get_train_script(pkg_name)
-        self._entrypoint: ModuleType = self._get_entrypoint(pkg_name)
         super().__init__(**kwargs)
 
     def _get_train_script(self, pkg_name: str) -> str:
@@ -46,7 +45,7 @@ class MMAny(BaseTask):
     def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
         return argparse.Namespace()
 
-    def run(self, *, raw_args: Sequence[str]) -> None:
+    def run(self, *, raw_args: Sequence[str], **kwargs) -> None:
         import sys as _sys
         _sys.argv[1:] = raw_args
         entrypoint = SourceFileLoader('main', self._train_script).load_module()
