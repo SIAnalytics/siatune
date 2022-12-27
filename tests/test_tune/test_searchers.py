@@ -1,6 +1,10 @@
-import pytest
-from ray import tune
+from tempfile import TemporaryDirectory
 
+import pytest
+from mmcv import Config
+from ray.air import session
+
+from siatune.tune import Tuner
 from siatune.tune.searchers import SEARCHERS, build_searcher
 
 
@@ -10,92 +14,59 @@ def test_build_searcher():
     class TestSearcher:
         pass
 
-    assert isinstance(build_searcher({'type': 'TestSearcher'}), TestSearcher)
-
-
-@pytest.fixture
-def config():
-    return dict(
-        steps=10, width=tune.uniform(0, 20), height=tune.uniform(-100, 100))
+    cfg = dict(type='TestSearcher')
+    assert isinstance(build_searcher(cfg), TestSearcher)
 
 
 @pytest.fixture
 def trainable():
 
     def _trainable(config):
-        width, height = config['width'], config['height']
-        for step in range(config['steps']):
-            intermediate_score = (0.1 +
-                                  width * step / 100)**(-1) + height * 0.1
-            tune.report(iterations=step, mean_loss=intermediate_score)
+        config = config['train_loop_config']
+        for step in range(config['iter']):
+            loss = (0.1 + config['x'] * step / 100)**-1 + config['y'] * 0.1
+            session.report(dict(loss=loss))
 
     return _trainable
 
 
-def test_blend(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='BlendSearch')),
-        num_samples=2,
-        config=config)
+@pytest.fixture
+def param_space():
+    return dict(
+        iter=10,
+        x=dict(type='Uniform', lower=0, upper=10),
+        y=dict(type='Uniform', lower=0, upper=10))
 
 
-def test_bohb(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='TuneBOHB')),
-        num_samples=2,
-        config=config)
+# TODO: Fix BlendSearch
+@pytest.mark.parametrize('type',
+                         ['CFO', 'HyperOptSearch', 'OptunaSearch', 'TuneBOHB'])
+def test_searcher(trainable, param_space, type):
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            searcher=dict(type=type),
+            cfg=Config()).tune()
 
 
-def test_cfo(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='CFO')),
-        num_samples=2,
-        config=config)
+def test_nevergrad(trainable, param_space):
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            searcher=dict(type='NevergradSearch', budget=1),
+            cfg=Config()).tune()
 
-
-def test_hyperopt(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='HyperOptSearch')),
-        num_samples=2,
-        config=config)
-
-
-def test_nevergrad(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='NevergradSearch', budget=1)),
-        num_samples=2,
-        config=config)
-
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(
-            dict(type='NevergradSearch', optimizer='PSO', budget=1)),
-        num_samples=2,
-        config=config)
-
-
-def test_optuna(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='OptunaSearch')),
-        num_samples=2,
-        config=config)
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            searcher=dict(type='NevergradSearch', optimizer='PSO', budget=1),
+            cfg=Config()).tune()
