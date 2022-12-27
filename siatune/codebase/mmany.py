@@ -76,17 +76,13 @@ class MMAny(BaseTask):
                   port: int = 29500) -> None:
 
         def job(rank: int):
-            self._inject_argv(raw_args)
             import os as _os
             _os.environ['MASTER_ADDR'] = addr
             _os.environ['MASTER_PORT'] = str(port)
             _os.environ['RANK'] = str(rank)
             _os.environ['LOCAL_RANK'] = str(rank)
             _os.environ['WORLD_SIZE'] = str(world_size)
-
-            entrypoint: ModuleType = SourceFileLoader(
-                'main', train_script).load_module()
-            entrypoint.main()
+            self._lone_run(train_script, raw_args)
             return
 
         remote_job = ray.remote(job).options(
