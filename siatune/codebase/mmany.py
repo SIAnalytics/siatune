@@ -46,27 +46,37 @@ class MMAny(BaseTask):
         return argparse.Namespace()
 
     def run(self, *, raw_args: Sequence[str], **kwargs) -> None:
-        import sys as _sys
-        _sys.argv[1:] = raw_args
-        entrypoint = SourceFileLoader('main', self._train_script).load_module()
-
         launcher, _ = ref_raw_args(raw_args, '--launcher')
         assert len(launcher) < 2
         launcher = launcher.pop() if launcher else 'none'
 
         if launcher == 'none':
-            entrypoint.main()
+            self._lone_run(self._train_script, raw_args)
         else:
             assert self.num_gpus_per_worker == 1
-            self._dist_run(entrypoint, self.num_workers)
+            self._dist_runs(self._train_script, raw_args, self.num_workers)
+
+    def _inject_argv(self, raw_args: Sequence[str]) -> None:
+        import sys as _sys
+        _sys.argv[1:] = raw_args
+        return
+
+    def _lone_run(self, train_script: str, raw_args: Sequence[str]) -> None:
+        self._inject_argv(raw_args)
+        entrypoint: ModuleType = \
+            SourceFileLoader('main', train_script).load_module()
+        entrypoint.main()
+        return
 
     def _dist_run(self,
-                  entrypoint: ModuleType,
+                  train_script: str,
+                  raw_args: Sequence[str],
                   world_size: int,
                   addr: str = '127.0.0.1',
                   port: int = 29500) -> None:
 
         def job(rank: int):
+            self._inject_argv(raw_args)
             import os as _os
             _os.environ['MASTER_ADDR'] = addr
             _os.environ['MASTER_PORT'] = str(port)
@@ -74,11 +84,12 @@ class MMAny(BaseTask):
             _os.environ['LOCAL_RANK'] = str(rank)
             _os.environ['WORLD_SIZE'] = str(world_size)
 
+            entrypoint: ModuleType = SourceFileLoader(
+                'main', train_script).load_module()
             entrypoint.main()
             return
 
-        remote_job = ray.remote(
-            job,
+        remote_job = ray.remote(job).options(
             num_cpus=self.num_cpus_per_worker,
             num_gpus=self.num_gpus_per_worker)
 
@@ -94,6 +105,9 @@ class MMAny(BaseTask):
 
         return tune.with_resources(
             self.context_aware_run,
-            dict(
-                CPU=self.num_workers * self.num_cpus_per_worker,
-                GPU=self.num_workers * self.num_gpus_per_worker))
+            tune.PlacementGroupFactory([
+                dict(),
+                dict(
+                    CPU=self.num_cpus_per_worker * self.num_workers,
+                    GPU=self.num_gpus_per_worker * self.num_workers)
+            ]))
