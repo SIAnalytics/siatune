@@ -1,7 +1,10 @@
-from ray import tune
+from tempfile import TemporaryDirectory
 
-from siatune.tune.stoppers import (STOPPERS, DictionaryStopper,
-                                   EarlyDroppingStopper, build_stopper)
+from mmcv import Config
+from ray.tune import Trainable
+
+from siatune.tune import Tuner
+from siatune.tune.stoppers import STOPPERS, build_stopper
 
 
 def test_build_stopper():
@@ -10,39 +13,53 @@ def test_build_stopper():
     class TestStopper:
         pass
 
-    assert isinstance(build_stopper({'type': 'TestStopper'}), TestStopper)
+    cfg = dict(type='TestStopper')
+    assert isinstance(build_stopper(cfg), TestStopper)
 
 
-def test_dictionarystopper():
+def test_dict():
 
-    class TestTrainable(tune.Trainable):
-
-        def setup(self, config):
-            self._itr = 0
-
-        def step(self):
-            self._itr += 1
-            if self._itr > 10:
-                raise Exception('Test')
-            return dict(result=-1)
-
-    stopper = DictionaryStopper(training_iteration=10)
-    tune.run(TestTrainable, config={}, stop=stopper)
-
-
-def test_earlydroppingstopper():
-
-    class TestTrainable(tune.Trainable):
+    class TestTrainable(Trainable):
 
         def setup(self, config):
-            self._itr = 0
+            self.iter = 0
 
         def step(self):
-            self._itr += 1
-            if self._itr > 1:
-                raise Exception('Test')
-            return dict(result=0)
+            self.iter += 1
+            assert self.iter <= 10
+            return dict(test='success')
 
-    stopper = EarlyDroppingStopper(
-        metric='result', mode='max', metric_threshold=0.5)
-    tune.run(TestTrainable, config={}, stop=stopper)
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            TestTrainable,
+            tmpdir,
+            param_space=dict(),
+            tune_cfg=dict(),
+            stopper=dict(type='DictionaryStopper', training_iteration=10),
+            cfg=Config()).tune()
+
+
+def test_early_drop():
+
+    class TestTrainable(Trainable):
+
+        def setup(self, config):
+            self.iter = 0
+
+        def step(self):
+            self.iter += 1
+            assert self.iter <= 1
+            return dict(test=0)
+
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            TestTrainable,
+            tmpdir,
+            param_space=dict(),
+            tune_cfg=dict(),
+            stopper=dict(
+                type='EarlyDroppingStopper',
+                metric='test',
+                mode='max',
+                metric_threshold=0.5),
+            cfg=Config()).tune()
