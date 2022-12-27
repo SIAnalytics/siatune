@@ -46,7 +46,7 @@ class Tuner:
 
     def __init__(
         self,
-        task: Union[dict, Callable[[dict]]],
+        task: Union[dict, Callable[[dict], None]],
         work_dir: str,
         param_space: Optional[dict] = None,
         tune_cfg: Optional[dict] = None,

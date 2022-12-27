@@ -1,94 +1,103 @@
+from tempfile import TemporaryDirectory
+
 import pytest
-from ray import tune
+from mmcv import Config
+from ray.air import session
 from ray.tune.error import TuneError
 
+from siatune.tune import Tuner
 from siatune.tune.schedulers import TRIAL_SCHEDULERS, build_scheduler
-from siatune.tune.searchers import build_searcher
 
 
-def test_build_schedulers():
+def test_build_scheduler():
 
     @TRIAL_SCHEDULERS.register_module()
     class TestScheduler:
         pass
 
-    assert isinstance(
-        build_scheduler(dict(type='TestScheduler')), TestScheduler)
-
-
-@pytest.fixture
-def config():
-    return dict(
-        steps=10, width=tune.uniform(0, 20), height=tune.uniform(-100, 100))
+    cfg = dict(type='TestScheduler')
+    assert isinstance(build_scheduler(cfg), TestScheduler)
 
 
 @pytest.fixture
 def trainable():
 
     def _trainable(config):
-        width, height = config['width'], config['height']
-        for step in range(config['steps']):
-            intermediate_score = (0.1 +
-                                  width * step / 100)**(-1) + height * 0.1
-            tune.report(iterations=step, mean_loss=intermediate_score)
+        config = config['train_loop_config']
+        for step in range(config['iter']):
+            loss = (0.1 + config['x'] * step / 100)**-1 + config['y'] * 0.1
+            session.report(dict(loss=loss))
 
     return _trainable
 
 
-def test_asynchb(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        scheduler=build_scheduler(
-            dict(
-                type='AsyncHyperBandScheduler',
-                time_attr='training_iteration')),
-        num_samples=2,
-        config=config)
+@pytest.fixture
+def param_space():
+    return dict(
+        iter=10,
+        x=dict(type='Uniform', lower=0, upper=10),
+        y=dict(type='Uniform', lower=0, upper=10))
 
 
-def test_hb(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        scheduler=build_scheduler(
-            dict(type='HyperBandScheduler', time_attr='training_iteration')),
-        num_samples=2,
-        config=config)
-
-
-def test_bohb(trainable, config):
-    with pytest.raises(TuneError):
-        # AttributeError
-        tune.run(
+def test_asynchb(trainable, param_space):
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
             trainable,
-            metric='mean_loss',
-            mode='min',
-            search_alg=None,
-            scheduler=build_scheduler(
-                dict(type='HyperBandForBOHB', time_attr='training_iteration')),
-            num_samples=2,
-            config=config)
-
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        search_alg=build_searcher(dict(type='TuneBOHB')),
-        scheduler=build_scheduler(
-            dict(type='HyperBandForBOHB', time_attr='training_iteration')),
-        num_samples=2,
-        config=config)
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            trial_scheduler=dict(
+                type='AsyncHyperBandScheduler',
+                time_attr='training_iteration'),
+            cfg=Config()).tune()
 
 
-def test_median(trainable, config):
-    tune.run(
-        trainable,
-        metric='mean_loss',
-        mode='min',
-        scheduler=build_scheduler(
-            dict(type='MedianStoppingRule', time_attr='time_total_s')),
-        num_samples=2,
-        config=config)
+def test_hb(trainable, param_space):
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            trial_scheduler=dict(
+                type='HyperBandScheduler', time_attr='training_iteration'),
+            cfg=Config()).tune()
+
+
+def test_bohb(trainable, param_space):
+    with pytest.raises(TuneError):
+        # If TuneBOHB is not used, an AttributeError will be raised
+        with TemporaryDirectory() as tmpdir:
+            Tuner(
+                trainable,
+                tmpdir,
+                param_space=param_space,
+                tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+                searcher=None,
+                trial_scheduler=dict(
+                    type='HyperBandForBOHB', time_attr='training_iteration'),
+                cfg=Config()).tune()
+
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            searcher=dict(type='TuneBOHB'),
+            trial_scheduler=dict(
+                type='HyperBandForBOHB', time_attr='training_iteration'),
+            cfg=Config()).tune()
+
+
+def test_median(trainable, param_space):
+    with TemporaryDirectory() as tmpdir:
+        Tuner(
+            trainable,
+            tmpdir,
+            param_space=param_space,
+            tune_cfg=dict(metric='loss', mode='min', num_samples=2),
+            searcher=dict(type='TuneBOHB'),
+            trial_scheduler=dict(
+                type='MedianStoppingRule', time_attr='time_total_s'),
+            cfg=Config()).tune()
