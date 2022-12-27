@@ -54,7 +54,7 @@ class MMAny(BaseTask):
             self._lone_run(self._train_script, raw_args)
         else:
             assert self.num_gpus_per_worker == 1
-            self._dist_runs(self._train_script, raw_args, self.num_workers)
+            self._dist_run(self._train_script, raw_args, self.num_workers)
 
     def _inject_argv(self, raw_args: Sequence[str]) -> None:
         import sys as _sys

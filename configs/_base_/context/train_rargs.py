@@ -8,6 +8,15 @@ task = dict(rewriters=[
         src_key='searched_cfg',
         dst_key='base_cfg',
         key='cfg'),
+    dict(
+        type='CustomHookRegister',
+        key='cfg',
+        post_custom_hooks=[
+            dict(
+                type='RayTuneLoggerHook',
+                filtering_key='val',
+                priority='VERY_LOW'),
+        ]),
     dict(type='RawArgResumeFromCkpt'),
     dict(type='RawArgDump', key='cfg'),
     dict(type='RawArgAppendTrialIDtoPath')
