@@ -8,6 +8,7 @@ from mmcv import Config, DictAction
 
 from siatune.apis import log_analysis
 from siatune.tune import Tuner
+from siatune.utils import register_all_modules
 
 
 def parse_args():
@@ -72,6 +73,10 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # register all modules in mmdet into the registries
+    # do not init the default scope here because it will be init in the runner
+    register_all_modules(init_default_scope=False)
 
     # load config
     cfg = Config.fromfile(args.config)
