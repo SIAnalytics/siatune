@@ -1,7 +1,7 @@
 import random
 from tempfile import TemporaryDirectory
 
-from mmcv import Config
+from mmengine import Config
 from ray.air import session
 
 from siatune.codebase import TASKS

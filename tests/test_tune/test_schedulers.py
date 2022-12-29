@@ -1,7 +1,7 @@
 from tempfile import TemporaryDirectory
 
 import pytest
-from mmcv import Config
+from mmengine import Config
 from ray.air import session
 from ray.tune.error import TuneError
 

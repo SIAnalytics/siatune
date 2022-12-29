@@ -1,6 +1,6 @@
 from tempfile import TemporaryDirectory
 
-from mmcv import Config
+from mmengine import Config
 from ray.tune import Trainable
 
 from siatune.tune import Tuner
