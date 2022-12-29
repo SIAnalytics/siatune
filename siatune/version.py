@@ -2,13 +2,16 @@
 __version__ = '0.2.0'
 from typing import Tuple
 
+import mmcv
+
+IS_DEPRECATED_MMCV = False
+
 
 def parse_version_info(version_str: str) -> Tuple:
     """Parse version string.
 
     Args:
         version_str (str): The version string.
-
     Returns:
         Tuple: The version tuple.
     """
@@ -23,5 +26,8 @@ def parse_version_info(version_str: str) -> Tuple:
             version_info.append(f'rc{patch_version[1]}')
     return tuple(version_info)
 
+
+if (parse_version_info(mmcv.__version__) < parse_version_info('2.0.0rc0')):
+    IS_DEPRECATED_MMCV = True
 
 version_info = parse_version_info(__version__)

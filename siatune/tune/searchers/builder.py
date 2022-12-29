@@ -1,6 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 
-from mmcv.utils import Config, Registry
+from mmengine.config import Config
+from mmengine.registry import Registry
 from ray import tune
 from ray.tune.search import Searcher
 
