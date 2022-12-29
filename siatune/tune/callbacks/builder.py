@@ -1,5 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from mmcv.utils import Config, Registry
+from mmengine.config import Config
+from mmengine.registry import Registry
 from ray.tune.logger import (CSVLoggerCallback, JsonLoggerCallback,
                              LegacyLoggerCallback, LoggerCallback,
                              TBXLoggerCallback)

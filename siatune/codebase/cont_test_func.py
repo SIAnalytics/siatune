@@ -10,7 +10,7 @@ from math import exp, sqrt, tanh
 
 import numpy as np
 import ray
-from mmcv.utils import Config
+from mmengine.config import Config
 
 from .blackbox import BlackBoxTask
 from .builder import TASKS

@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from mmcv.utils import Config
+from mmengine.config import Config
 
 
 def dump_cfg(cfg: Config, save_path: str) -> bool:
