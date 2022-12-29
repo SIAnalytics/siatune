@@ -11,4 +11,4 @@ space = {
 }
 
 task = dict(type='MMDetection')
-tune_cfg = dict(num_samples=8, metric='val/AP', mode='max')
+tune_cfg = dict(num_samples=8, metric='val/bbox_mAP', mode='max')
