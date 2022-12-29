@@ -1,5 +1,4 @@
 task = dict(rewriters=[
-    dict(type='RevertWorkSpace'),
     dict(type='RawArgInstantiateCfg', key='base_cfg'),
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),

@@ -1,11 +1,9 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from abc import ABCMeta
 
-import torch
-from ray.air.config import ScalingConfig
 from ray.train.data_parallel_trainer import DataParallelTrainer
 
-from siatune.tune import MMBackendConfig
+from siatune.core import create_dist_trainer
 from .base import BaseTask
 from .builder import TASKS
 
@@ -20,11 +18,7 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
         Returns:
             DataParallelTrainer: Trainer to optimize hyperparameter.
         """
-
-        return DataParallelTrainer(
+        return create_dist_trainer(
             self.context_aware_run,
-            backend_config=MMBackendConfig(),
-            scaling_config=ScalingConfig(
-                trainer_resources=dict(CPU=self.num_cpus_per_worker),
-                num_workers=self.num_workers,
-                use_gpu=torch.cuda.is_available()))
+            num_cpus_per_worker=self.num_cpus_per_worker,
+            num_workers=self.num_workers)
