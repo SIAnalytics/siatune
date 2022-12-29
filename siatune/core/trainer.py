@@ -16,7 +16,6 @@ class DataParallelTrainerCreator:
                  trainable: Callable,
                  num_cpus_per_worker: int = 1,
                  num_workers: int = 1):
-
         self.trainable = trainable
         self.resources = ScalingConfig(
             trainer_resources=dict(),
@@ -37,6 +36,7 @@ class DataParallelTrainerCreator:
         remote_job = ray.remote(job).options(
             num_cpus=num_cpus_per_worker, num_gpus=1)
         ray.get([remote_job.remote(rank) for rank in range(num_workers)])
+        return
 
     def create(self) -> Callable:
         return reserve_resources(self._train, self.resources)
