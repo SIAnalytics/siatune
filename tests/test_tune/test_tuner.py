@@ -1,7 +1,7 @@
 import random
-import tempfile
+from tempfile import TemporaryDirectory
 
-from mmcv import Config
+from mmengine import Config
 from ray.air import session
 
 from siatune.codebase import TASKS
@@ -17,7 +17,7 @@ class TuneTask:
 
 def test_tuner():
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with TemporaryDirectory() as tmpdir:
         tune_cfg = Config(
             dict(
                 task=dict(type='TuneTask'),
