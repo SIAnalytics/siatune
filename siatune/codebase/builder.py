@@ -1,7 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict
 
-from mmcv.utils import Registry
+from mmengine.registry import Registry
 
 from .base import BaseTask
 

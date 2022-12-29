@@ -4,7 +4,7 @@ from argparse import REMAINDER
 from os import path as osp
 
 import ray
-from mmcv import Config, DictAction
+from mmengine.config.config import Config, DictAction
 
 from siatune.apis import log_analysis
 from siatune.tune import Tuner

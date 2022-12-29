@@ -1,2 +1,3 @@
+mmengine
 ray[data]==2.2.0
 ray[tune]==2.2.0
