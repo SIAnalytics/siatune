@@ -2,7 +2,7 @@
 import argparse
 from typing import Callable, Sequence
 
-from siatune.core import DataParallelTrainerCreator
+from siatune.core import DataParallelTrainCreator
 from ..base import BaseTask
 from ..builder import TASKS
 from ._entrypoint import EntrypointRunner
@@ -29,7 +29,7 @@ class MIM(BaseTask):
         Returns:
             Callable: The Ray trainable task.
         """
-        return DataParallelTrainerCreator(
+        return DataParallelTrainCreator(
             self.context_aware_run,
             num_cpus_per_worker=self.num_cpus_per_worker,
             num_workers=self.num_workers).create()

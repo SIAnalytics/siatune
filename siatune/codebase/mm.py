@@ -3,7 +3,7 @@ from abc import ABCMeta
 
 from ray.train.data_parallel_trainer import DataParallelTrainer
 
-from siatune.core import DataParallelTrainerCreator
+from siatune.core import DataParallelTrainCreator
 from .base import BaseTask
 from .builder import TASKS
 
@@ -18,7 +18,7 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
         Returns:
             DataParallelTrainer: Trainer to optimize hyperparameter.
         """
-        return DataParallelTrainerCreator(
+        return DataParallelTrainCreator(
             self.context_aware_run,
             num_cpus_per_worker=self.num_cpus_per_worker,
             num_workers=self.num_workers).create()

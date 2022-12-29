@@ -10,7 +10,7 @@ from ray.tune import with_resources as reserve_resources
 from siatune.utils import set_env_vars
 
 
-class DataParallelTrainerCreator:
+class DataParallelTrainCreator:
 
     def __init__(self,
                  trainable: Callable,
