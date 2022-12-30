@@ -5,12 +5,11 @@ import ray
 import torch
 from ray.air.config import ScalingConfig
 from ray.train._internal.utils import get_address_and_port
-from ray.tune import with_resources as reserve_resources
 
 from siatune.utils import set_env_vars
 
 
-class DataParallelTrainCreator:
+class DataParallelCreator:
 
     def __init__(self,
                  trainable: Callable,
@@ -22,7 +21,7 @@ class DataParallelTrainCreator:
             num_rest_worker = num_workers - 1
         else:
             num_rest_worker = 0
-        self.resources = ScalingConfig(
+        self._resources = ScalingConfig(
             trainer_resources=dict(
                 CPU=num_cpus_per_worker, GPU=int(torch.cuda.is_available())),
             use_gpu=torch.cuda.is_available(),
@@ -30,7 +29,7 @@ class DataParallelTrainCreator:
             resources_per_worker=dict(CPU=num_cpus_per_worker))
         return
 
-    def _train(self, *args, **kwargs):
+    def train(self, *args, **kwargs):
         num_workers = self.resources.num_workers
         num_cpus_per_worker = self.resources.resources_per_worker.get('CPU')
         addr, port = get_address_and_port()
@@ -45,5 +44,6 @@ class DataParallelTrainCreator:
         ray.get([remote_job.remote(rank) for rank in range(1, num_workers)])
         return
 
-    def create(self) -> Callable:
-        return reserve_resources(self._train, self.resources)
+    @property
+    def resources(self) -> ScalingConfig:
+        return self._resources
