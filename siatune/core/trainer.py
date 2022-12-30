@@ -9,7 +9,7 @@ from ray.train._internal.utils import get_address_and_port
 from siatune.utils import set_env_vars
 
 
-class DataParallelCreator:
+class DataParallelTrainCreator:
 
     def __init__(self,
                  trainable: Callable,
