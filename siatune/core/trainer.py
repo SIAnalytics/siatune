@@ -30,7 +30,7 @@ class DataParallelTrainCreator:
         return
 
     def train(self, *args, **kwargs):
-        num_workers = self.resources.num_workers
+        num_workers = self.resources.num_workers + 1
         num_cpus_per_worker = self.resources.resources_per_worker.get('CPU')
         addr, port = get_address_and_port()
 
@@ -38,10 +38,11 @@ class DataParallelTrainCreator:
             set_env_vars(rank, num_workers, addr, port)
             self.trainable(*args, **kwargs)
 
-        job(0)
         remote_job = ray.remote(job).options(
             num_cpus=num_cpus_per_worker, num_gpus=1)
-        ray.get([remote_job.remote(rank) for rank in range(1, num_workers)])
+        futures = [remote_job.remote(rank) for rank in range(1, num_workers)]
+        job(0)
+        ray.get(futures)
         return
 
     @property
