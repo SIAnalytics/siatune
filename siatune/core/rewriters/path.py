@@ -38,7 +38,8 @@ class AttachTrialInfotoPath(BaseRewriter):
                 context['args'][idx.pop()] = osp.join(work_dir.pop(),
                                                       session.get_trial_id())
             else:
-                context['args'].extend(
-                    [self.raw_arg_name,
-                     session.get_trial_dir()])
+                context['args'].extend([
+                    self.raw_arg_name,
+                    osp.join('.', session.get_trial_dir())
+                ])
         return context

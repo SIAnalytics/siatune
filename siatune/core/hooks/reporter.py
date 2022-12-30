@@ -1,6 +1,6 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from mmcv.runner import HOOKS, BaseRunner
-from mmcv.runner.dist_utils import get_dist_info
+from mmcv.runner.dist_utils import get_dist_info, master_only
 from mmcv.runner.hooks.logger import LoggerHook
 from ray.air import session
 from torch import distributed as dist
@@ -70,6 +70,7 @@ class RayTuneLoggerHook(LoggerHook):
         if self.reset_flag:
             runner.log_buffer.clear_output()
 
+    @master_only
     def log(self, runner: BaseRunner) -> None:
         """Log the information.
 

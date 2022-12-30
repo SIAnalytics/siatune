@@ -17,10 +17,16 @@ class DataParallelTrainCreator:
                  num_cpus_per_worker: int = 1,
                  num_workers: int = 1):
         self.trainable = trainable
+        num_rest_worker: int
+        if num_workers > 1:
+            num_rest_worker = num_workers - 1
+        else:
+            num_rest_worker = 0
         self.resources = ScalingConfig(
-            trainer_resources=dict(),
+            trainer_resources=dict(
+                CPU=num_cpus_per_worker, GPU=int(torch.cuda.is_available())),
             use_gpu=torch.cuda.is_available(),
-            num_workers=num_workers,
+            num_workers=num_rest_worker,
             resources_per_worker=dict(CPU=num_cpus_per_worker))
         return
 
@@ -33,9 +39,10 @@ class DataParallelTrainCreator:
             set_env_vars(rank, num_workers, addr, port)
             self.trainable(*args, **kwargs)
 
+        job(0)
         remote_job = ray.remote(job).options(
             num_cpus=num_cpus_per_worker, num_gpus=1)
-        ray.get([remote_job.remote(rank) for rank in range(num_workers)])
+        ray.get([remote_job.remote(rank) for rank in range(1, num_workers)])
         return
 
     def create(self) -> Callable:

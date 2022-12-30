@@ -18,8 +18,8 @@ class MIM(BaseTask):
     def parse_args(self, *args, **kwargs) -> None:
         return None
 
-    def run(self, *, raw_args: Sequence[str], **kwargs) -> None:
-        runner = EntrypointRunner(self._pkg_name, raw_args)
+    def run(self, *, args: Sequence[str], **kwargs) -> None:
+        runner = EntrypointRunner(self._pkg_name, args)
         runner.run()
 
     def create_trainable(self) -> Callable:
