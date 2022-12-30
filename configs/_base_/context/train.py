@@ -1,5 +1,5 @@
 task = dict(rewriters=[
-    dict(type='InstantiateCfg', arg_name='config', key='base_cfg'),
+    dict(type='InstantiateCfg', key='base_cfg'),
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),
     dict(
@@ -17,5 +17,7 @@ task = dict(rewriters=[
                 priority='VERY_LOW'),
             dict(type='RayCheckpointHook', by_epoch=True, interval=1)
         ]),
-    dict(type='Dump', key='cfg', arg_name='config')
+    dict(type='ResumeFromCkpt'),
+    dict(type='Dump', key='cfg'),
+    dict(type='AttachTrialInfotoPath')
 ])

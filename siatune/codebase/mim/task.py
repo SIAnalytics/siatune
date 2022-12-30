@@ -1,5 +1,4 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import argparse
 from typing import Callable, Sequence
 
 from siatune.core import DataParallelTrainCreator
@@ -13,11 +12,11 @@ class MIM(BaseTask):
 
     def __init__(self, pkg_name: str, **kwargs):
         self._pkg_name = pkg_name
-        super().__init__(**kwargs)
+        super().__init__(should_parse=False, **kwargs)
         assert self.num_gpus_per_worker == 1
 
-    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
-        return argparse.Namespace()
+    def parse_args(self, *args, **kwargs) -> None:
+        return None
 
     def run(self, *, raw_args: Sequence[str], **kwargs) -> None:
         runner = EntrypointRunner(self._pkg_name, raw_args)

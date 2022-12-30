@@ -1,16 +1,15 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import os
 import time
 from typing import Optional
 
 import mmcv
-import ray.tune as tune
-import torch
 from mmcv.parallel import is_module_wrapper
 from mmcv.runner import HOOKS, BaseRunner
 from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
 from mmcv.runner.dist_utils import master_only
 from mmcv.runner.hooks import CheckpointHook as _CheckpointHook
+from ray.air import session
+from ray.air.checkpoint import Checkpoint
 from torch.optim import Optimizer
 
 
@@ -104,6 +103,4 @@ class RayCheckpointHook(_CheckpointHook):
         if not self.by_epoch:
             step //= runner.iter + 1
 
-        with tune.checkpoint_dir(step=step) as checkpoint_dir:
-            path = os.path.join(checkpoint_dir, 'ray_ckpt.pth')
-            torch.save(checkpoint, path)
+        session.report(dict(), checkpoint=Checkpoint.from_dict(checkpoint))

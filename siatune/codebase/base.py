@@ -26,7 +26,8 @@ class BaseTask(metaclass=ABCMeta):
         Aggregate the information we define as context,
         convert it into a refined argparse namespace, and input it to run.
         The context consists of:
-            1. args (argparse.Namespace): The low level CLI arguments.
+            1. args (argparse.Namespace|Sequence[str]):
+                The low level CLI arguments.
             2. searched_cfg (Dict):
                 The configuration searched by the algorithm.
         Inputs: searched_cfg (Dict)
@@ -49,9 +50,14 @@ class BaseTask(metaclass=ABCMeta):
                  num_workers: int = 1,
                  num_cpus_per_worker: int = 1,
                  num_gpus_per_worker: int = 1,
-                 rewriters: Optional[Union[list, dict]] = None):
-        self.raw_args = args
-        self.args = self.parse_args(args)
+                 rewriters: Optional[Union[list, dict]] = None,
+                 should_parse: bool = True):
+
+        self.args: Union[argparse.Namespace, Sequence[str]]
+        if should_parse:
+            self.args = self.parse_args(args)
+        else:
+            self.args = args
 
         self.num_workers = num_workers
         self.num_cpus_per_worker = num_cpus_per_worker
@@ -62,7 +68,8 @@ class BaseTask(metaclass=ABCMeta):
         self.rewriters = rewriters
 
     @abstractmethod
-    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+    def parse_args(self,
+                   args: Sequence[str]) -> Union[argparse.Namespace, None]:
         """Define and parse the necessary arguments for the task.
 
         Args:
@@ -73,7 +80,7 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self, searched_cfg: dict) -> Callable:
+    def context_aware_run(self, searched_cfg: dict, **kwars) -> Callable:
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
@@ -86,7 +93,6 @@ class BaseTask(metaclass=ABCMeta):
 
         context_manager = ContextManager(self.rewriters)
         context = dict(
-            raw_args=deepcopy(self.raw_args),
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
         )

@@ -1,17 +1,17 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from .base import BaseRewriter
 from .builder import REWRITERS, build_rewriter
-from .dump import Dump, RawArgDump
-from .instantiate import InstantiateCfg, RawArgInstantiateCfg
+from .dump import Dump
+from .instantiate import InstantiateCfg
 from .merge import MergeConfig
 from .patch import BatchConfigPatcher, SequeunceConfigPatcher
-from .path import AppendTrialIDtoPath, RawArgAppendTrialIDtoPath
+from .path import AttachTrialInfotoPath
 from .register import CustomHookRegister
-from .resume import RawArgResumeFromCkpt, ResumeFromCkpt
+from .resume import ResumeFromCkpt
 
 __all__ = [
     'BaseRewriter', 'REWRITERS', 'build_rewriter', 'Dump', 'MergeConfig',
     'AppendTrialIDtoPath', 'BatchConfigPatcher', 'SequeunceConfigPatcher',
-    'CustomHookRegister', 'InstantiateCfg', 'ResumeFromCkpt', 'RawArgDump',
-    'RawArgInstantiateCfg', 'RawArgAppendTrialIDtoPath', 'RawArgResumeFromCkpt'
+    'CustomHookRegister', 'InstantiateCfg', 'ResumeFromCkpt',
+    'AttachTrialInfotoPath'
 ]
