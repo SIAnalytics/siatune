@@ -17,7 +17,7 @@ class EntrypointRunner:
         self._entrypoint = SourceFileLoader(self._module_name,
                                             self._train_script).load_module()
 
-    def _hijack_argv(self, argv):
+    def _hijack_argv(self, argv: Sequence[str]):
         import sys
         sys.argv[1:] = argv
         return

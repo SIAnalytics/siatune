@@ -102,7 +102,7 @@ class MMClassification(MMBaseTask):
 
         return args
 
-    def run(self, args: argparse.Namespace):
+    def run(self, args: Sequence[str]):
         """Run the task.
 
         Args:
