@@ -1,9 +1,12 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from typing import Callable, Sequence
+from typing import Sequence
 
-from ray.tune import with_resources as reserve_resources
+import torch
+from ray.air.config import ScalingConfig
+from ray.train.data_parallel_trainer import DataParallelTrainer
 
 from siatune.core import DataParallelTrainCreator
+from siatune.tune import MMBackendConfig
 from ..base import BaseTask
 from ..builder import TASKS
 from ._entrypoint import EntrypointRunner
@@ -31,13 +34,17 @@ class MIM(BaseTask):
         runner = EntrypointRunner(self._pkg_name, args)
         runner.run()
 
-    def create_trainable(self) -> Callable:
-        """Get ray trainable task.
+    def create_trainable(self) -> DataParallelTrainer:
+        """Get a :class:`DataParallelTrainer` instance.
 
         Returns:
-            Callable: The Ray trainable task.
+            DataParallelTrainer: Trainer to optimize hyperparameter.
         """
-        return reserve_resources(
+
+        return DataParallelTrainer(
             self.context_aware_run,
-            self.dist_creator.resources,
-        )
+            backend_config=MMBackendConfig(),
+            scaling_config=ScalingConfig(
+                trainer_resources=dict(CPU=self.num_cpus_per_worker),
+                num_workers=self.num_workers,
+                use_gpu=torch.cuda.is_available()))

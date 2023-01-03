@@ -93,6 +93,8 @@ class MergeConfig(BaseRewriter):
             dict: The context after rewriting.
         """
         src = context.pop(self.src_key)
+        if 'train_loop_config' in src:
+            src = src['train_loop_config']
         dst = context.pop(self.dst_key)
         unpacked_src = {}
         for full_key, v in src.items():

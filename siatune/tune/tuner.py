@@ -100,7 +100,7 @@ class Tuner:
 
         self.tuner = RayTuner(
             trainable,
-            param_space=param_space,
+            param_space=dict(train_loop_config=param_space),
             tune_config=TuneConfig(
                 search_alg=searcher,
                 scheduler=trial_scheduler,
