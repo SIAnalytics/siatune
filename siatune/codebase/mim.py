@@ -1,13 +1,10 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from typing import Sequence
-
-from .builder import TASKS
-from .mm import MMBaseTask
-
 from importlib.machinery import SourceFileLoader
 from typing import Sequence
 
 from siatune.utils import get_train_script
+from .builder import TASKS
+from .mm import MMBaseTask
 
 
 class _EntrypointRunner:

@@ -71,7 +71,10 @@ if not IS_DEPRECATED_MMCV:
             else:
                 return
             # runner.logger.info(log_str)
-
+            if not any(
+                    filter(lambda elem: self.filtering_key in elem,
+                           tag.keys())):
+                return
             # TODO: Here we sohuld feed tags to ray reporter
             if self.with_ckpt:
                 session.report(tag, Checkpoint=self._save_checkpoint(runner))
@@ -95,6 +98,10 @@ if not IS_DEPRECATED_MMCV:
             tag, _ = runner.log_processor.get_log_after_epoch(
                 runner, len(runner.val_dataloader), 'val')
             tag = {k: v for k, v in tag.items() if 'time' not in k}
+            if not any(
+                    filter(lambda elem: self.filtering_key in elem,
+                           tag.keys())):
+                return
             if self.with_ckpt:
                 session.report(
                     tag, Checkpoint=self._save_checkpoint(runner, False))
@@ -246,8 +253,11 @@ else:
             """
 
             tags = self.get_loggable_tags(runner)
-            tags['global_step'] = self.get_iter(runner)
-            if self.use_ckpt:
+            if not any(
+                    filter(lambda elem: self.filtering_key in elem,
+                           tags.keys())):
+                return
+            if self.with_ckpt:
                 session.report(tags, checkpoint=self._save_checkpoint(runner))
             else:
                 session.report(tags)
