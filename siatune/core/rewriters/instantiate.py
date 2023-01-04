@@ -1,7 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict
 
-from mmcv import Config
+from mmengine.config import Config
 
 from .base import BaseRewriter
 from .builder import REWRITERS

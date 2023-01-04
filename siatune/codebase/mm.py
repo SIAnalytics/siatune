@@ -20,10 +20,10 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
         )
 
     def run(self, *args, **kwargs):
-        self.launcher.launch(self.train, *args, **kwargs)
+        self.launcher.launch(self.execute, *args, **kwargs)
 
     @abstractmethod
-    def train(self, args: Sequence[str]):
+    def execute(self, args: Sequence[str]):
         pass
 
     def create_trainable(self) -> Callable:

@@ -7,4 +7,4 @@ def test_get_root_logger():
     logger = get_root_logger()
     logger.info('test')
     assert isinstance(logger, logging.Logger)
-    assert logger.name == 'siatune'
+    assert logger.instance_name == 'SIATune'

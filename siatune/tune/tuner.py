@@ -2,9 +2,9 @@
 import copy
 import os.path as osp
 import time
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
-import mmcv
+import mmengine
 from ray.air.config import RunConfig
 from ray.tune import ResultGrid
 from ray.tune.tune_config import TuneConfig
@@ -19,7 +19,7 @@ class Tuner:
     """Wrapper class of :class:`ray.tune.tuner.Tuner`.
 
     Args:
-        task (dict): The trainable task to be tuned.
+        task (dict | Callable): The trainable task to be tuned.
         work_dir (str): The working directory to save checkpoints. The logs
             will be saved in the subdirectory of `work_dir`.
         param_space (dict, optional): Search space of the tuning task.
@@ -46,7 +46,7 @@ class Tuner:
 
     def __init__(
         self,
-        task: dict,
+        task: Union[dict, Callable[[dict], None]],
         work_dir: str,
         param_space: Optional[dict] = None,
         tune_cfg: Optional[dict] = None,
@@ -58,11 +58,13 @@ class Tuner:
         experiment_name: Optional[str] = None,
         cfg: Optional[dict] = None,
     ):
-        task = build_task(task)
-        trainable = task.create_trainable()
+        trainable = task
+        if isinstance(task, dict):
+            task = build_task(task)
+            trainable = task.create_trainable()
 
         self.work_dir = osp.abspath(work_dir)
-        mmcv.mkdir_or_exist(self.work_dir)
+        mmengine.mkdir_or_exist(self.work_dir)
 
         if param_space is not None:
             param_space = build_space(param_space)
@@ -95,7 +97,7 @@ class Tuner:
         filename = self.cfg.filename or f'{experiment_name}.py'
         if self.cfg.filename is not None:
             filename = osp.basename(self.cfg.filename)
-        mmcv.mkdir_or_exist(osp.join(self.work_dir, experiment_name))
+        mmengine.mkdir_or_exist(osp.join(self.work_dir, experiment_name))
         self.cfg.dump(osp.join(self.work_dir, experiment_name, filename))
 
         self.tuner = RayTuner(
