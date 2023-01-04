@@ -1,11 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
+from typing import Callable, Sequence
 
-import torch
-from ray.air.config import ScalingConfig
-from ray.train.data_parallel_trainer import DataParallelTrainer
-
-from siatune.tune import MMBackendConfig
+from siatune.core import DistTorchLauncher
 from .base import BaseTask
 from .builder import TASKS
 
@@ -14,17 +11,25 @@ from .builder import TASKS
 class MMBaseTask(BaseTask, metaclass=ABCMeta):
     """Wrap the apis of open mm train-based projects."""
 
-    def create_trainable(self) -> DataParallelTrainer:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.num_gpus_per_worker == 1
+        self.launcher = DistTorchLauncher(
+            self.num_cpus_per_worker,
+            self.num_workers,
+        )
+
+    def run(self, *args, **kwargs):
+        self.launcher.launch(self.train, *args, **kwargs)
+
+    @abstractmethod
+    def train(self, args: Sequence[str]):
+        pass
+
+    def create_trainable(self) -> Callable:
         """Get a :class:`DataParallelTrainer` instance.
 
         Returns:
-            DataParallelTrainer: Trainer to optimize hyperparameter.
+            Callable: Trainer to optimize hyperparameter.
         """
-
-        return DataParallelTrainer(
-            self.context_aware_run,
-            backend_config=MMBackendConfig(),
-            scaling_config=ScalingConfig(
-                trainer_resources=dict(CPU=self.num_cpus_per_worker),
-                num_workers=self.num_workers,
-                use_gpu=torch.cuda.is_available()))
+        return self.launcher.reserve(self.context_aware_run)

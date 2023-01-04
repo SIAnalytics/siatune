@@ -1,6 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import argparse
-import os
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from typing import Callable, Optional, Sequence, Union
@@ -67,7 +66,6 @@ class BaseTask(metaclass=ABCMeta):
         if isinstance(rewriters, dict):
             rewriters = [rewriters]
         self.rewriters = rewriters
-        self._tune_launch_path = os.getcwd()
 
     @abstractmethod
     def parse_args(self,
@@ -97,7 +95,6 @@ class BaseTask(metaclass=ABCMeta):
         context = dict(
             args=deepcopy(self.args),
             searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
-            tune_launch_path=self._tune_launch_path,
         )
         return context_manager(self.run)(**context)
 

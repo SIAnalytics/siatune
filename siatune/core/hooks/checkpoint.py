@@ -23,7 +23,6 @@ class RayCheckpointHook(_CheckpointHook):
                  max_keep_ckpts: int = -1,
                  save_last: bool = True,
                  sync_buffer: Optional[bool] = False,
-                 file_client_args: Optional[dict] = None,
                  **kwargs):
         """Initialize the CheckpointHook.
 

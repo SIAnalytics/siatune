@@ -1,5 +1,4 @@
 task = dict(rewriters=[
-    dict(type='RevertWorkSpace'),
     dict(type='InstantiateCfg', key='base_cfg'),
     dict(type='BatchConfigPatcher', key='searched_cfg'),
     dict(type='SequeunceConfigPatcher', key='searched_cfg'),
@@ -16,7 +15,7 @@ task = dict(rewriters=[
                 type='RayTuneLoggerHook',
                 filtering_key='val',
                 priority='VERY_LOW'),
-            dict(type='RayCheckpointHook', by_epoch=True, interval=1)
+            # dict(type='RayCheckpointHook', by_epoch=True, interval=1)
         ]),
     dict(type='ResumeFromCkpt'),
     dict(type='Dump', key='cfg'),

@@ -124,7 +124,7 @@ class MMSegmentation(MMBaseTask):
 
         return args
 
-    def run(self, args: argparse.Namespace):
+    def train(self, args: argparse.Namespace):
         """Run the task.
 
         Args:

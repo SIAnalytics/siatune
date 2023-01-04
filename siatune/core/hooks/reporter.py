@@ -1,9 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from mmcv.runner import HOOKS, BaseRunner
-from mmcv.runner.dist_utils import get_dist_info, master_only
+from mmcv.runner.dist_utils import master_only
 from mmcv.runner.hooks.logger import LoggerHook
 from ray.air import session
-from torch import distributed as dist
 
 
 @HOOKS.register_module()
@@ -79,14 +78,6 @@ class RayTuneLoggerHook(LoggerHook):
         """
 
         tags = self.get_loggable_tags(runner)
-        rank, world_size = get_dist_info()
-        if world_size > 1:
-            if rank == 0:
-                broadcasted = [tags]
-            else:
-                broadcasted = [None]
-            dist.broadcast_object_list(broadcasted)
-            tags = broadcasted.pop()
         if not any(
                 filter(lambda elem: self.filtering_key in elem, tags.keys())):
             return
