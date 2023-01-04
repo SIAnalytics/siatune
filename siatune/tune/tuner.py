@@ -106,6 +106,7 @@ class Tuner:
                 scheduler=trial_scheduler,
                 trial_name_creator=lambda trial: trial.trial_id,
                 trial_dirname_creator=lambda trial: trial.experiment_tag,
+                chdir_to_trial_dir=tune_cfg.pop('chdir_to_trial_dir', False),
                 **tune_cfg),
             run_config=RunConfig(
                 name=self.experiment_name,

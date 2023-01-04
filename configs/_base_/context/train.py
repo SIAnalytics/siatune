@@ -15,7 +15,6 @@ task = dict(rewriters=[
                 type='RayTuneLoggerHook',
                 filtering_key='val',
                 priority='VERY_LOW'),
-            # dict(type='RayCheckpointHook', by_epoch=True, interval=1)
         ]),
     dict(type='ResumeFromCkpt'),
     dict(type='Dump', key='cfg'),

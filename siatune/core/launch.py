@@ -12,9 +12,7 @@ from siatune.utils import set_env_vars
 
 class DistTorchLauncher:
 
-    def __init__(self,
-                 num_cpus_per_worker: int = 1,
-                 num_workers: int = 1):
+    def __init__(self, num_cpus_per_worker: int = 1, num_workers: int = 1):
 
         num_remote_worker: int
         if num_workers > 1:
@@ -22,7 +20,7 @@ class DistTorchLauncher:
         else:
             num_remote_worker = num_workers
         use_gpu: bool = torch.cuda.is_available()
-                
+
         self._resources = ScalingConfig(
             trainer_resources=dict(CPU=num_cpus_per_worker, GPU=int(use_gpu)),
             use_gpu=use_gpu,
@@ -46,11 +44,9 @@ class DistTorchLauncher:
         remote_job = ray.remote(job).options(
             num_cpus=num_cpus_per_worker, num_gpus=1)
         futures = [remote_job.remote(rank) for rank in range(1, num_workers)]
-        func(rank=0)
+        job(rank=0)
         ray.get(futures)
         return
 
     def reserve(self, trainable: Callable):
-        return reserve_resources(
-            trainable,
-            self.resources)
+        return reserve_resources(trainable, self.resources)
