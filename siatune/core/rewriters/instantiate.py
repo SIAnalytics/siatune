@@ -34,7 +34,7 @@ class InstantiateCfg(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        is_parsed: bool = not isinstance(context['args'], list)
+        is_parsed = not isinstance(context['args'], list)
         file_name: str
         if is_parsed:
             file_name = getattr(context['args'], self.arg_name)

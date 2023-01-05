@@ -41,8 +41,8 @@ class Dump(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        is_parsed: bool = not isinstance(context['args'], list)
-        dmp_path: str = self._dump(context.pop(self.key))
+        is_parsed = not isinstance(context['args'], list)
+        dmp_path = self._dump(context.pop(self.key))
         if is_parsed:
             setattr(context['args'], self.arg_name, dmp_path)
         else:

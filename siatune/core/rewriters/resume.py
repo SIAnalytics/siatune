@@ -35,7 +35,7 @@ class ResumeFromCkpt(BaseRewriter):
         if not ckpt:
             return context
         ckpt_path = self._dump(ckpt)
-        is_parsed: bool = not isinstance(context['args'], list)
+        is_parsed = not isinstance(context['args'], list)
         if is_parsed:
             setattr(context['args'], self.arg_name, ckpt_path)
         else:

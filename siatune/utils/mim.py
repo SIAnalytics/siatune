@@ -1,12 +1,11 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from os import path as osp
 
-from mim.utils import get_installed_path, is_installed
-from mim.utils import module_full_name as get_pkg_full_name
+from mim.utils import get_installed_path, is_installed, module_full_name
 
 
 def get_train_script(pkg_name: str) -> str:
-    pkg_full_name = get_pkg_full_name(pkg_name)
+    pkg_full_name = module_full_name(pkg_name)
     if pkg_full_name == '':
         raise ValueError("Can't determine a unique "
                          f'package given abbreviation {pkg_name}')

@@ -24,9 +24,9 @@ class AttachTrialInfotoPath(BaseRewriter):
         Returns:
             dict: The context after rewriting.
         """
-        is_parsed: bool = not isinstance(context['args'], list)
+        is_parsed = not isinstance(context['args'], list)
         if is_parsed:
-            work_dir: str = getattr(context['args'], self.arg_name, '')
+            work_dir = getattr(context['args'], self.arg_name, '')
             if work_dir:
                 work_dir = osp.join(work_dir, session.get_trial_id())
             else:
