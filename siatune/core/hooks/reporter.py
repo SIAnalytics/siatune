@@ -1,24 +1,30 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-import time
+import glob
+import os
+from os import path as osp
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+import torch
 from ray.air import session
 from ray.air.checkpoint import Checkpoint
 
 from siatune.version import IS_DEPRECATED_MMCV
 
+
+def get_latest_ckpt(work_dir: str) -> dict:
+    files = glob.glob(osp.join(work_dir, '*.pth'))
+    if not files:
+        return dict()
+    return torch.load(max(files, key=os.path.getctime))
+
+
 if not IS_DEPRECATED_MMCV:
-    import mmengine
     from mmengine.dist import master_only
     from mmengine.hooks import LoggerHook
     from mmengine.hooks.logger_hook import SUFFIX_TYPE
-    from mmengine.model import is_model_wrapper
-    from mmengine.optim import OptimWrapper
     from mmengine.registry import HOOKS
     from mmengine.runner import Runner
-    from mmengine.runner.checkpoint import get_state_dict, weights_to_cpu
-    from mmengine.utils import get_git_hash
 
     @HOOKS.register_module()
     class RayTuneLoggerHook(LoggerHook):
@@ -76,8 +82,9 @@ if not IS_DEPRECATED_MMCV:
                            tag.keys())):
                 return
             # TODO: Here we sohuld feed tags to ray reporter
-            if self.with_ckpt:
-                session.report(tag, checkpoint=self._save_checkpoint(runner))
+            ckpt = get_latest_ckpt(runner.work_dir)
+            if self.with_ckpt and ckpt:
+                session.report(tag, checkpoint=Checkpoint.from_dict(ckpt))
             else:
                 session.report(tag)
 
@@ -102,81 +109,16 @@ if not IS_DEPRECATED_MMCV:
                     filter(lambda elem: self.filtering_key in elem,
                            tag.keys())):
                 return
-            if self.with_ckpt:
-                session.report(
-                    tag, checkpoint=self._save_checkpoint(runner, False))
+            ckpt = get_latest_ckpt(runner.work_dir)
+            if self.with_ckpt and ckpt:
+                session.report(tag, checkpoint=Checkpoint.from_dict(ckpt))
             else:
                 session.report(tag)
 
-        def _save_checkpoint(self,
-                             runner: Runner,
-                             is_train: bool = True) -> None:
-            """Save checkpoints periodically.
-
-            Args:
-                runner (:obj:`mmcv.runner.BaseRunner`):
-                    The runner to save checkpoints.
-            """
-            itr = runner.iter
-            if is_train:
-                itr += 1
-
-            meta = dict()
-            meta.update(
-                cfg=runner.cfg.pretty_text,
-                seed=runner.seed,
-                experiment_name=runner.experiment_name,
-                time=time.strftime('%Y%m%d_%H%M%S', time.localtime()),
-                mmengine_version=mmengine.__version__ + get_git_hash(),
-                epoch=runner.epoch,
-                iter=itr)
-
-            if hasattr(runner.train_dataloader.dataset, 'metainfo'):
-                meta.update(
-                    dataset_meta=runner.train_dataloader.dataset.metainfo)
-
-            if is_model_wrapper(runner.model):
-                model = runner.model.module
-            else:
-                model = runner.model
-
-            checkpoint = {
-                'meta': meta,
-                'state_dict': weights_to_cpu(get_state_dict(model)),
-                'message_hub': runner.message_hub.state_dict()
-            }
-            # save optimizer state dict to checkpoint
-            if isinstance(runner.optim_wrapper, OptimWrapper):
-                checkpoint['optimizer'] = runner.optim_wrapper.state_dict()
-            else:
-                raise TypeError(
-                    'runner.optim_wrapper should be an `OptimWrapper` '
-                    'or `OptimWrapperDict` instance, but got '
-                    f'{runner.optim_wrapper}')
-
-            # save param scheduler state dict
-            if isinstance(runner.param_schedulers, dict):
-                checkpoint['param_schedulers'] = dict()
-                for name, schedulers in runner.param_schedulers.items():
-                    checkpoint['param_schedulers'][name] = []
-                    for scheduler in schedulers:
-                        state_dict = scheduler.state_dict()
-                        checkpoint['param_schedulers'][name].append(state_dict)
-            else:
-                checkpoint['param_schedulers'] = []
-                for scheduler in runner.param_schedulers:  # type: ignore
-                    state_dict = scheduler.state_dict()  # type: ignore
-                    checkpoint['param_schedulers'].append(state_dict)
-            return Checkpoint.from_dict(checkpoint)
-
 else:
-    import mmcv
-    from mmcv.parallel import is_module_wrapper
     from mmcv.runner import HOOKS, BaseRunner
-    from mmcv.runner.checkpoint import get_state_dict, weights_to_cpu
     from mmcv.runner.dist_utils import master_only
     from mmcv.runner.hooks.logger import LoggerHook
-    from torch.optim import Optimizer
 
     @HOOKS.register_module()
     class RayTuneLoggerHook(LoggerHook):
@@ -259,33 +201,8 @@ else:
                     filter(lambda elem: self.filtering_key in elem,
                            tags.keys())):
                 return
-            if self.with_ckpt:
-                session.report(tags, checkpoint=self._save_checkpoint(runner))
+            ckpt = get_latest_ckpt(runner.work_dir)
+            if self.with_ckpt and ckpt:
+                session.report(tags, checkpoint=Checkpoint.from_dict(ckpt))
             else:
                 session.report(tags)
-
-        def _save_checkpoint(self, runner: BaseRunner) -> Checkpoint:
-            model = runner.model
-            optimizer = runner.optimizer
-
-            meta = dict(
-                mmcv_version=mmcv.__version__,
-                time=time.asctime(),
-                epoch=runner.epoch + 1,
-                iter=runner.iter + 1)
-            if is_module_wrapper(model):
-                model = model.module
-            if hasattr(model, 'CLASSES') and model.CLASSES is not None:
-                # save class name to the meta
-                meta.update(CLASSES=model.CLASSES)
-            checkpoint = {
-                'meta': meta,
-                'state_dict': weights_to_cpu(get_state_dict(model))
-            }
-            if isinstance(optimizer, Optimizer):
-                checkpoint['optimizer'] = optimizer.state_dict()
-            elif isinstance(optimizer, dict):
-                checkpoint['optimizer'] = {}
-                for name, optim in optimizer.items():
-                    checkpoint['optimizer'][name] = optim.state_dict()
-            return Checkpoint.from_dict(checkpoint)
