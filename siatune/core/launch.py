@@ -35,7 +35,6 @@ class DistTorchLauncher:
         ]
         job(rank=0)
         ray.get(futures)
-        return
 
     def reserve(self, trainable: Callable):
         return reserve_resources(trainable, self.resources)
