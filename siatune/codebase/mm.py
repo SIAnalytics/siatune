@@ -30,6 +30,6 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
         """Get a :class:`DataParallelTrainer` instance.
 
         Returns:
-            Callable: Trainer to optimize hyperparameter.
+            Callable: Callable object to optimize hyperparameter.
         """
         return self.launcher.reserve(self.context_aware_run)
