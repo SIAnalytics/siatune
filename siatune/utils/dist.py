@@ -9,5 +9,4 @@ def set_env_vars(rank: int,
     os.environ['MASTER_ADDR'] = addr
     os.environ['MASTER_PORT'] = str(port)
     os.environ['RANK'] = str(rank)
-    os.environ['LOCAL_RANK'] = str(rank)
     os.environ['WORLD_SIZE'] = str(world_size)

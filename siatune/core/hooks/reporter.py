@@ -77,7 +77,7 @@ if not IS_DEPRECATED_MMCV:
                 return
             # TODO: Here we sohuld feed tags to ray reporter
             if self.with_ckpt:
-                session.report(tag, Checkpoint=self._save_checkpoint(runner))
+                session.report(tag, checkpoint=self._save_checkpoint(runner))
             else:
                 session.report(tag)
 
@@ -104,11 +104,13 @@ if not IS_DEPRECATED_MMCV:
                 return
             if self.with_ckpt:
                 session.report(
-                    tag, Checkpoint=self._save_checkpoint(runner, False))
+                    tag, checkpoint=self._save_checkpoint(runner, False))
             else:
                 session.report(tag)
 
-        def _save_checkpoint(self, runner: Runner, is_train: bool) -> None:
+        def _save_checkpoint(self,
+                             runner: Runner,
+                             is_train: bool = True) -> None:
             """Save checkpoints periodically.
 
             Args:
