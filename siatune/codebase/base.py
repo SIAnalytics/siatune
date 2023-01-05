@@ -53,11 +53,9 @@ class BaseTask(metaclass=ABCMeta):
                  rewriters: Optional[Union[list, dict]] = None,
                  should_parse: bool = True):
 
-        self.args: Union[argparse.Namespace, Sequence[str]]
+        self.args: Union[argparse.Namespace, Sequence[str]] = args
         if should_parse:
             self.args = self.parse_args(args)
-        else:
-            self.args = args
 
         self.num_workers = num_workers
         self.num_cpus_per_worker = num_cpus_per_worker
