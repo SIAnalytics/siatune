@@ -76,12 +76,10 @@ if not IS_DEPRECATED_MMCV:
                     runner, batch_idx, 'train')
             else:
                 return
-            # runner.logger.info(log_str)
             if not any(
                     filter(lambda elem: self.filtering_key in elem,
                            tag.keys())):
                 return
-            # TODO: Here we sohuld feed tags to ray reporter
             ckpt = get_latest_ckpt(runner.work_dir)
             if self.with_ckpt and ckpt:
                 session.report(tag, checkpoint=Checkpoint.from_dict(ckpt))

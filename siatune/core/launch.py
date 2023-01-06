@@ -5,7 +5,6 @@ import ray
 import torch
 from ray import tune
 from ray.train._internal.utils import get_address_and_port
-from ray.tune import with_resources
 
 from siatune.utils import set_env_vars
 
@@ -34,7 +33,6 @@ class DistTorchLauncher:
             remote_job.remote(rank) for rank in range(1, self.num_workers)
         ]
         job(rank=0)
+        # To facilitate session sharing,
+        # the master job will be initiated by the trainer.
         ray.get(futures)
-
-    def reserve(self, trainable: Callable):
-        return with_resources(trainable, self.resources)

@@ -1,12 +1,14 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import mmcls  # noqa: F401
 import mmdet  # noqa: F401
 import mmedit  # noqa: F401
 import mmseg  # noqa: F401
+import pytest
 
-from siatune.codebase import (MMClassification, MMDetection, MMEditing,
+from siatune.codebase import (MIM, MMClassification, MMDetection, MMEditing,
                               MMSegmentation)
+from siatune.codebase.mim import _EntrypointExecutor
 
 
 @patch('mmcls.apis.train_model')
@@ -39,3 +41,30 @@ def test_mmedit(*mocks):
 def test_mmseg(*mocks):
     task = MMSegmentation(args=['tests/data/config.py'], num_workers=1)
     task.run(args=task.args)
+
+
+@patch('siatune.utils.get_train_script')
+def test_entrypoint(mock_get_train_script):
+    mock_get_train_script.return_value = '../data/entrypoint.py'
+    entrypoint_executor = _EntrypointExecutor('test', [])
+    with pytest.raises(TypeError) as ex:
+        entrypoint_executor.execute()
+    assert ex.value.args[0] == 'Test'
+
+
+@patch('siatune.codease.mm._EntrypointExecutor')
+def test_mim(_MockEntrypointExecutor):
+
+    def ex():
+        raise Exception('Test')
+
+    mock_executor = MagicMock()
+    mock_executor.execute = ex
+    _MockEntrypointExecutor.return_value = mock_executor
+    task = MIM(
+        pkg_name='.',
+        args=[''],
+    )
+    with pytest.raises(TypeError) as ex:
+        task.run(args=task.args)
+    assert ex.value.args[0] == 'Test'

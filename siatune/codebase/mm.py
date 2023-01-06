@@ -2,6 +2,8 @@
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Sequence
 
+from ray.tune import with_resources
+
 from siatune.core import DistTorchLauncher
 from .base import BaseTask
 from .builder import TASKS
@@ -32,4 +34,4 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
         Returns:
             Callable: Callable object to optimize hyperparameter.
         """
-        return self.launcher.reserve(self.context_aware_run)
+        return with_resources(self.context_aware_run, self.launcher.resources)

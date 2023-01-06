@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from siatune.core.rewriters import (REWRITERS, AppendTrialIDtoPath,
+from siatune.core.rewriters import (REWRITERS, AttachTrialInfotoPath,
                                     BaseRewriter, BatchConfigPatcher,
                                     CustomHookRegister, Dump, InstantiateCfg,
                                     MergeConfig, ResumeFromCkpt,
@@ -98,12 +98,12 @@ def test_patch():
 
 
 @patch('ray.air.session.get_trial_id')
-def test_append_trial_id_to_path(mock_get_trial_id):
+def test_append_trial_info_to_path(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
     args = MagicMock()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = AppendTrialIDtoPath(arg_name='work_dir')
+    suffix = AttachTrialInfotoPath(arg_name='work_dir')
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/test'
 

@@ -7,7 +7,7 @@ from .builder import TASKS
 from .mm import MMBaseTask
 
 
-class _EntrypointRunner:
+class _EntrypointExecutor:
 
     def __init__(self,
                  pkg_name: str,
@@ -24,7 +24,7 @@ class _EntrypointRunner:
         sys.argv[1:] = argv
         return
 
-    def run(self):
+    def execute(self):
         self._hijack_argv(self._argv)
         getattr(self._entrypoint, self._module_name)()
 
@@ -40,5 +40,5 @@ class MIM(MMBaseTask):
         return None
 
     def execute(self, args: Sequence[str]):
-        runner = _EntrypointRunner(self._pkg_name, args)
-        runner.run()
+        executor = _EntrypointExecutor(self._pkg_name, args)
+        executor.execute()
