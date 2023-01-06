@@ -121,7 +121,7 @@ def test_register():
     assert context['cfg'].custom_hooks == post_custom_hooks
 
 
-@patch('session.get_checkpoint')
+@patch('ray.air.session.get_checkpoint')
 def test_resume_ckpt(mock_get_checkpoint):
 
     def to_dict():

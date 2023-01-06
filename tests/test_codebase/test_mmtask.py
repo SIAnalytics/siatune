@@ -45,7 +45,7 @@ def test_mmseg(*mocks):
 
 @patch('siatune.codebase.mim.get_train_script')
 def test_entrypoint(mock_get_train_script):
-    mock_get_train_script.return_value = '../data/entrypoint.py'
+    mock_get_train_script.return_value = 'tests/data/entrypoint.py'
     entrypoint_executor = _EntrypointExecutor('test', [])
     with pytest.raises(Exception) as ex:
         entrypoint_executor.execute()

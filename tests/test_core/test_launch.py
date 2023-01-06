@@ -20,5 +20,5 @@ def test_dist_torch_launcher():
     while not queue.empty():
         ret += queue.get(block=True)
 
-    assert sum(ret) == 2
+    assert ret == 2
     ray.shutdown()
