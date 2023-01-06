@@ -1,2 +1,2 @@
 def main():
-    raise Exception("Test")
+    raise Exception('Test')
