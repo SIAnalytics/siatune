@@ -5,7 +5,6 @@ from os import path as osp
 from pathlib import Path
 from typing import Dict, Optional, Union
 
-import torch
 from ray.air import session
 from ray.air.checkpoint import Checkpoint
 
@@ -16,7 +15,7 @@ def get_latest_ckpt(work_dir: str) -> dict:
     files = glob.glob(osp.join(work_dir, '*.pth'))
     if not files:
         return dict()
-    return torch.load(max(files, key=os.path.getctime))
+    return dict(path=max(files, key=os.path.getctime))
 
 
 if not IS_DEPRECATED_MMCV:
