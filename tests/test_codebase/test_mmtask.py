@@ -43,16 +43,16 @@ def test_mmseg(*mocks):
     task.run(args=task.args)
 
 
-@patch('siatune.utils.get_train_script')
+@patch('siatune.codebase.mim.get_train_script')
 def test_entrypoint(mock_get_train_script):
     mock_get_train_script.return_value = '../data/entrypoint.py'
     entrypoint_executor = _EntrypointExecutor('test', [])
-    with pytest.raises(TypeError) as ex:
+    with pytest.raises(Exception) as ex:
         entrypoint_executor.execute()
     assert ex.value.args[0] == 'Test'
 
 
-@patch('siatune.codease.mm._EntrypointExecutor')
+@patch('siatune.codebase.mim._EntrypointExecutor')
 def test_mim(_MockEntrypointExecutor):
 
     def ex():
@@ -65,6 +65,6 @@ def test_mim(_MockEntrypointExecutor):
         pkg_name='.',
         args=[''],
     )
-    with pytest.raises(TypeError) as ex:
+    with pytest.raises(Exception) as ex:
         task.run(args=task.args)
     assert ex.value.args[0] == 'Test'

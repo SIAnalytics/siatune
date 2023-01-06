@@ -39,6 +39,6 @@ class MIM(MMBaseTask):
     def parse_args(self, *args, **kwargs) -> None:
         return None
 
-    def execute(self, args: Sequence[str]):
+    def run(self, args: Sequence[str]):
         executor = _EntrypointExecutor(self._pkg_name, args)
         executor.execute()

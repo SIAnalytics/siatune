@@ -2,7 +2,7 @@
 import argparse
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
-from typing import Callable, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 from ray.tune import Trainable
 
@@ -78,15 +78,12 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self, searched_cfg: dict) -> Callable:
+    def context_aware_run(self, searched_cfg: dict):
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:
             searched_cfg (Dict): The searched configuration.
-
-        Returns:
-            Callable: The result of the objective task.
         """
 
         context_manager = ContextManager(self.rewriters)

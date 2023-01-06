@@ -1,3 +1,4 @@
+import tempfile
 from os import path as osp
 from typing import Dict
 from unittest.mock import MagicMock, patch
@@ -41,7 +42,7 @@ def test_dump(mock_get_trial_id):
     context = dict(cfg=config, args=args)
     dump(context)
 
-    tmp_path = dump.get_temporary_path('test.py')
+    tmp_path = osp.join(tempfile.gettempdir(), 'test.py')
     # the dumped file name follows the return value of
     # `ray.tune.get_trial_id` as f'{trial_id}.py'.
     assert context['args'].config == tmp_path

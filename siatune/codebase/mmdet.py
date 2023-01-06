@@ -126,7 +126,7 @@ if IS_DEPRECATED_MMCV:
 
             return args
 
-        def execute(self, args: argparse.Namespace):
+        def run(self, args: argparse.Namespace):
             """Run the task.
 
             Args:
@@ -353,7 +353,7 @@ else:
 
             return args
 
-        def execute(self, args: argparse.Namespace):
+        def run(self, args: argparse.Namespace):
             """Run the task.
 
             Args:

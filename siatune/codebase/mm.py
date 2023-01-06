@@ -1,10 +1,12 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from abc import ABCMeta, abstractmethod
-from typing import Callable, Sequence
+from abc import ABCMeta
+from copy import deepcopy
+from typing import Callable
 
 from ray.tune import with_resources
 
-from siatune.core import DistTorchLauncher
+from siatune.core import ContextManager, DistTorchLauncher
+from siatune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
 
@@ -21,13 +23,6 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
             self.num_workers,
         )
 
-    def run(self, *args, **kwargs):
-        self.launcher.launch(self.execute, *args, **kwargs)
-
-    @abstractmethod
-    def execute(self, args: Sequence[str]):
-        pass
-
     def create_trainable(self) -> Callable:
         """Get a :class:`DataParallelTrainer` instance.
 
@@ -35,3 +30,21 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
             Callable: Callable object to optimize hyperparameter.
         """
         return with_resources(self.context_aware_run, self.launcher.resources)
+
+    def context_aware_run(self, searched_cfg: dict):
+        """Gather and refine the information received by users and Ray.tune to
+        execute the objective task.
+
+        Args:
+            searched_cfg (Dict): The searched configuration.
+        """
+
+        context_manager = ContextManager(self.rewriters)
+        context = dict(
+            args=deepcopy(self.args),
+            searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
+        )
+        return context_manager(self.dist_run)(**context)
+
+    def dist_run(self, *args, **kwargs):
+        self.launcher.launch(self.run, *args, **kwargs)
