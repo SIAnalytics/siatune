@@ -1,3 +1,4 @@
+import argparse
 import tempfile
 from os import path as osp
 from typing import Dict
@@ -37,7 +38,7 @@ def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
     dump = Dump(key='cfg')
     config = mmcv.Config(dict())
-    args = MagicMock()
+    args = argparse.Namespace()
     args.config = config
     context = dict(cfg=config, args=args)
     dump(context)
@@ -54,7 +55,7 @@ def test_instantiate():
     dump_cfg(mmcv.utils.Config(dict(test='test')), 'test.py')
 
     instantiate = InstantiateCfg(key='cfg')
-    args = MagicMock()
+    args = argparse.Namespace()
     args.config = 'test.py'
     context = dict(args=args)
     instantiate(context)
@@ -101,7 +102,7 @@ def test_patch():
 @patch('ray.air.session.get_trial_id')
 def test_append_trial_info_to_path(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
-    args = MagicMock()
+    args = argparse.Namespace()
     args.work_dir = '/tmp'
     context = dict(args=args)
     suffix = AttachTrialInfoToPath()
@@ -132,7 +133,7 @@ def test_resume_ckpt(mock_get_checkpoint):
 
     mock_get_checkpoint.return_value = ckpt
 
-    args = MagicMock()
+    args = argparse.Namespace()
     context = dict(args=args)
 
     resume_from_ckpt = ResumeFromCkpt()
