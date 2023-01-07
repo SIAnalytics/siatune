@@ -12,7 +12,4 @@ space = {
 }
 
 task = dict(type='MMClassification')
-tune_cfg = dict(
-    num_samples=8,
-    metric='val/accuracy_top-1',
-    mode='max')
+tune_cfg = dict(num_samples=8, metric='val/accuracy_top-1', mode='max')
