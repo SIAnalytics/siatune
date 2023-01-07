@@ -56,7 +56,7 @@ class MIM(MMBaseTask):
         super().__init__(should_parse=False, **kwargs)
 
     def parse_args(self, *args, **kwargs) -> None:
-        return None
+        pass
 
     def run(self, args: Sequence[str]):
         """This method runs a task in the MIM framework.
