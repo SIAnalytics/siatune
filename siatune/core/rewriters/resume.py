@@ -22,7 +22,7 @@ class ResumeFromCkpt(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        ckpt: checkpoint.Checkpoint = session.get_checkpoint()
+        ckpt = session.get_checkpoint()
         if not ckpt:
             return context
         ckpt_path = ckpt.to_dict().get('path')
