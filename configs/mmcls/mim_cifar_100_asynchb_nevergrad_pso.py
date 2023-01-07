@@ -13,4 +13,4 @@ space = {
 
 task = dict(type='MIM', pkg_name='mmcls')
 tune_cfg = dict(
-    num_samples=8, metric='val/accuracy_top-1', mode='max', reuse_actors=False)
+    num_samples=8, metric='val/accuracy_top-1', mode='max', reuse_actors=False, chdir_to_trial_dir=False)
