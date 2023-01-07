@@ -26,7 +26,7 @@ class BaseTask(metaclass=ABCMeta):
         Aggregate the information we define as context,
         convert it into a refined argparse namespace, and input it to run.
         The context consists of:
-            1. args (argparse.Namespace|Sequence[str]):
+            1. args (argparse.Namespace | Sequence[str]):
                 The low level CLI arguments.
             2. searched_cfg (Dict):
                 The configuration searched by the algorithm.
