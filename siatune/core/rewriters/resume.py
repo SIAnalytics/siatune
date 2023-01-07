@@ -1,9 +1,10 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+import argparse
 from typing import Dict
 
-from ray.air import checkpoint, session
+from ray.air import session
 
-from siatune.utils import ref_raw_args
+from siatune.utils import reference_raw_args
 from .base import BaseRewriter
 from .builder import REWRITERS
 
@@ -26,11 +27,11 @@ class ResumeFromCkpt(BaseRewriter):
         if not ckpt:
             return context
         ckpt_path = ckpt.to_dict().get('path')
-        is_parsed = not isinstance(context['args'], list)
+        is_parsed = isinstance(context['args'], argparse.Namespace)
         if is_parsed:
             setattr(context['args'], self.arg_name, ckpt_path)
         else:
-            _, idx = ref_raw_args(context['args'], self.raw_arg_name)
+            _, idx = reference_raw_args(context['args'], self.raw_arg_name)
             assert len(idx) < 2
             if idx:
                 context['args'][idx.pop()] = ckpt_path

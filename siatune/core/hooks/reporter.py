@@ -26,7 +26,7 @@ if not IS_DEPRECATED_MMCV:
     from mmengine.runner import Runner
 
     @HOOKS.register_module()
-    class RayTuneLoggerHook(LoggerHook):
+    class RayTuneReporterHook(LoggerHook):
         """MMCV Logger hook for Ray Tune."""
 
         def __init__(self,
@@ -118,7 +118,7 @@ else:
     from mmcv.runner.hooks.logger import LoggerHook
 
     @HOOKS.register_module()
-    class RayTuneLoggerHook(LoggerHook):
+    class RayTuneReporterHook(LoggerHook):
         """MMCV Logger hook for Ray Tune."""
 
         def __init__(
@@ -139,8 +139,8 @@ else:
                 by_epoch (bool): Whether to log by epoch.
                 filtering_key (str): The key to filter.
             """
-            super(RayTuneLoggerHook, self).__init__(interval, ignore_last,
-                                                    reset_flag, by_epoch)
+            super(RayTuneReporterHook, self).__init__(interval, ignore_last,
+                                                      reset_flag, by_epoch)
             self.filtering_key = filtering_key
             self.with_ckpt = with_ckpt
 

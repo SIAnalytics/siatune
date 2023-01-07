@@ -1,9 +1,10 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+import argparse
 from os import path as osp
 
 from ray.air import session
 
-from siatune.utils import ref_raw_args
+from siatune.utils import reference_raw_args
 from .base import BaseRewriter
 from .builder import REWRITERS
 
@@ -24,7 +25,7 @@ class AttachTrialInfotoPath(BaseRewriter):
         Returns:
             dict: The context after rewriting.
         """
-        is_parsed = not isinstance(context['args'], list)
+        is_parsed = isinstance(context['args'], argparse.Namespace)
         if is_parsed:
             work_dir = getattr(context['args'], self.arg_name, '')
             if work_dir:
@@ -33,7 +34,8 @@ class AttachTrialInfotoPath(BaseRewriter):
                 work_dir = session.get_trial_dir()
             setattr(context['args'], self.arg_name, work_dir)
         else:
-            work_dir, idx = ref_raw_args(context['args'], self.raw_arg_name)
+            work_dir, idx = reference_raw_args(context['args'],
+                                               self.raw_arg_name)
             if idx:
                 context['args'][idx.pop()] = osp.join(work_dir.pop(),
                                                       session.get_trial_id())

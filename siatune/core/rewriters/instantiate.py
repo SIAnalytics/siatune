@@ -1,4 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+import argparse
 from typing import Dict
 
 from mmengine.config import Config
@@ -34,7 +35,7 @@ class InstantiateCfg(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        is_parsed = not isinstance(context['args'], list)
+        is_parsed = isinstance(context['args'], argparse.Namespace)
         file_name: str
         if is_parsed:
             file_name = getattr(context['args'], self.arg_name)

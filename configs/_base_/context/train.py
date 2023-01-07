@@ -12,7 +12,7 @@ task = dict(rewriters=[
         key='cfg',
         post_custom_hooks=[
             dict(
-                type='RayTuneLoggerHook',
+                type='RayTuneReporterHook',
                 filtering_key='val',
                 priority='VERY_LOW'),
         ]),

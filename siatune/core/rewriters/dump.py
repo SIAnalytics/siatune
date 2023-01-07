@@ -1,4 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
+import argparse
 import tempfile
 from os import path as osp
 from typing import Dict
@@ -41,7 +42,7 @@ class Dump(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        is_parsed = not isinstance(context['args'], list)
+        is_parsed = isinstance(context['args'], argparse.Namespace)
         dmp_path = self._dump(context.pop(self.key))
         if is_parsed:
             setattr(context['args'], self.arg_name, dmp_path)

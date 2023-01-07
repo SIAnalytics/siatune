@@ -1,4 +1,4 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from .reporter import RayTuneLoggerHook
+from .reporter import RayTuneReporterHook
 
-__all__ = ['RayTuneLoggerHook']
+__all__ = ['RayTuneReporterHook']
