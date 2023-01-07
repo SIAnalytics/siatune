@@ -23,7 +23,6 @@ def test_build_scheduler():
 def trainable():
 
     def _trainable(config):
-        config = config['train_loop_config']
         for step in range(config['iter']):
             loss = (0.1 + config['x'] * step / 100)**-1 + config['y'] * 0.1
             session.report(dict(loss=loss))

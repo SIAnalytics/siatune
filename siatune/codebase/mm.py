@@ -1,11 +1,12 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from abc import ABCMeta
+from copy import deepcopy
+from typing import Callable
 
-import torch
-from ray.air.config import ScalingConfig
-from ray.train.data_parallel_trainer import DataParallelTrainer
+from ray.tune import with_resources
 
-from siatune.tune import MMBackendConfig
+from siatune.core import ContextManager, DistributedTorchLauncher
+from siatune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
 
@@ -14,17 +15,36 @@ from .builder import TASKS
 class MMBaseTask(BaseTask, metaclass=ABCMeta):
     """Wrap the apis of open mm train-based projects."""
 
-    def create_trainable(self) -> DataParallelTrainer:
-        """Get a :class:`DataParallelTrainer` instance.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.num_gpus_per_worker == 1
+        self.launcher = DistributedTorchLauncher(
+            self.num_cpus_per_worker,
+            self.num_workers,
+        )
+
+    def create_trainable(self) -> Callable:
+        """Get a trainable task.
 
         Returns:
-            DataParallelTrainer: Trainer to optimize hyperparameter.
+            Callable: Callable object to optimize hyperparameter.
+        """
+        return with_resources(self.context_aware_run, self.launcher.resources)
+
+    def context_aware_run(self, searched_cfg: dict):
+        """Gather and refine the information received by users and Ray.tune to
+        execute the objective task.
+
+        Args:
+            searched_cfg (Dict): The searched configuration.
         """
 
-        return DataParallelTrainer(
-            self.context_aware_run,
-            backend_config=MMBackendConfig(),
-            scaling_config=ScalingConfig(
-                trainer_resources=dict(CPU=self.num_cpus_per_worker),
-                num_workers=self.num_workers,
-                use_gpu=torch.cuda.is_available()))
+        context_manager = ContextManager(self.rewriters)
+        context = dict(
+            args=deepcopy(self.args),
+            searched_cfg=deepcopy(ImmutableContainer.decouple(searched_cfg)),
+        )
+        return context_manager(self.dist_run)(**context)
+
+    def dist_run(self, *args, **kwargs):
+        self.launcher.launch(self.run, *args, **kwargs)

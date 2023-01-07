@@ -1,5 +1,4 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from .checkpoint import RayCheckpointHook
-from .reporter import RayTuneLoggerHook
+from .reporter import RayTuneReporterHook
 
-__all__ = ['RayCheckpointHook', 'RayTuneLoggerHook']
+__all__ = ['RayTuneReporterHook']
