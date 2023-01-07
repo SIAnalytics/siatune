@@ -1,7 +1,7 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import glob
 import os
-from os import path as osp
+import os.path as osp
 from pathlib import Path
 from typing import Dict, Optional, Union
 
