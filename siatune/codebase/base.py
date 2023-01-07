@@ -2,7 +2,7 @@
 import argparse
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
-from typing import Callable, Optional, Sequence, Union
+from typing import Optional, Sequence, Union
 
 from ray.tune import Trainable
 
@@ -26,7 +26,8 @@ class BaseTask(metaclass=ABCMeta):
         Aggregate the information we define as context,
         convert it into a refined argparse namespace, and input it to run.
         The context consists of:
-            1. args (argparse.Namespace): The low level CLI arguments.
+            1. args (argparse.Namespace | Sequence[str]):
+                The low level CLI arguments.
             2. searched_cfg (Dict):
                 The configuration searched by the algorithm.
         Inputs: searched_cfg (Dict)
@@ -46,11 +47,15 @@ class BaseTask(metaclass=ABCMeta):
 
     def __init__(self,
                  args: Sequence[str],
-                 num_workers: int,
+                 num_workers: int = 1,
                  num_cpus_per_worker: int = 1,
                  num_gpus_per_worker: int = 1,
-                 rewriters: Optional[Union[list, dict]] = None):
-        self.args = self.parse_args(args)
+                 rewriters: Optional[Union[list, dict]] = None,
+                 should_parse: bool = True):
+
+        if should_parse:
+            args = self.parse_args(args)
+        self.args = args
 
         self.num_workers = num_workers
         self.num_cpus_per_worker = num_cpus_per_worker
@@ -61,7 +66,8 @@ class BaseTask(metaclass=ABCMeta):
         self.rewriters = rewriters
 
     @abstractmethod
-    def parse_args(self, args: Sequence[str]) -> argparse.Namespace:
+    def parse_args(self,
+                   args: Sequence[str]) -> Union[argparse.Namespace, None]:
         """Define and parse the necessary arguments for the task.
 
         Args:
@@ -72,15 +78,12 @@ class BaseTask(metaclass=ABCMeta):
         """
         pass
 
-    def context_aware_run(self, searched_cfg: dict) -> Callable:
+    def context_aware_run(self, searched_cfg: dict):
         """Gather and refine the information received by users and Ray.tune to
         execute the objective task.
 
         Args:
             searched_cfg (Dict): The searched configuration.
-
-        Returns:
-            Callable: The result of the objective task.
         """
 
         context_manager = ContextManager(self.rewriters)

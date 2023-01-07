@@ -1,3 +1,5 @@
+import argparse
+import tempfile
 from os import path as osp
 from typing import Dict
 from unittest.mock import MagicMock, patch
@@ -5,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from siatune.core.rewriters import (REWRITERS, AppendTrialIDtoPath,
+from siatune.core.rewriters import (REWRITERS, AttachTrialInfoToPath,
                                     BaseRewriter, BatchConfigPatcher,
                                     CustomHookRegister, Dump, InstantiateCfg,
                                     MergeConfig, ResumeFromCkpt,
@@ -34,14 +36,14 @@ def test_build_base_cfg():
 @patch('ray.air.session.get_trial_id')
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
-    dump = Dump(key='cfg', arg_name='config')
+    dump = Dump(key='cfg')
     config = mmcv.Config(dict())
-    args = MagicMock()
+    args = argparse.Namespace()
     args.config = config
     context = dict(cfg=config, args=args)
     dump(context)
 
-    tmp_path = dump.get_temporary_path('test.py')
+    tmp_path = osp.join(tempfile.gettempdir(), 'test.py')
     # the dumped file name follows the return value of
     # `ray.tune.get_trial_id` as f'{trial_id}.py'.
     assert context['args'].config == tmp_path
@@ -52,8 +54,8 @@ def test_dump(mock_get_trial_id):
 def test_instantiate():
     dump_cfg(mmcv.utils.Config(dict(test='test')), 'test.py')
 
-    instantiate = InstantiateCfg(key='cfg', arg_name='config')
-    args = MagicMock()
+    instantiate = InstantiateCfg(key='cfg')
+    args = argparse.Namespace()
     args.config = 'test.py'
     context = dict(args=args)
     instantiate(context)
@@ -98,12 +100,12 @@ def test_patch():
 
 
 @patch('ray.air.session.get_trial_id')
-def test_append_trial_id_to_path(mock_get_trial_id):
+def test_append_trial_info_to_path(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
-    args = MagicMock()
+    args = argparse.Namespace()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = AppendTrialIDtoPath(arg_name='work_dir')
+    suffix = AttachTrialInfoToPath()
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/test'
 
@@ -120,10 +122,20 @@ def test_register():
     assert context['cfg'].custom_hooks == post_custom_hooks
 
 
-def test_resume_ckpt():
-    args = MagicMock()
-    context = dict(args=args, checkpoint_dir='test')
+@patch('ray.air.session.get_checkpoint')
+def test_resume_ckpt(mock_get_checkpoint):
+
+    def to_dict():
+        return dict(path='test.pth')
+
+    ckpt = MagicMock()
+    ckpt.to_dict = to_dict
+
+    mock_get_checkpoint.return_value = ckpt
+
+    args = argparse.Namespace()
+    context = dict(args=args)
 
     resume_from_ckpt = ResumeFromCkpt()
     context = resume_from_ckpt(context)
-    assert context.get('args').resume_from == 'test/ray_ckpt.pth'
+    assert context.get('args').resume_from == 'test.pth'
