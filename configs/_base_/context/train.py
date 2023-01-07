@@ -18,5 +18,5 @@ task = dict(rewriters=[
         ]),
     dict(type='ResumeFromCkpt'),
     dict(type='Dump', key='cfg'),
-    dict(type='AttachTrialInfotoPath')
+    dict(type='AttachTrialInfoToPath')
 ])

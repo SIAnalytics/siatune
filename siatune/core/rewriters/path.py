@@ -10,7 +10,7 @@ from .builder import REWRITERS
 
 
 @REWRITERS.register_module()
-class AttachTrialInfotoPath(BaseRewriter):
+class AttachTrialInfoToPath(BaseRewriter):
     """Add the identifier of the tials to the workspace path to prevent the
     artifacts of each trial from being stored in the same path."""
     arg_name: str = 'work_dir'

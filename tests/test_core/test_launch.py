@@ -1,7 +1,7 @@
 import ray
 from ray.util.queue import Queue
 
-from siatune.core.launch import DistTorchLauncher
+from siatune.core.launch import DistributedTorchLauncher
 
 
 def test_dist_torch_launcher():
@@ -13,7 +13,7 @@ def test_dist_torch_launcher():
     def func():
         queue.put(1)
 
-    launcher = DistTorchLauncher(num_cpus_per_worker=0.5, num_workers=2)
+    launcher = DistributedTorchLauncher(num_cpus_per_worker=0.5, num_workers=2)
     launcher.launch(func)
 
     ret = 0

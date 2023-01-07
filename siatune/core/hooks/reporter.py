@@ -12,6 +12,14 @@ from siatune.version import IS_DEPRECATED_MMCV
 
 
 def get_latest_ckpt(work_dir: str) -> dict:
+    """This function retrieves the latest checkpoint from the given directory.
+
+    Args:
+        work_dir (str): The directory to search for checkpoints.
+
+    Returns:
+        dict: A dictionary containing the path to the latest checkpoint.
+    """
     files = glob.glob(osp.join(work_dir, '*.pth'))
     if not files:
         return dict()

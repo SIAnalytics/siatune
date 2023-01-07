@@ -5,7 +5,7 @@ from typing import Callable
 
 from ray.tune import with_resources
 
-from siatune.core import ContextManager, DistTorchLauncher
+from siatune.core import ContextManager, DistributedTorchLauncher
 from siatune.utils import ImmutableContainer
 from .base import BaseTask
 from .builder import TASKS
@@ -18,13 +18,13 @@ class MMBaseTask(BaseTask, metaclass=ABCMeta):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert self.num_gpus_per_worker == 1
-        self.launcher = DistTorchLauncher(
+        self.launcher = DistributedTorchLauncher(
             self.num_cpus_per_worker,
             self.num_workers,
         )
 
     def create_trainable(self) -> Callable:
-        """Get a :class:`DataParallelTrainer` instance.
+        """Get a trainable task.
 
         Returns:
             Callable: Callable object to optimize hyperparameter.

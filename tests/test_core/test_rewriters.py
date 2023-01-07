@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
-from siatune.core.rewriters import (REWRITERS, AttachTrialInfotoPath,
+from siatune.core.rewriters import (REWRITERS, AttachTrialInfoToPath,
                                     BaseRewriter, BatchConfigPatcher,
                                     CustomHookRegister, Dump, InstantiateCfg,
                                     MergeConfig, ResumeFromCkpt,
@@ -104,7 +104,7 @@ def test_append_trial_info_to_path(mock_get_trial_id):
     args = MagicMock()
     args.work_dir = '/tmp'
     context = dict(args=args)
-    suffix = AttachTrialInfotoPath()
+    suffix = AttachTrialInfoToPath()
     context = suffix(context)
     assert context['args'].work_dir == '/tmp/test'
 

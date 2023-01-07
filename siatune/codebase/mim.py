@@ -8,6 +8,14 @@ from .mm import MMBaseTask
 
 
 class _EntrypointExecutor:
+    """Execute the entrypoint of open mm train-based projects.
+
+    Args:
+        pkg_name (str): The abbreviation of the package.
+        argv (Sequence[str]): The arguments for `tools/train.py`
+        module_name (str):
+            The name of the module to execute. Defaults to 'main'.
+    """
 
     def __init__(self,
                  pkg_name: str,
@@ -20,17 +28,28 @@ class _EntrypointExecutor:
                                             self._train_script).load_module()
 
     def _hijack_argv(self, argv: Sequence[str]):
+        """Hijack the command line arguments.
+
+        Args:
+            argv (Sequence[str]): The arguments for `tools/train.py`
+        """
         import sys
         sys.argv[1:] = argv
         return
 
     def execute(self):
+        """Run the task."""
         self._hijack_argv(self._argv)
         getattr(self._entrypoint, self._module_name)()
 
 
 @TASKS.register_module()
 class MIM(MMBaseTask):
+    """Wrapper class execute any script provided by all OpenMMLab codebases.
+
+    Args:
+        pkg_name (str): The abbreviation of the package.
+    """
 
     def __init__(self, pkg_name: str, **kwargs):
         self._pkg_name = pkg_name
@@ -40,5 +59,10 @@ class MIM(MMBaseTask):
         return None
 
     def run(self, args: Sequence[str]):
+        """This method runs a task in the MIM framework.
+
+        Args:
+            args (Sequence[str]): A list of command-line arguments.
+        """
         executor = _EntrypointExecutor(self._pkg_name, args)
         executor.execute()
