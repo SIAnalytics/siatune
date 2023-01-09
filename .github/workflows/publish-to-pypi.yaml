@@ -30,8 +30,6 @@ jobs:
           python setup.py sdist bdist_wheel
     - name: publish distribution to PyPI
       env:
-          PYPI_USER: ${{ secrets.PUBLIC_PYPI_USER }}
-          PYPI_PW: ${{ secrets.PUBLIC_PYPI_PW}}
       run: |
         pip install twine
         twine upload dist/* -u ${{ secrets.PUBLIC_PYPI_USER }} -p ${{ secrets.PUBLIC_PYPI_PW}}
