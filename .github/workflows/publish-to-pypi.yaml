@@ -22,9 +22,7 @@ jobs:
       with:
         python-version: 3.7
     - name: Install dependent
-      run: pip install torch openmim
-    - name: Install mmcv
-      run: mim install mmcv
+      run: pip install torch
     - name: Install wheel
       run: pip install wheel
     - name: Build Siatune

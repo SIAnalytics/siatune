@@ -2,7 +2,10 @@
 __version__ = '0.3.0a1'
 from typing import Tuple
 
-import mmcv
+try:
+    import mmcv
+except ImportError:
+    mmcv = None
 
 IS_DEPRECATED_MMCV = False
 
@@ -27,7 +30,8 @@ def parse_version_info(version_str: str) -> Tuple:
     return tuple(version_info)
 
 
-if (parse_version_info(mmcv.__version__) < parse_version_info('2.0.0rc0')):
+if mmcv is not None and (parse_version_info(mmcv.__version__) <
+                         parse_version_info('2.0.0rc0')):
     IS_DEPRECATED_MMCV = True
 
 version_info = parse_version_info(__version__)
