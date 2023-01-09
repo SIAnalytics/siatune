@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 from typing import Tuple
 
 import mmcv
