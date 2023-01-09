@@ -11,24 +11,27 @@ concurrency:
 
 jobs:
   build-n-publish:
-    runs-on: ["self-hosted", "linux", "docker", "ubuntu20.04", "python3"]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     if: startsWith(github.event.ref, 'refs/tags')
     steps:
-    - name: checkout main
+    - name: Checkout main
       uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-    - name: update setuptools
-      run: pip3 install setuptools --upgrade
-    - name: make dist
+        python-version: 3.7
+    - name: Install torch
+      run: pip install torch
+    - name: Install wheel
+      run: pip install wheel
+    - name: Build Siatune
       run: |
-          python3 setup.py sdist
+          python setup.py sdist bdist_wheel
     - name: publish distribution to PyPI
       env:
-          PYPI_USER: ${{ secrets.PYPI_USER }}
-          PYPI_PW: ${{ secrets.PYPI_PW}}
-          PIP_INDEX_URL: ${{ secrets.PIP_INDEX_URL}}
+          PYPI_USER: ${{ secrets.PUBLIC_PYPI_USER }}
+          PYPI_PW: ${{ secrets.PUBLIC_PYPI_PW}}
       run: |
-        pip3 install twine
-        twine upload --repository-url ${PIP_INDEX_URL} dist/* -u ${PYPI_USER} -p ${PYPI_PW}
+        pip install twine
+        twine upload dist/* -u ${PYPI_USER} -p ${PYPI_PW}
