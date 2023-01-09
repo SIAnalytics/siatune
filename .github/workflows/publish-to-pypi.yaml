@@ -34,4 +34,4 @@ jobs:
           PYPI_PW: ${{ secrets.PUBLIC_PYPI_PW}}
       run: |
         pip install twine
-        twine upload dist/* -u ${PYPI_USER} -p ${PYPI_PW}
+        twine upload dist/* -u ${{ secrets.PUBLIC_PYPI_USER }} -p ${{ secrets.PUBLIC_PYPI_PW}}
