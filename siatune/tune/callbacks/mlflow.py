@@ -65,6 +65,9 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         """In addition to create `mlflow` experiment, create a parent run to
         bind multiple trial runs."""
         super().setup(*args, **kwargs)
+
+        self.client = self.mlflow_util._get_client()
+        self.experiment_id = self.mlflow_util.experiment_id
         self.parent_run = self.client.create_run(
             experiment_id=self.experiment_id, tags=self.tags)
 
@@ -140,7 +143,7 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         for key, value in run.data.metrics.items():
             self.client.log_metric(run_id=parent_run_id, key=key, value=value)
 
-        if self.save_artifact:
+        if self.should_save_artifact:
             self.client.log_artifacts(
                 parent_run_id, local_dir=best_trial.logdir)
 
