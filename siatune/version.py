@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-__version__ = '0.3.0rc1'
+__version__ = '0.4.0rc0'
 from typing import Tuple
 
 try:
