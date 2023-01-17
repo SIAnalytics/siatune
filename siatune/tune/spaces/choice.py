@@ -15,7 +15,7 @@ class Choice(BaseSpace):
 
     Args:
         categories (Sequence | dict): The categories. If categories is dict,
-            keys of dict will override the alias.
+            keys of dict will overwrite the alias.
         alias (Sequence, optional): A alias to be expressed. Defaults to None.
     """
 
