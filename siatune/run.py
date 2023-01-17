@@ -46,8 +46,6 @@ def parse_args():
         help='number of GPUs the user wishes to assign',
     )
     parser.add_argument(
-        '--exp-name', type=str, help='name of experiment', default='')
-    parser.add_argument(
         '--num-workers', type=int, default=1, help='number of workers to use')
     parser.add_argument(
         '--num-gpus-per-worker',
