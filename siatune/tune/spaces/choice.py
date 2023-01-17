@@ -14,9 +14,9 @@ class Choice(BaseSpace):
     """Sample a categorical value.
 
     Args:
-        categories (Sequence): The categories.
-        alias (Sequence, optional): A alias to be expressed.
-            Defaults to None.
+        categories (Sequence | dict): The categories. If categories is dict,
+            keys of dict will override the alias.
+        alias (Sequence, optional): A alias to be expressed. Defaults to None.
     """
 
     sample: Callable = tune.choice
@@ -24,6 +24,10 @@ class Choice(BaseSpace):
     def __init__(self,
                  categories: Sequence,
                  alias: Optional[Sequence] = None) -> None:
+        if isinstance(categories, dict):
+            categories = categories.values()
+            alias = categories.keys()
+
         if alias is not None:
             assert isinstance(alias, Sequence)
             assert len(categories) == len(alias)
