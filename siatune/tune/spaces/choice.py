@@ -16,7 +16,7 @@ class Choice(BaseSpace):
     Args:
         categories (Sequence | dict): The categories. If categories is dict,
             keys of dict will overwrite the alias.
-        alias (Sequence, optional): A alias to be expressed. Defaults to None.
+        alias (Sequence, optional): An alias to be expressed. Defaults to None.
     """
 
     sample: Callable = tune.choice
