@@ -1,5 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from typing import Callable, Optional, Sequence
+from typing import Callable, Optional, Sequence, Union
 
 import ray.tune as tune
 from ray.tune.search.sample import Domain
@@ -22,7 +22,7 @@ class Choice(BaseSpace):
     sample: Callable = tune.choice
 
     def __init__(self,
-                 categories: Union[Sequence, Dict] ,
+                 categories: Union[Sequence, dict],
                  alias: Optional[Sequence] = None) -> None:
         if isinstance(categories, dict):
             categories = categories.values()
