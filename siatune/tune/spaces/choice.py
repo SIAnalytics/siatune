@@ -22,7 +22,7 @@ class Choice(BaseSpace):
     sample: Callable = tune.choice
 
     def __init__(self,
-                 categories: Sequence,
+                 categories: Union[Sequence, Dict] ,
                  alias: Optional[Sequence] = None) -> None:
         if isinstance(categories, dict):
             categories = categories.values()
