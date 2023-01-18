@@ -25,8 +25,7 @@ class Choice(BaseSpace):
                  categories: Union[Sequence, dict],
                  alias: Optional[Sequence] = None) -> None:
         if isinstance(categories, dict):
-            alias = categories.keys()
-            categories = categories.values()
+            alias, categories = zip(*[(k, v) for k, v in categories.items()])
 
         if alias is not None:
             assert isinstance(alias, Sequence)
