@@ -13,6 +13,7 @@ from ray.tune.tuner import Tuner as RayTuner
 from siatune.codebase import build_task
 from siatune.tune import (build_callback, build_scheduler, build_searcher,
                           build_space, build_stopper)
+from .utils import NAME_TMPL
 
 
 class Tuner:
@@ -106,8 +107,10 @@ class Tuner:
             tune_config=TuneConfig(
                 search_alg=searcher,
                 scheduler=trial_scheduler,
-                trial_name_creator=lambda trial: trial.trial_id,
-                trial_dirname_creator=lambda trial: trial.experiment_tag,
+                trial_name_creator=NAME_TMPL.get(
+                    tune_cfg.pop('trial_name_creator', 'trial_id')),
+                trial_dirname_creator=NAME_TMPL.get(
+                    tune_cfg.pop('trial_dirname_creator', 'experiment_tag')),
                 **tune_cfg),
             run_config=RunConfig(
                 name=self.experiment_name,
