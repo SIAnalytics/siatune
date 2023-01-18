@@ -14,9 +14,9 @@ class Choice(BaseSpace):
     """Sample a categorical value.
 
     Args:
-        categories (Sequence | dict): The categories. If categories is dict,
-            keys of dict will overwrite the alias.
-        alias (Sequence, optional): An alias to be expressed. Defaults to None.
+        categories (Sequence | dict): The categorical search space to choose
+            one. If categories is dict, keys of dict will overwrite the alias.
+        alias (Sequence, optional): A alias to be expressed. Defaults to None.
     """
 
     sample: Callable = tune.choice
