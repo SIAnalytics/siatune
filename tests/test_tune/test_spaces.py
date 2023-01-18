@@ -33,6 +33,7 @@ def test_choice():
     with pytest.raises(AssertionError):
         choice = Choice(categories=[True, False], alias=['TF'])
     choice = Choice(categories=[True, False], alias=['T', 'F'])
+    choice = Choice(categories=dict(T=True, F=False))
     tune.run(is_immutable, config=dict(test=choice.space))
 
 
