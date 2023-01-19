@@ -11,12 +11,21 @@ def test_freezer():
         del freezer._lock
 
 
-def test_immutablecontainer():
+def test_container():
+    # test ImmutableContainer w/o alias
+    container = ImmutableContainer(dict(test='test'))
+    assert str(container) == "ImmutableContainer({'test': 'test'})"
+    assert container.data == dict(test='test')
+    with pytest.raises(AttributeError):
+        container.data = dict(test='modified')
+    assert container.alias is None
+    assert ImmutableContainer.decouple(container) == dict(test='test')
+
+    # test ImmutableContainer w/ alias
     container = ImmutableContainer(dict(test='test'), 'test')
     assert str(container) == 'test'
     assert container.data == dict(test='test')
     with pytest.raises(AttributeError):
         container.data = dict(test='modified')
     assert container.alias == 'test'
-    assert container == ImmutableContainer(dict(test='test'), 'new test')
     assert ImmutableContainer.decouple(container) == dict(test='test')

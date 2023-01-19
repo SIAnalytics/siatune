@@ -59,8 +59,8 @@ class ImmutableContainer(_Freezer):
         if self._alias is not None:
             return self._alias
         elif len(self.__data.__repr__()) > ImmutableContainer.MAX_REPR_LEN:
-            return f'{self.__class__.__name__}( * )'
-        return f'{self.__class__.__name__}( {repr(self.data)} )'
+            return f'{self.__class__.__name__}(*)'
+        return f'{self.__class__.__name__}({repr(self.data)})'
 
     @property
     def data(self):
@@ -82,6 +82,7 @@ class ImmutableContainer(_Freezer):
 
         Args:
             other (Any): The other object to compare.
+
         Returns:
             bool: True if the other object is equal.
         """
