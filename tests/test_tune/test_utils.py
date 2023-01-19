@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from siatune.tune.utils import NAME_CREATOR
+from siatune.tune.utils import NAME_CREATORS
 
 
 @pytest.fixture
@@ -15,14 +15,14 @@ def trial():
 
 
 def test_trial_id(trial):
-    tmpl = NAME_CREATOR.get('trial_id')
+    tmpl = NAME_CREATORS.get('trial_id')
     assert inspect.isfunction(tmpl)
     assert tmpl.__name__ == 'trial_id'
     assert tmpl(trial) == trial.trial_id
 
 
 def test_experiment_tag(trial):
-    tmpl = NAME_CREATOR.get('experiment_tag')
+    tmpl = NAME_CREATORS.get('experiment_tag')
     assert inspect.isfunction(tmpl)
     assert tmpl.__name__ == 'experiment_tag'
     assert tmpl(trial) == trial.experiment_tag
