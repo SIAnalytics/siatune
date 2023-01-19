@@ -5,7 +5,7 @@ import ray
 from ray import tune
 from ray.tune.result_grid import ResultGrid
 
-from siatune.codebase import TASKS, BaseTask, build_task_processor
+from siatune.codebase import TASKS, BaseTask, build_task
 
 
 @pytest.fixture
@@ -39,8 +39,8 @@ def test_base_task(init_ray):
             args.test = 'success'
             return dict(args=args)
 
-    task = TestTask(rewriters=[TestRewriter()])
-    task.set_args(['default'])
+    task = TestTask(
+        args=['default'], num_workers=1, rewriters=[TestRewriter()])
     assert task.args == argparse.Namespace(test='default')
 
     trainable = task.create_trainable()
@@ -48,7 +48,7 @@ def test_base_task(init_ray):
     assert results[0].metrics['test'] == 'success'
 
 
-def test_build_task_processor():
+def test_build_task():
 
     @TASKS.register_module()
     class TestTask(BaseTask):
@@ -62,5 +62,6 @@ def test_build_task_processor():
         def create_trainable(self):
             pass
 
-    task = build_task_processor(dict(type='TestTask', rewriters=[]))
+    task = build_task(
+        dict(type='TestTask', args=[], num_workers=1, rewriters=[]))
     assert isinstance(task, (BaseTask, TestTask))

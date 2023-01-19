@@ -1,2 +1,4 @@
-ray[data]==2.1.0
-ray[tune]==2.1.0
+mmengine
+openmim
+ray[data]==2.2.0
+ray[tune]==2.2.0

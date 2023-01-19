@@ -1,6 +1,5 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from mmcv.utils import Config, ConfigDict
-from mmcv.utils.config import DELETE_KEY
+from mmengine.config.config import DELETE_KEY, Config, ConfigDict
 
 from .base import BaseRewriter
 from .builder import REWRITERS

@@ -1,7 +1,10 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-from os import path as osp
+import argparse
 from typing import Dict
 
+from ray.air import session
+
+from siatune.utils import reference_raw_args
 from .base import BaseRewriter
 from .builder import REWRITERS
 
@@ -9,15 +12,8 @@ from .builder import REWRITERS
 @REWRITERS.register_module()
 class ResumeFromCkpt(BaseRewriter):
     """Specifies the checkpoint for resuming training."""
-
-    def __init__(self, arg_name: str = 'resume_from') -> None:
-        """Initialize the rewriter.
-
-        Args:
-            key (str): The key where the instantiated cfg is stored.
-            arg_name (str): The key in the argparse namespace.
-        """
-        self.arg_name = arg_name
+    arg_name: str = 'resume_from'
+    raw_arg_name: str = '--resume-from'
 
     def __call__(self, context: Dict) -> Dict:
         """Set with checkpoints specified by Ray.
@@ -27,8 +23,18 @@ class ResumeFromCkpt(BaseRewriter):
         Returns:
             Dict: The context after rewriting.
         """
-        if context.get('checkpoint_dir') is not None:
-            setattr(
-                context.get('args'), self.arg_name,
-                osp.join(context.pop('checkpoint_dir'), 'ray_ckpt.pth'))
+        ckpt = session.get_checkpoint()
+        if not ckpt:
+            return context
+        ckpt_path = ckpt.to_dict().get('path')
+        is_parsed = isinstance(context['args'], argparse.Namespace)
+        if is_parsed:
+            setattr(context['args'], self.arg_name, ckpt_path)
+        else:
+            _, idx = reference_raw_args(context['args'], self.raw_arg_name)
+            assert len(idx) < 2
+            if idx:
+                context['args'][idx.pop()] = ckpt_path
+            else:
+                context['args'].extend([self.raw_arg_name, ckpt_path])
         return context

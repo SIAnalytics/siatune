@@ -1,6 +1,13 @@
 # Copyright (c) SI-Analytics. All rights reserved.
-__version__ = '0.2.0'
+__version__ = '0.4.0rc1'
 from typing import Tuple
+
+try:
+    import mmcv
+except ImportError:
+    mmcv = None
+
+IS_DEPRECATED_MMCV = False
 
 
 def parse_version_info(version_str: str) -> Tuple:
@@ -8,7 +15,6 @@ def parse_version_info(version_str: str) -> Tuple:
 
     Args:
         version_str (str): The version string.
-
     Returns:
         Tuple: The version tuple.
     """
@@ -23,5 +29,9 @@ def parse_version_info(version_str: str) -> Tuple:
             version_info.append(f'rc{patch_version[1]}')
     return tuple(version_info)
 
+
+if mmcv is not None and (parse_version_info(mmcv.__version__) <
+                         parse_version_info('2.0.0rc0')):
+    IS_DEPRECATED_MMCV = True
 
 version_info = parse_version_info(__version__)

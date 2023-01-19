@@ -1,14 +1,14 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 from typing import Dict
 
-from mmcv.utils import Registry
+from mmengine.registry import Registry
 
 from .base import BaseTask
 
-TASKS = Registry('tasks')
+TASKS = Registry('task')
 
 
-def build_task_processor(task: Dict) -> BaseTask:
+def build_task(task: Dict) -> BaseTask:
     """Build the task processor.
 
     Args:

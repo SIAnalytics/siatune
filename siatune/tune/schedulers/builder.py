@@ -1,7 +1,8 @@
 # Copyright (c) SI-Analytics. All rights reserved.
 import inspect
 
-from mmcv.utils import Config, Registry
+from mmengine.config import Config
+from mmengine.registry import Registry
 from ray import tune
 from ray.tune.schedulers import TrialScheduler
 
