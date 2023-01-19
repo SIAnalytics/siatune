@@ -18,7 +18,7 @@ class MLflowLoggerCallback(_MLflowLoggerCallback):
         1. Bind multiple runs into a parent run in the form of nested run.
         2. Log artifacts of the best trial to the parent run.
 
-    Refer to https://github.com/ray-project/ray/blob/ray-1.9.1/python/ray/tune/integration/mlflow.py for details.  # noqa E501
+    Refer to https://github.com/ray-project/ray/blob/ray-2.2.0/python/ray/tune/integration/mlflow.py for details.  # noqa E501
 
     Args:
         metric (str): Key for trial info to order on.
