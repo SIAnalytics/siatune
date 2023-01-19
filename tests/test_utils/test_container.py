@@ -13,8 +13,10 @@ def test_freezer():
 
 def test_container():
     # test ImmutableContainer w/o alias
-    container = ImmutableContainer(dict(test='test'))
-    assert str(container) == "ImmutableContainer({'test': 'test'})"
+    container = ImmutableContainer(['too long representation string'])
+    assert str(container) == "IC(['test'])"
+    container = ImmutableContainer({'test': 'test'})
+    assert str(container) == "IC({'test': 'test'})"
     assert container.data == dict(test='test')
     with pytest.raises(AttributeError):
         container.data = dict(test='modified')
@@ -22,7 +24,7 @@ def test_container():
     assert ImmutableContainer.decouple(container) == dict(test='test')
 
     # test ImmutableContainer w/ alias
-    container = ImmutableContainer(dict(test='test'), 'test')
+    container = ImmutableContainer({'test': 'test'}, 'test')
     assert str(container) == 'test'
     assert container.data == dict(test='test')
     with pytest.raises(AttributeError):
