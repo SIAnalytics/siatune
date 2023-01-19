@@ -41,7 +41,7 @@ class _Freezer(object):
 class ImmutableContainer(_Freezer):
     """Ensure object immutability."""
 
-    MAX_REPR_LEN: int = 16
+    MAX_LEN_REPR: int = 20
 
     def __init__(self, data: Any, alias: Optional[str] = None) -> None:
         """Initialize the container.
@@ -56,11 +56,14 @@ class ImmutableContainer(_Freezer):
 
     def __repr__(self) -> str:
         """Return the string representation of the container."""
-        if self._alias is not None:
-            return self._alias
-        elif len(self.__data.__repr__()) > ImmutableContainer.MAX_REPR_LEN:
-            return f'{self.__class__.__name__}( * )'
-        return f'{self.__class__.__name__}( {repr(self.data)} )'
+
+        if self.alias is not None:
+            return self.alias
+
+        repr_str = f'IC({self.data})'
+        if len(repr_str) > self.MAX_LEN_REPR:
+            repr_str = 'IC(*)'
+        return repr_str
 
     @property
     def data(self):
@@ -82,6 +85,7 @@ class ImmutableContainer(_Freezer):
 
         Args:
             other (Any): The other object to compare.
+
         Returns:
             bool: True if the other object is equal.
         """

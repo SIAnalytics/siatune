@@ -3,6 +3,8 @@ from typing import Mapping
 
 from mmengine.registry import Registry
 
+from siatune.utils import ImmutableContainer
+
 SPACES = Registry('space')
 
 
@@ -17,7 +19,9 @@ def build_space(cfg: dict) -> dict:
     """
     cfg = cfg.copy()
     for k, v in cfg.items():
-        if isinstance(v, (int, str, bool, float)):
+        if isinstance(v, ImmutableContainer):
+            cfg[k] = ImmutableContainer(build_space(v.data), alias=v.alias)
+        elif isinstance(v, (int, str, bool, float)):
             continue
         elif isinstance(v, (list, tuple)):
             cfg[k] = type(v)(
