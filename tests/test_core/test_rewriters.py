@@ -7,6 +7,11 @@ from unittest.mock import MagicMock, patch
 import mmcv
 import pytest
 
+try:
+    from mmcv.utils import Config
+except ImportError:
+    from mmengine.config import Config
+
 from siatune.core.rewriters import (REWRITERS, AttachTrialInfoToPath,
                                     BaseRewriter, BatchConfigPatcher,
                                     CustomHookRegister, Dump, InstantiateCfg,
@@ -37,7 +42,7 @@ def test_build_base_cfg():
 def test_dump(mock_get_trial_id):
     mock_get_trial_id.return_value = 'test'
     dump = Dump(key='cfg')
-    config = mmcv.Config(dict())
+    config = Config(dict())
     args = argparse.Namespace()
     args.config = config
     context = dict(cfg=config, args=args)
@@ -68,13 +73,13 @@ def test_merge():
     merger = MergeConfig(src_key='src', dst_key='dst', key='cp')
 
     context = dict(
-        src=mmcv.Config(dict(a=1, b=2)),
-        dst=mmcv.Config(dict(c=3, d=4)),
+        src=Config(dict(a=1, b=2)),
+        dst=Config(dict(c=3, d=4)),
     )
 
     merger(context)
-    assert context['cp']._cfg_dict == mmcv.Config(dict(a=1, b=2, c=3,
-                                                       d=4))._cfg_dict
+    assert context['cp']._cfg_dict == Config(dict(a=1, b=2, c=3,
+                                                  d=4))._cfg_dict
 
 
 def test_patch():
@@ -82,18 +87,18 @@ def test_patch():
     assert unwrap_regexp('$(a)') == ('a', True)
 
     context = dict(
-        batch_test_cfg=mmcv.Config({'$(a & b)': 0}),
-        seq_test_cfg=mmcv.Config({'$(c - d)': [1, 2]}))
+        batch_test_cfg=Config({'$(a & b)': 0}),
+        seq_test_cfg=Config({'$(c - d)': [1, 2]}))
     batch_config_patcher = BatchConfigPatcher(key='batch_test_cfg')
     seq_config_patcher = SequeunceConfigPatcher(key='seq_test_cfg')
 
     context = batch_config_patcher(context)
-    assert context['batch_test_cfg']._cfg_dict == mmcv.Config({
+    assert context['batch_test_cfg']._cfg_dict == Config({
         'a': 0,
         'b': 0
     })._cfg_dict
     context = seq_config_patcher(context)
-    assert context['seq_test_cfg']._cfg_dict == mmcv.Config({
+    assert context['seq_test_cfg']._cfg_dict == Config({
         'c': 1,
         'd': 2
     })._cfg_dict
