@@ -3,7 +3,7 @@ name: Build & Unit Test
 on:
   pull_request:
     branch:
-        - 'main'
+      - 'main'
     paths-ignore:
       - ".github/**.md"
       - "README.md"
@@ -48,7 +48,7 @@ jobs:
         run: |
           pip install openmim
           mim install mmcv-full==${{ matrix.mmcv }}
-          mim install mmcls mmdet mmedit mmsegmentation
+          mim install 'mmcls<1.0.0rc0' 'mmdet<3.0.0rc0' 'mmsegmentation<1.0.0rc0' 'mmedit<1.0.0rc0'
       - name: Install SIATune
         run: |
           pip install -e ".[optional]"
