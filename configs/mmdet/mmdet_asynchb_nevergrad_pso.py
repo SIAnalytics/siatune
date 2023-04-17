@@ -10,5 +10,10 @@ space = {
     'optimizer': {{_base_.optimizer}},
 }
 
-task = dict(type='MMDetection')
-tune_cfg = dict(num_samples=8, metric='val/bbox_mAP', mode='max')
+task = dict(type='MIM', pkg_name='mmdet')
+tune_cfg = dict(
+    num_samples=8,
+    metric='val/bbox_mAP',
+    mode='max',
+    reuse_actors=False,
+    chdir_to_trial_dir=False)
