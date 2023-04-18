@@ -10,11 +10,23 @@ SIATune is an open-source deep learning model hyperparameter tuning toolbox espe
 
 - **Fully support OpenMMLab models**
 
-  We provide a unified model hyperparameter tuning toolbox for the codebases in OpenMMLab. The supported codebases are listed as below, and more will be added in the future
-  - [x] [MMClassification](https://github.com/open-mmlab/mmclassification)
+  We provide a unified model hyperparameter tuning toolbox for the codebases in OpenMMLab. The supported codebases are listed as below, and more will be added in the future.
+  - [x] [MMPretrain](https://github.com/open-mmlab/mmpretrain)
   - [x] [MMDetection](https://github.com/open-mmlab/mmdetection)
+  - [x] [MMDetection3D](https://github.com/open-mmlab/mmdetection3d)
+  - [x] [MMRotate](https://github.com/open-mmlab/mmrotate)
+  - [x] [MMYOLO](https://github.com/open-mmlab/mmyolo)
   - [x] [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)
+  - [x] [MMOCR](https://github.com/open-mmlab/mmocr)
+  - [x] [MMPose](https://github.com/open-mmlab/mmpose)
+  - [ ] [MMHuman3D](https://github.com/open-mmlab/mmhuman3d)
+  - [ ] [MMRazor](https://github.com/open-mmlab/mmrazor)
+  - [ ] [MMFewShot](https://github.com/open-mmlab/mmfewshot)
+  - [x] [MMAction2](https://github.com/open-mmlab/mmaction2)
+  - [x] [MMTracking](https://github.com/open-mmlab/mmtracking)
+  - [x] [MMFlow](https://github.com/open-mmlab/mmflow)
   - [x] [MMEditing](https://github.com/open-mmlab/mmediting)
+  - [x] [MMGeneration](https://github.com/open-mmlab/mmgeneration)
 
 - **Support hyperparameter search algorithms**
 

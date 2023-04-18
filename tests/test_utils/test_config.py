@@ -1,7 +1,10 @@
 import tempfile
 from os import path as osp
 
-from mmcv.utils import Config
+try:
+    from mmcv.utils import Config
+except ImportError:
+    from mmengine.config import Config
 
 from siatune.utils import dump_cfg
 
