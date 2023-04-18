@@ -12,5 +12,10 @@ space = {
     'optimizer': {{_base_.optimizer}},
 }
 
-task = dict(type='MMSegmentation')
-tune_cfg = dict(num_samples=8, metric='val/mIoU', mode='max')
+task = dict(type='MIM', pkg_name='mmsegmentation')
+tune_cfg = dict(
+    num_samples=8,
+    metric='val/mIoU',
+    mode='max',
+    reuse_actors=False,
+    chdir_to_trial_dir=False)
