@@ -2,7 +2,10 @@ import os
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock
 
-import mmcv
+try:
+    from mmcv.utils import Config
+except ImportError:
+    from mmengine.config import Config
 
 from siatune.apis import log_analysis
 
@@ -14,6 +17,6 @@ def test_log_analysis():
         with TemporaryDirectory() as logdir:
             mock_results.get_best_result.return_value = MagicMock(
                 log_dir=logdir,
-                config=mmcv.Config(dict(model=dict(type='TestModel'))))
+                config=Config(dict(model=dict(type='TestModel'))))
             log_analysis(mock_results, log_dir=tmpdir)
         assert os.path.exists(os.path.join(tmpdir, 'best_trial'))
