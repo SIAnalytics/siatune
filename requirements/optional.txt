@@ -3,7 +3,7 @@ ConfigSpace
 flaml==1.0.14
 hpbandster
 hyperopt==0.2.5
-mlflow==2.2.1
+mlflow==2.5.0
 nevergrad==0.4.3.post7
 optuna==2.10.0
 scikit-learn
